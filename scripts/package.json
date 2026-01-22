@@ -1,0 +1,22 @@
+{
+  "name": "hugo-nested-categories",
+  "version": "1.0.0",
+  "description": "Generate nested category pages for Hugo from frontmatter arrays",
+  "main": "generate-categories.js",
+  "scripts": {
+    "generate": "node generate-categories.js",
+    "clean": "node generate-categories.js --clean"
+  },
+  "keywords": [
+    "hugo",
+    "categories",
+    "nested",
+    "hierarchical",
+    "taxonomy"
+  ],
+  "author": "enkr1",
+  "license": "MIT",
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  }
+}

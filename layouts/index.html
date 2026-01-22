@@ -1,0 +1,39 @@
+{{ define "main" }}
+    {{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
+    {{ $filtered := where $pages "Params.hidden" "!=" true }}
+
+    {{/* Use weight for sorting - Hugo's native approach */}}
+    {{/* Map sticky to weight: higher sticky = lower weight (appears first) */}}
+    {{/* For posts without sticky, use 0 which sorts after negative weights */}}
+    {{ $pag := .Paginate $filtered }}
+
+    {{/* Get sticky posts to show at top of first page only */}}
+    {{ $sticky := where $filtered "Params.sticky" ">" 0 }}
+    {{ $sortedSticky := sort $sticky "Params.sticky" "desc" }}
+
+    {{/* Show sticky posts first on page 1 */}}
+    {{ if eq $pag.PageNumber 1 }}
+    <section class="article-list article-list--sticky">
+        {{ range $sortedSticky }}
+            {{ partial "article-list/default" . }}
+        {{ end }}
+    </section>
+    {{ end }}
+
+    <section class="article-list">
+        {{ range $index, $element := $pag.Pages }}
+            {{/* Skip sticky posts on page 1 since they're shown above */}}
+            {{ $isSticky := gt (default 0 .Params.sticky) 0 }}
+            {{ if or (ne $pag.PageNumber 1) (not $isSticky) }}
+            {{ partial "article-list/default" . }}
+            {{ end }}
+        {{ end }}
+    </section>
+
+    {{- partial "pagination.html" . -}}
+    {{- partial "footer/footer" . -}}
+{{ end }}
+
+{{ define "right-sidebar" }}
+    {{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}
+{{ end }}
