@@ -2,37 +2,98 @@ $defaultTagBackgrounds: #8ea885, #df7988, #0177b8, #ffb900, #6b69d6;
 $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
 
 /*
-*   Global style
+*   Ba Zi Energy Color System - 金渊映日
+*   Metal generates Water, Fire transforms to Metal
+*   Premium restraint: Gold + Navy + Silver
 */
 :root {
+    // ========================================
+    // Core Design Tokens - Ba Zi Colors
+    // ========================================
+
+    // 内蕴金 (Primary Metal) - Refined Gold
+    --gold: #C9A882;
+    --gold-dark: #B89968;
+    --gold-light: #E8C8A0;
+    --gold-subtle: rgba(201, 168, 130, 0.08);
+
+    // 智慧海 (Water) - Modern Blue
+    --water: #2563EB;
+    --water-dark: #1D4ED8;
+    --water-light: #60A5FA;
+    --water-subtle: rgba(37, 99, 235, 0.08);
+
+    // 流年曦 (Fire) - Clean Amber
+    --fire: #F59E0B;
+    --fire-glow: rgba(245, 158, 11, 0.25);
+
+    // ========================================
+    // Glass Morphism System
+    // ========================================
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-bg-hover: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(201, 168, 130, 0.3);
+    --glass-blur: 20px;
+    --glass-blur-light: 10px;
+
+    // ========================================
+    // Layout & Spacing
+    // ========================================
     --main-top-padding: 35px;
 
     @include respond(xl) {
         --main-top-padding: 50px;
     }
 
-    --body-background: #f5f5fa;
-
-    --accent-color: #34495e;
-    --accent-color-darker: #2c3e50;
-    --accent-color-text: #fff;
-    --body-text-color: #707070;
-
     --tag-border-radius: 4px;
-
     --section-separation: 40px;
 
-    --scrollbar-thumb: hsl(0, 0%, 85%);
+    // ========================================
+    // Light Mode Colors
+    // ========================================
+    --body-background: #FAFBFC;
+    --body-text-color: #475569;
+
+    --accent-color: var(--gold);
+    --accent-color-darker: var(--gold-dark);
+    --accent-color-text: #FFFFFF;
+
+    --link-color: var(--water);
+    --link-hover-color: var(--water-dark);
+
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-tertiary: #94A3B8;
+
+    --scrollbar-thumb: #CBD5E0;
     --scrollbar-track: var(--body-background);
 
+    // ========================================
+    // Dark Mode Colors
+    // ========================================
     &[data-scheme="dark"] {
-        --body-background: #303030;
-        --accent-color: #ecf0f1;
-        --accent-color-darker: #bdc3c7;
-        --accent-color-text: #000;
-        --body-text-color: rgba(255, 255, 255, 0.7);
-        --scrollbar-thumb: hsl(0, 0%, 40%);
+        --body-background: #0A0E1A;
+        --body-text-color: #CBD5E1;
+
+        --accent-color: var(--gold);
+        --accent-color-darker: var(--gold-light);
+        --accent-color-text: #0A0E1A;
+
+        --link-color: var(--water-light);
+        --link-hover-color: var(--water);
+
+        --text-primary: #F1F5F9;
+        --text-secondary: #CBD5E1;
+        --text-tertiary: #64748B;
+
+        --scrollbar-thumb: #334155;
         --scrollbar-track: var(--body-background);
+
+        // Dark mode glass adjustments
+        --glass-bg: rgba(255, 255, 255, 0.02);
+        --glass-bg-hover: rgba(255, 255, 255, 0.04);
+        --glass-border: rgba(255, 255, 255, 0.06);
     }
 }
 
@@ -46,18 +107,19 @@ $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
 }
 
 /*
-*   Card style
+*   Card style with Glass Morphism
 */
 :root {
-    --card-background: #fff;
-    --card-background-selected: #eaeaea;
+    --card-background: #FFFFFF;
+    --card-background-selected: rgba(201, 168, 130, 0.05);
 
-    --card-text-color-main: #000;
-    --card-text-color-secondary: #747474;
-    --card-text-color-tertiary: #767676;
-    --card-separator-color: rgba(218, 218, 218, 0.5);
+    --card-text-color-main: var(--text-primary);
+    --card-text-color-secondary: var(--text-secondary);
+    --card-text-color-tertiary: var(--text-tertiary);
+    --card-separator-color: rgba(0, 0, 0, 0.06);
 
-    --card-border-radius: 10px;
+    --card-border-radius: 8px;
+    --card-border: 1px solid rgba(0, 0, 0, 0.06);
 
     --card-padding: 20px;
 
@@ -76,12 +138,13 @@ $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
     }
 
     &[data-scheme="dark"] {
-        --card-background: #424242;
-        --card-background-selected: rgba(255, 255, 255, 0.16);
-        --card-text-color-main: rgba(255, 255, 255, 0.9);
-        --card-text-color-secondary: rgba(255, 255, 255, 0.7);
-        --card-text-color-tertiary: rgba(255, 255, 255, 0.5);
-        --card-separator-color: rgba(255, 255, 255, 0.12);
+        --card-background: #111827;
+        --card-background-selected: rgba(201, 168, 130, 0.08);
+        --card-text-color-main: var(--text-primary);
+        --card-text-color-secondary: var(--text-secondary);
+        --card-text-color-tertiary: var(--text-tertiary);
+        --card-separator-color: rgba(255, 255, 255, 0.06);
+        --card-border: 1px solid rgba(255, 255, 255, 0.04);
     }
 }
 
@@ -100,50 +163,84 @@ $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
 }
 
 /*
-*   Article content style
+*   Article content style - Refined
 */
 :root {
-    --blockquote-border-size: 4px;
-    --blockquote-background-color: rgb(248 248 248);
+    --blockquote-border-size: 2px;
+    --blockquote-border-color: var(--gold);
+    --blockquote-background-color: transparent;
 
-    --heading-border-size: 4px;
+    --heading-border-size: 3px;
+    --heading-border-color: var(--gold);
 
-    --link-background-color: 189, 195, 199;
-    --link-background-opacity: 0.5;
-    --link-background-opacity-hover: 0.7;
+    --link-background-color: 37, 99, 235;  // Water RGB
+    --link-background-opacity: 0;
+    --link-background-opacity-hover: 0.1;
 
-    --pre-background-color: #272822;
-    --pre-text-color: #f8f8f2;
+    --pre-background-color: #F8F9FA;
+    --pre-text-color: #24292f;
 
-    --code-background-color: rgba(0, 0, 0, 0.12);
-    --code-text-color: #808080;
+    --code-background-color: rgba(0, 0, 0, 0.05);
+    --code-text-color: var(--text-primary);
 
-    --table-border-color: #dadada;
-    --tr-even-background-color: #efefee;
+    --table-border-color: var(--card-separator-color);
+    --tr-even-background-color: #F8FAFC;
 
-    --kbd-border-color: #dadada;
+    --kbd-border-color: var(--card-separator-color);
 
     &[data-scheme="dark"] {
-        --code-background-color: #272822;
-        --code-text-color: rgba(255, 255, 255, 0.9);
+        --blockquote-border-color: var(--gold);
+        --blockquote-background-color: transparent;
 
-        --table-border-color: #717171;
-        --tr-even-background-color: #545454;
+        --heading-border-color: var(--gold);
 
-        --blockquote-background-color: rgb(75 75 75);
+        --link-background-color: 96, 165, 250;  // Water light RGB
+        --link-background-opacity: 0;
+        --link-background-opacity-hover: 0.1;
+
+        --pre-background-color: #0d1117;
+        --pre-text-color: #e6edf3;
+
+        --code-background-color: rgba(255, 255, 255, 0.05);
+        --code-text-color: var(--text-primary);
+
+        --table-border-color: var(--card-separator-color);
+        --tr-even-background-color: #0F1525;
     }
 }
 
 /*
-*   Shadow style
-*   Thanks to https://www.figma.com/community/plugin/744987207861965946/Shadow-picker
+*   Shadow style with Gold Glow System
 */
 :root {
-    --shadow-l1: 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 2px rgba(0, 0, 0, 0.06), 0px 0px 1px rgba(0, 0, 0, 0.04);
-    --shadow-l2: 0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04);
-    --shadow-l3: 0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04);
-    --shadow-l4: 0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04),
-        0px 0px 1px rgba(0, 0, 0, 0.04);
+    // Base shadows - subtle and clean
+    --shadow-l1: 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 2px rgba(0, 0, 0, 0.06);
+    --shadow-l2: 0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04);
+    --shadow-l3: 0px 10px 20px rgba(0, 0, 0, 0.04), 0px 2px 6px rgba(0, 0, 0, 0.04);
+    --shadow-l4: 0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04);
+
+    // Gold glow shadows - for hover states and accents
+    --shadow-glow: 0 0 30px rgba(201, 168, 130, 0.15);
+    --shadow-glow-hover: 0 8px 32px rgba(201, 168, 130, 0.25);
+    --shadow-glow-subtle: 0 4px 16px rgba(201, 168, 130, 0.1);
+    --shadow-glow-intense: 0 0 40px rgba(201, 168, 130, 0.3);
+
+    // Fire glow - for click states
+    --shadow-fire: 0 0 20px var(--fire-glow);
+
+    &[data-scheme="dark"] {
+        // Darker shadows for dark mode
+        --shadow-l1: 0px 4px 8px rgba(0, 0, 0, 0.2), 0px 0px 2px rgba(0, 0, 0, 0.3);
+        --shadow-l2: 0px 10px 20px rgba(0, 0, 0, 0.2), 0px 2px 6px rgba(0, 0, 0, 0.2);
+        --shadow-l3: 0px 10px 20px rgba(0, 0, 0, 0.2), 0px 2px 6px rgba(0, 0, 0, 0.2);
+        --shadow-l4: 0px 24px 32px rgba(0, 0, 0, 0.2), 0px 16px 24px rgba(0, 0, 0, 0.2);
+
+        // Adjusted gold glows for dark mode
+        --shadow-glow: 0 0 30px rgba(201, 168, 130, 0.1);
+        --shadow-glow-hover: 0 8px 32px rgba(201, 168, 130, 0.15);
+        --shadow-glow-subtle: 0 4px 16px rgba(201, 168, 130, 0.05);
+        --shadow-glow-intense: 0 0 40px rgba(201, 168, 130, 0.2);
+    }
 }
 
 [data-scheme="light"] {
