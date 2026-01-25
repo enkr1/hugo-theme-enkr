@@ -1,0 +1,157 @@
+// ============================================
+// Waveform Visualization - Background Waves
+// Ported from Platforms project
+// ============================================
+
+.waveform {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 200px; // Default desktop height
+  pointer-events: none;
+  z-index: 15; // Above footer to show waves on top
+  opacity: 1;
+
+  // Tablet and below
+  @media (max-width: 768px) {
+    height: 150px;
+  }
+
+  // Mobile
+  @media (max-width: 640px) {
+    height: 100px;
+  }
+
+  // Very small screens
+  @media (max-width: 400px) {
+    height: 80px;
+  }
+}
+
+.waveform-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.waveform-path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0; // Start invisible, JS will fade in when ready
+  transition: opacity 0.5s ease, stroke 0.5s ease;
+}
+
+// Layer 1 - Back wave (slowest, largest amplitude)
+.waveform-path-1 {
+  stroke: var(--gold, #C9A882); // Fallback color
+  stroke-width: 3;
+  animation: waveformAnimate1 10s ease-in-out infinite; // Slowed by 20%
+}
+
+// Layer 2 - Middle wave
+.waveform-path-2 {
+  stroke: var(--water, #2563EB); // Fallback color
+  stroke-width: 2;
+  animation: waveformAnimate2 7.5s ease-in-out infinite; // Slowed by 20%
+}
+
+// Layer 3 - Front wave (fastest, smallest amplitude)
+.waveform-path-3 {
+  stroke: var(--gold-light, #E8C8A0); // Fallback color
+  stroke-width: 1.5;
+  animation: waveformAnimate3 5s ease-in-out infinite; // Slowed by 20%
+}
+
+// Dark mode adjustments - colors only (opacity handled by active state)
+[data-scheme="dark"] {
+  .waveform-path-1 {
+    stroke: var(--gold);
+  }
+
+  .waveform-path-2 {
+    stroke: var(--water-light);
+  }
+
+  .waveform-path-3 {
+    stroke: var(--gold-light);
+  }
+}
+
+// CSS Fallback animations (when JS is disabled)
+@keyframes waveformAnimate1 {
+  0%, 100% {
+    d: path("M0,100 Q360,50 720,100 T1440,100");
+  }
+  50% {
+    d: path("M0,100 Q360,150 720,100 T1440,100");
+  }
+}
+
+@keyframes waveformAnimate2 {
+  0%, 100% {
+    d: path("M0,120 Q360,80 720,120 T1440,120");
+  }
+  50% {
+    d: path("M0,120 Q360,160 720,120 T1440,120");
+  }
+}
+
+@keyframes waveformAnimate3 {
+  0%, 100% {
+    d: path("M0,140 Q360,120 720,140 T1440,140");
+  }
+  50% {
+    d: path("M0,140 Q360,160 720,140 T1440,140");
+  }
+}
+
+// Loading state - waves fade in
+.waveform--loading {
+  .waveform-path {
+    opacity: 0;
+    animation: none;
+  }
+}
+
+// Active state - full animation (when JS removes loading class)
+.waveform--active {
+  .waveform-path-1 {
+    opacity: 0.3;
+  }
+  .waveform-path-2 {
+    opacity: 0.5;
+  }
+  .waveform-path-3 {
+    opacity: 0.7;
+  }
+}
+
+// Dark mode - adjust active state opacity
+[data-scheme="dark"] .waveform--active {
+  .waveform-path-1 {
+    opacity: 0.2;
+  }
+  .waveform-path-2 {
+    opacity: 0.3;
+  }
+  .waveform-path-3 {
+    opacity: 0.4;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .waveform-path {
+    animation: none !important;
+  }
+}
+
+// Ensure waves don't interfere with footer
+.site-footer {
+  position: relative;
+  z-index: 10; // Above waves
+  background: var(--body-background); // Solid background to hide waves partially
+}
