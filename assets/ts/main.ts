@@ -77,7 +77,12 @@ let Stack = {
             if (!codeBlock) return;
 
             copyButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(codeBlock.textContent)
+                // Clone the code block to strip line numbers without affecting the DOM
+                const clone = codeBlock.cloneNode(true) as HTMLElement;
+                clone.querySelectorAll('.ln').forEach(ln => ln.remove());
+                const cleanText = clone.textContent || '';
+
+                navigator.clipboard.writeText(cleanText)
                     .then(() => {
                         copyButton.textContent = copiedText;
 

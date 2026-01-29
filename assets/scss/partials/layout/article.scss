@@ -415,11 +415,6 @@
         padding: var(--card-padding);
         position: relative;
 
-        &:hover {
-            .copyCodeButton {
-                opacity: 1;
-            }
-        }
         // keep Codeblocks LTR
         [dir="rtl"] & {
             direction: ltr;
@@ -432,20 +427,25 @@
         }
     }
 
+    // Copy button - minimal text only (Ba Zi design)
     .copyCodeButton {
         position: absolute;
-        top: calc(var(--card-padding));
-        right: calc(var(--card-padding));
-        background: var(--card-background);
+        top: 1.2rem;
+        right: 1.2rem;
+        background: transparent;
         border: none;
-        box-shadow: var(--shadow-l2);
-        border-radius: var(--tag-border-radius);
-        padding: 8px 16px;
-        color: var(--card-text-color-main);
+        padding: 0;
+        color: var(--text-tertiary);
+        font-size: var(--font-size-xs);
+        font-family: var(--font-mono);
         cursor: pointer;
-        font-size: 14px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        opacity: 1;
+        transition: color var(--transition-fast);
+        box-shadow: none;
+
+        &:hover {
+            color: var(--secondary);
+        }
     }
 
     .table-wrapper {
