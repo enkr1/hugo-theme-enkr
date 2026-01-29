@@ -122,6 +122,20 @@
             padding: 0 1em;
         }
 
+        // All links base style - transparent border for hover reveal
+        a {
+            display: block;
+            color: var(--text-secondary);
+            border-left: 2px solid transparent;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+
+            &:hover {
+                color: var(--text);
+                border-left-color: var(--accent);
+            }
+        }
+
         li {
             margin: 15px 0 15px 20px;
             padding: 5px;
@@ -137,9 +151,11 @@
                 }
             }
         }
+
         li.active-class > a {
             border-left: var(--heading-border-size) solid var(--accent-color);
             font-weight: bold;
+            color: var(--accent);
         }
 
         ul li.active-class > a {

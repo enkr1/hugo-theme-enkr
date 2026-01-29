@@ -50,17 +50,261 @@
 
         a {
             font-size: 1.4rem;
-            padding: 18px 25px;
+            // Match categories padding structure: vertical | right | vertical | left
+            // Left padding creates breathing room from border
+            padding: 18px 25px 18px 23px; // 23px = 25px - 2px border
             display: flex;
+            align-items: center;
+            border-left: 2px solid transparent;
+            transition: border-color var(--transition-fast);
+
+            // Middle connecting line (flex grows to push count to the right)
+            &::before {
+                content: '';
+                order: 1;
+                height: 1px;
+                background: var(--text-tertiary);
+                margin: 0 0.75rem; // Margin on line itself, not gap on container
+                max-width: 0;
+                flex: 1;
+                opacity: 0;
+                transition: opacity var(--transition-fast), max-width var(--transition-fast);
+            }
 
             span.year {
-                flex: 1;
+                order: 0;
+                margin-left: 0.5rem; // Breathing room from left border
                 color: var(--card-text-color-main);
                 font-weight: bold;
+                flex-shrink: 0;
             }
 
             span.count {
+                order: 2;
                 color: var(--card-text-color-tertiary);
+                transition: color var(--transition-fast);
+                flex-shrink: 0;
+                margin-left: auto; // Always push to the right edge
+            }
+
+            // Hover - left border + middle line fade in + count color change
+            &:hover {
+                border-left-color: var(--accent);
+
+                &::before {
+                    max-width: 100%;
+                    opacity: 1;
+                }
+
+                span.count {
+                    color: var(--card-text-color-secondary);
+                }
+            }
+        }
+    }
+}
+
+/* Categories tree - TOC-style (sidebar widget + subcategories) */
+.categories-tree,
+.subcategories-tree {
+    .categories-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 400px;
+        overflow-y: auto;
+        font-size: var(--font-size-base);
+        line-height: 1.5;
+
+        // Thin scrollbar
+        scrollbar-width: thin;
+        scrollbar-color: var(--secondary-subtle) transparent;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--secondary-subtle);
+            border-radius: var(--radius-scrollbar);
+        }
+
+        // Reset nested lists
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+    }
+
+    .category-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+
+        > a {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: all var(--transition-fast);
+
+            &:hover {
+                color: var(--text);
+                border-left-color: var(--accent);
+
+                .category-line {
+                    opacity: 1;
+                }
+
+                .category-count {
+                    color: var(--text-secondary);
+                }
+            }
+        }
+
+        .category-name {
+            font-family: var(--font-body);
+            flex-shrink: 0;
+        }
+
+        // Line connector between name and count
+        .category-line {
+            flex: 1;
+            height: 1px;
+            margin: 0 0.75rem;
+            background: var(--text-tertiary);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .category-count {
+            font-family: var(--font-body);
+            font-size: var(--font-size-base);
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+            transition: color var(--transition-fast);
+        }
+
+        // Level 0 (root)
+        &.depth-0 > a {
+            padding: 0.4rem 0 0.4rem 1rem;
+            font-size: var(--font-size-sm); // 1.4rem (one size smaller)
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+
+            &:hover {
+                color: var(--text);
+                border-left-color: var(--accent);
+            }
+        }
+
+        // Level 1
+        &.depth-1 > a {
+            padding: 0.25rem 0 0.25rem 2rem;
+            font-size: var(--font-size-sm);
+            color: var(--text-tertiary);
+
+            &:hover {
+                color: var(--text-secondary);
+                border-left-color: var(--accent);
+            }
+        }
+
+        // Level 2
+        &.depth-2 > a {
+            padding: 0.2rem 0 0.2rem 3rem;
+            font-size: var(--font-size-xs);
+            color: var(--text-tertiary);
+            opacity: 0.8;
+
+            &:hover {
+                opacity: 1;
+                color: var(--text-secondary);
+                border-left-color: var(--accent);
+            }
+        }
+
+        // Level 3+ (deeper nesting)
+        &.depth-3 > a,
+        &.depth-4 > a,
+        &.depth-5 > a {
+            padding: 0.2rem 0 0.2rem 4rem;
+            font-size: var(--font-size-sm);
+            color: var(--text-tertiary);
+            opacity: 0.7;
+
+            &:hover {
+                opacity: 1;
+                color: var(--text-secondary);
+                border-left-color: var(--accent);
+            }
+        }
+
+        // Nested children - full width for proper wrapping
+        .category-children {
+            width: 100%;
+        }
+
+        // Expandable toggle button - left side
+        .category-toggle {
+            background: none;
+            border: none;
+            padding: 0.2rem 0.4rem;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            transition: color var(--transition-fast);
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+
+            &:hover {
+                color: var(--accent);
+            }
+
+            .icon-chevron {
+                transition: transform var(--transition-fast);
+            }
+        }
+
+        // Collapsed state - hide children
+        &.collapsed > .category-children {
+            display: none;
+        }
+
+        // Rotate chevron when expanded
+        &:not(.collapsed) > .category-toggle .icon-chevron {
+            transform: rotate(90deg);
+        }
+    }
+
+    // Full page variant - no height limit, more spacious, always expanded
+    &--page {
+        .categories-list {
+            max-height: none;
+            overflow: visible;
+        }
+
+        .category-item {
+            &.depth-0 > a {
+                padding: 0.6rem 0 0.6rem 1.5rem;
+                font-size: var(--font-size-md);
+            }
+
+            &.depth-1 > a {
+                padding: 0.4rem 0 0.4rem 2.5rem;
+                font-size: var(--font-size-base);
+            }
+
+            &.depth-2 > a {
+                padding: 0.3rem 0 0.3rem 3.5rem;
+                font-size: var(--font-size-sm);
             }
         }
     }
