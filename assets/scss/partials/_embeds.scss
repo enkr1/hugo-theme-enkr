@@ -1,0 +1,218 @@
+/* ===========================================
+   RESPONSIVE MEDIA EMBEDS - 2025 Edition
+   Modern aspect-ratio with padding-bottom fallback
+   =========================================== */
+
+/* YouTube/Vimeo iframe wrapper - Modern responsive technique */
+.video-wrapper,
+.youtube-wrapper,
+.vimeo-wrapper,
+.embed-responsive {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    margin: var(--spacing-lg) auto;
+    border-radius: var(--radius-image);
+    overflow: hidden;
+    background: #000; // Prevent white flash before load
+
+    // Modern approach (90% browser support)
+    aspect-ratio: 16 / 9;
+
+    // Fallback for older browsers (padding-bottom hack)
+    @supports not (aspect-ratio: 16 / 9) {
+        padding-bottom: 56.25%; // 16:9 ratio (9/16 = 56.25%)
+        height: 0;
+    }
+
+    iframe,
+    video,
+    embed,
+    object {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    // Subtle shadow for depth
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: box-shadow var(--transition-base);
+
+    &:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* Article content - auto-wrap bare YouTube/Vimeo iframes */
+.article-content {
+    // Target YouTube iframes not already wrapped
+    iframe[src*="youtube.com"],
+    iframe[src*="youtu.be"],
+    iframe[src*="vimeo.com"] {
+        // Modern approach
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        height: auto;
+        max-width: 1280px;
+        margin: var(--spacing-lg) auto;
+        display: block;
+        border-radius: var(--radius-image);
+
+        // Fallback for older browsers
+        @supports not (aspect-ratio: 16 / 9) {
+            height: auto;
+            min-height: 315px; // YouTube default embed height
+        }
+    }
+}
+
+/* YouTube Thumbnail Overlay (for custom implementations) */
+.ytp-cued-thumbnail-overlay {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 9;
+    margin: 0 auto;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: var(--radius-image);
+
+    @supports not (aspect-ratio: 16 / 9) {
+        padding-top: 56.25%;
+        height: 0;
+    }
+}
+
+.ytp-cued-thumbnail-overlay-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: transform var(--transition-slow);
+
+    .ytp-cued-thumbnail-overlay:hover & {
+        transform: scale(1.05);
+    }
+}
+
+.ytp-large-play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(48px, 15vw, 120px);
+    height: clamp(36px, 11.25vw, 90px);
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform var(--transition-base), opacity var(--transition-base);
+    z-index: 10;
+
+    &:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    &:active {
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    &:focus-visible {
+        outline: 3px solid rgba(255, 255, 255, 0.8);
+        outline-offset: 4px;
+    }
+
+    svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    }
+}
+
+/* Custom overlay for lazy-loading videos */
+.video-overlay {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    transition: opacity var(--transition-base);
+    z-index: 5;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.2);
+        transition: background var(--transition-base);
+    }
+
+    &:hover::before {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    &.is-playing {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+    .video-wrapper,
+    .youtube-wrapper,
+    .vimeo-wrapper,
+    .embed-responsive {
+        border-radius: var(--radius-code-inline);
+        margin: var(--spacing-md) 0;
+    }
+
+    .ytp-cued-thumbnail-overlay {
+        border-radius: var(--radius-code-inline);
+    }
+
+    .ytp-large-play-button {
+        width: clamp(40px, 12vw, 80px);
+        height: clamp(30px, 9vw, 60px);
+    }
+}
+
+@media (max-width: 480px) {
+    .video-wrapper,
+    .youtube-wrapper,
+    .vimeo-wrapper,
+    .embed-responsive {
+        border-radius: 0; // Full bleed on small screens
+        margin-left: calc(var(--card-padding) * -1);
+        margin-right: calc(var(--card-padding) * -1);
+        max-width: none;
+        width: calc(100% + var(--card-padding) * 2);
+    }
+
+    .ytp-cued-thumbnail-overlay {
+        border-radius: 0;
+    }
+
+    .ytp-large-play-button {
+        width: 80px;
+        height: 60px;
+
+        // Expanded touch area for better mobile UX
+        &::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            right: -12px;
+            bottom: -12px;
+        }
+    }
+}
