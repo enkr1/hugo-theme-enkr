@@ -146,10 +146,10 @@
 
     &, .menu-bottom-section ol {
         flex-direction: column;
-        gap: 30px;
+        gap: 2rem;
 
         @include respond(xl) {
-            gap: 25px;
+            gap: 1.5rem;
         }
     }
 
