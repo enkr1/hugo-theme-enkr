@@ -7,6 +7,11 @@
         max-width: var(--left-sidebar-max-width);
     }
 
+    .toc-left-sidebar {
+        order: -3;
+        max-width: var(--toc-left-sidebar-max-width, var(--left-sidebar-max-width));
+    }
+
     .right-sidebar {
         order: -1;
         max-width: var(--right-sidebar-max-width);
@@ -50,6 +55,24 @@
 
         @include respond(xl) {
             max-width: 1280px;
+        }
+    }
+}
+
+// Article pages with TOC on left - adjust sidebar widths
+.article-page--toc-left {
+    .container.extended {
+        @include respond(lg) {
+            // TOC left sidebar: wider for heading hierarchy (250px ≈ 20%)
+            --toc-left-sidebar-max-width: 20%;
+            // Right sidebar: menu + widgets (same as default)
+            --right-sidebar-max-width: 30%;
+        }
+
+        @include respond(xl) {
+            // Balance the widths on larger screens
+            --toc-left-sidebar-max-width: 18%;
+            --right-sidebar-max-width: 20%;
         }
     }
 }

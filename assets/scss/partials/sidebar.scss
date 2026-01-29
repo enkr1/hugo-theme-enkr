@@ -371,3 +371,55 @@
         }
     }
 }
+
+// ========================================
+// TOC LEFT SIDEBAR - Article reading mode
+// ========================================
+.toc-left-sidebar {
+    display: none; // Hidden by default
+    flex-direction: column;
+    flex-shrink: 0;
+    align-self: stretch;
+    width: 100%;
+    max-width: none;
+    position: relative;
+
+    @include respond(lg) {
+        display: flex;
+        width: auto;
+        padding-top: var(--main-top-padding);
+        padding-bottom: var(--main-top-padding);
+        max-height: 100vh;
+    }
+
+    &.sticky {
+        @include respond(lg) {
+            position: sticky;
+            top: 0;
+        }
+    }
+
+    // Widget styling
+    .widget {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .widget-title {
+        font-family: var(--font-body);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        padding-bottom: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .widget-icon {
+        display: none;
+    }
+}
