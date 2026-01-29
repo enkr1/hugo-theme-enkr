@@ -27,4 +27,32 @@ footer.site-footer {
             color: var(--body-text-color);
         }
     }
+
+    // Visitor count - inline with copyright
+    .footer-visitor-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-left: 1rem;
+        padding-left: 1rem;
+        border-left: 1px solid var(--card-separator-color);
+        font-size: 1.2rem;
+        color: var(--card-text-color-secondary);
+
+        svg {
+            width: 14px;
+            height: 14px;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        #visitor-count-footer {
+            color: var(--body-text-color);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .visitor-label {
+            color: var(--card-text-color-tertiary);
+        }
+    }
 }

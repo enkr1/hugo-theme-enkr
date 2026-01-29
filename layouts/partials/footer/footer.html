@@ -1,12 +1,20 @@
 {{- $ThemeVersion := "3.33.0" -}}
 <footer class="site-footer">
     <section class="copyright">
-        &copy; 
+        &copy;
         {{ if and (.Site.Params.footer.since) (ne .Site.Params.footer.since (int (now.Format "2006"))) }}
-            {{ .Site.Params.footer.since }} - 
+            {{ .Site.Params.footer.since }} -
         {{ end }}
         {{ now.Format "2006" }} {{ default .Site.Title .Site.Copyright }}
     </section>
+
+    {{ if .Site.Params.footer.visitorCount.enabled }}
+    <section class="footer-visitor-count">
+        {{ partial "helper/icon" "world" }}
+        <span id="visitor-count-footer">{{ default "..." .Site.Params.footer.visitorCount.placeholder }}</span>
+        <span class="visitor-label">{{ default "visitors" .Site.Params.footer.visitorCount.label }}</span>
+    </section>
+    {{ end }}
     
     <section class="powerby">
         {{ with .Site.Params.footer.customText }}

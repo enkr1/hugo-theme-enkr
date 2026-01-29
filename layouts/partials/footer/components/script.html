@@ -10,3 +10,8 @@
     {{- $customScript := . | js.Build $opts | fingerprint -}}
     <script type="text/javascript" src="{{ $customScript.RelPermalink }}" defer></script>
 {{- end -}}
+
+{{- with resources.Get "ts/visitor-count.ts" -}}
+    {{- $visitorCountScript := . | js.Build $opts | fingerprint -}}
+    <script type="text/javascript" src="{{ $visitorCountScript.RelPermalink }}" defer></script>
+{{- end -}}

@@ -33,6 +33,13 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="{{ .Site.BaseURL | relLangURL }}">{{ .Site.Title }}</a></h1>
+
+            <div class="site-visitor-count">
+                {{ partial "helper/icon" "world" }}
+                <span id="visitor-count-sidebar">0</span>
+                <span class="visitor-label">visitors</span>
+            </div>
+
             <h2 class="site-description">{{ .Site.Params.sidebar.subtitle }}</h2>
         </div>
     </header>

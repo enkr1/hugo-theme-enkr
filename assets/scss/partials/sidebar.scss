@@ -150,6 +150,37 @@
             font-size: 1.6rem;
         }
     }
+
+    // Visitor count - clean text style
+    .site-visitor-count {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 0.5rem 0;
+        font-size: 1.2rem;
+        color: var(--body-text-color);
+
+        @include respond(2xl) {
+            font-size: 1.3rem;
+        }
+
+        svg {
+            width: 16px;
+            height: 16px;
+            color: var(--body-text-color);
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        #visitor-count-sidebar {
+            color: var(--body-text-color);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .visitor-label {
+            color: var(--body-text-color);
+        }
+    }
 }
 
 // ========================================
