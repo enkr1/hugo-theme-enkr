@@ -111,14 +111,14 @@
         right: auto;
     }
 
-    // Hide on desktop (768px and above)
+    // Hide on tablet and desktop (768px and above) - sidebar is always visible
     @include respond(md) {
-        display: none;
+        display: none !important;
     }
 
     // Hide on mobile (768px and below) - bottom nav replaces it
     @media (max-width: 768px) {
-        display: none;
+        display: none !important;
     }
 
     outline: none;
