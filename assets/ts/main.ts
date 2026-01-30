@@ -12,6 +12,7 @@ import createElement from 'ts/createElement';
 import StackColorScheme from 'ts/colorScheme';
 import { setupScrollspy } from 'ts/scrollspy';
 import { setupSmoothAnchors } from "ts/smoothAnchors";
+import initFullpageNav from 'ts/fullpage-nav';
 import 'ts/waveform';
 
 let Stack = {
@@ -98,6 +99,19 @@ let Stack = {
         });
 
         new StackColorScheme(document.getElementById('dark-mode-toggle'));
+
+        /**
+         * Initialize full-page navigation overlay
+         */
+        initFullpageNav();
+
+        /**
+         * Initialize theme toggle in fullpage nav overlay
+         */
+        const fullpageThemeToggle = document.getElementById('fullpage-dark-mode-toggle');
+        if (fullpageThemeToggle) {
+            new StackColorScheme(fullpageThemeToggle);
+        }
     }
 }
 

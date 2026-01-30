@@ -13,5 +13,5 @@
 
 {{- with resources.Get "ts/visitor-count.ts" -}}
     {{- $visitorCountScript := . | js.Build $opts | fingerprint -}}
-    <script type="text/javascript" src="{{ $visitorCountScript.RelPermalink }}" defer></script>
+    <script type="module" src="{{ $visitorCountScript.RelPermalink }}"></script>
 {{- end -}}
