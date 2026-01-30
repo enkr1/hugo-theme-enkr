@@ -7,6 +7,8 @@ class FullpageNav {
     private overlay: HTMLElement;
     private hamburger: HTMLElement;
     private isOpen: boolean = false;
+    private lastScrollY: number = 0;
+    private scrollTimeout: number | null = null;
 
     constructor() {
         this.overlay = document.getElementById('fullpage-nav');
@@ -15,6 +17,7 @@ class FullpageNav {
         if (!this.overlay || !this.hamburger) return;
 
         this.bindEvents();
+        this.initScrollBehavior();
     }
 
     private bindEvents() {
@@ -62,6 +65,43 @@ class FullpageNav {
         this.overlay.classList.remove('active');
         this.hamburger.classList.remove('active');
         document.body.style.overflow = ''; // Restore scroll
+    }
+
+    private initScrollBehavior() {
+        // Only apply scroll behavior on >= iPad (769px+)
+        if (window.innerWidth < 769) return;
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+
+            // Scrolling down - hide hamburger
+            if (currentScrollY > this.lastScrollY && currentScrollY > 50) {
+                this.hamburger.classList.add('hidden');
+            }
+            // Scrolling up - show hamburger
+            else if (currentScrollY < this.lastScrollY) {
+                this.hamburger.classList.remove('hidden');
+            }
+
+            this.lastScrollY = currentScrollY;
+
+            // Clear existing timeout
+            if (this.scrollTimeout) {
+                clearTimeout(this.scrollTimeout);
+            }
+
+            // Show hamburger when scrolling stops
+            this.scrollTimeout = window.setTimeout(() => {
+                this.hamburger.classList.remove('hidden');
+            }, 150);
+        }, { passive: true });
+
+        // Re-initialize on window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 769) {
+                this.hamburger.classList.remove('hidden');
+            }
+        });
     }
 }
 

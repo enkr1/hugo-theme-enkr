@@ -388,8 +388,7 @@
     @include respond(lg) {
         display: flex;
         width: auto;
-        padding-top: var(--main-top-padding);
-        padding-bottom: var(--main-top-padding);
+        padding: var(--main-top-padding) 2rem;
         max-height: 100vh;
     }
 

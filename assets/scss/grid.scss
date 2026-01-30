@@ -59,21 +59,28 @@
     }
 }
 
-// Article pages with TOC on left - adjust sidebar widths
+// Article pages with TOC on left - hide right sidebar, full-width content
 .article-page--toc-left {
     .container.extended {
         @include respond(lg) {
-            // TOC left sidebar: wider for heading hierarchy (250px ≈ 20%)
-            --toc-left-sidebar-max-width: 20%;
-            // Right sidebar: menu + widgets (same as default)
-            --right-sidebar-max-width: 30%;
+            // TOC left sidebar: optimal for heading hierarchy
+            --toc-left-sidebar-max-width: 25%;
         }
 
         @include respond(xl) {
-            // Balance the widths on larger screens
-            --toc-left-sidebar-max-width: 18%;
-            --right-sidebar-max-width: 20%;
+            --toc-left-sidebar-max-width: 28%;
         }
+    }
+
+    // Hide right sidebar on article pages - reclaim space for content
+    .right-sidebar {
+        display: none;
+    }
+
+    // Main content uses full available width
+    main.main {
+        max-width: 100%;
+        width: 100%;
     }
 }
 
@@ -119,6 +126,5 @@ main.main {
 
     @include respond(md) {
         padding: 0 2rem;
-        padding-top: var(--main-top-padding);
     }
 }
