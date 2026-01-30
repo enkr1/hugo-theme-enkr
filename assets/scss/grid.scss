@@ -114,11 +114,11 @@ main.main {
 .main-container {
     min-height: 100vh;
     align-items: flex-start;
-    padding: 0 15px;
+    padding: 1rem;
     gap: var(--section-separation);
-    padding-top: var(--main-top-padding);
-    
+
     @include respond(md) {
-        padding: 0 20px;
+        padding: 0 2rem;
+        padding-top: var(--main-top-padding);
     }
 }
