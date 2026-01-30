@@ -1,16 +1,16 @@
 /*
-*   Style: monokai
-*   https://xyproto.github.io/splash/docs/monokai.html
+*   Style: github-dark (VSCode Dark+ inspired)
+*   https://xyproto.github.io/splash/docs/github-dark.html
 */
 
 [data-scheme="dark"] {
-    $color: #f8f8f2;
-    $background-color: #272822;
-    $error-color: #bb0064;
-    $keyword-color: #66d9ef;
+    $color: #e6edf3;
+    $background-color: #0d1117;
+    $error-color: #f85149;
+    $keyword-color: #ff7b72;
     $text-color: $color;
-    $name-color: #a6e22e;
-    $literal-color: #e6db74;
+    $name-color: #d2a8ff;
+    $literal-color: #a5d6ff;
 
     @import "common.scss";
 }
