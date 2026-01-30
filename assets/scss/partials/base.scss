@@ -28,14 +28,19 @@ body {
 
 /* scrollbar styles for Chromium */
 ::-webkit-scrollbar {
-    height: auto;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb);
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-height);
 }
 
 ::-webkit-scrollbar-track {
-    background-color: transparent;
+    background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+
+    &:hover {
+        background: var(--accent);
+    }
 }
 /**/

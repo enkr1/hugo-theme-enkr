@@ -121,12 +121,12 @@
         font-size: var(--font-size-base);
         line-height: 1.5;
 
-        // Thin scrollbar
+        // Thin scrollbar (uses global SSOT width)
         scrollbar-width: thin;
         scrollbar-color: var(--secondary-subtle) transparent;
 
         &::-webkit-scrollbar {
-            width: 4px;
+            width: var(--scrollbar-width);
         }
 
         &::-webkit-scrollbar-track {
