@@ -424,3 +424,354 @@
         display: none;
     }
 }
+
+// ========================================
+// MOBILE TOC - Bottom-left floating button + bottom sheet
+// Mirror layout with scroll-to-top (bottom-right)
+// ========================================
+
+// Floating TOC button - bottom-left, mobile only
+.toc-mobile-button {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-button-circle);
+    background: var(--card-background);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-l2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999;
+    transition: all 200ms ease;
+    opacity: 0.9;
+
+    // Hide on desktop (≥1024px) - desktop TOC sidebar shows
+    @include respond(lg) {
+        display: none;
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+        stroke: var(--body-text-color);
+        transition: stroke 200ms ease;
+    }
+
+    // Active/tap state (no hover for mobile)
+    &:active {
+        transform: scale(0.95);
+        opacity: 1;
+        border-color: var(--gold);
+
+        svg {
+            stroke: var(--gold);
+        }
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        border-color: var(--gold);
+        box-shadow: var(--shadow-l2), 0 0 0 2px rgba(139, 115, 85, 0.2);
+    }
+}
+
+// Bottom sheet overlay (backdrop + sheet)
+.toc-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease;
+
+    // Hide on desktop
+    @include respond(lg) {
+        display: none;
+    }
+
+    &.active {
+        pointer-events: auto;
+        opacity: 1;
+
+        .toc-mobile-sheet {
+            transform: translateY(0);
+        }
+    }
+}
+
+// Backdrop
+.toc-mobile-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+// Bottom sheet
+.toc-mobile-sheet {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 70vh;
+    background: var(--card-background);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Sheet header - Ba Zi gradient
+.toc-mobile-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg,
+        rgba(139, 115, 85, 0.08) 0%,
+        rgba(139, 115, 85, 0.04) 100%
+    );
+    flex-shrink: 0;
+
+    h3 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: var(--font-weight-semibold);
+        color: var(--gold);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+}
+
+// Close button
+.toc-mobile-close {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-button-circle);
+    background: transparent;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 150ms ease, background 150ms ease, border-color 150ms ease;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--body-text-color);
+        transition: stroke 150ms ease;
+    }
+
+    &:active {
+        transform: translateY(-50%) scale(0.95);
+        background: var(--card-background-selected);
+        border-color: var(--gold);
+
+        svg {
+            stroke: var(--gold);
+        }
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.2);
+    }
+}
+
+// Sheet content - scrollable TOC
+.toc-mobile-content {
+    padding: 1.5rem 1.5rem 3rem 1.5rem; // Extra bottom padding for breathing room
+    overflow-y: auto;
+    flex-grow: 1;
+    -webkit-overflow-scrolling: touch;
+
+    // Style the TOC nav
+    nav {
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+
+            li {
+                margin: 0.5rem 0;
+
+                a {
+                    display: block;
+                    padding: 0.5rem 0;
+                    color: var(--body-text-color);
+                    text-decoration: none;
+                    font-size: 1.4rem;
+                    line-height: 1.5;
+                    transition: color 150ms ease;
+                    border-left: 2px solid transparent;
+                    padding-left: 0.75rem;
+
+                    &:active {
+                        color: var(--gold);
+                        border-left-color: var(--gold);
+                    }
+                }
+
+                // Nested levels
+                ul {
+                    margin-top: 0.25rem;
+                    padding-left: 1rem;
+
+                    li a {
+                        font-size: 1.3rem;
+                    }
+
+                    ul li a {
+                        font-size: 1.2rem;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Mobile responsiveness - adjust button position for bottom nav
+@media (max-width: 768px) {
+    .toc-mobile-button {
+        bottom: calc(72px + 1.25rem); // Above mobile bottom nav
+        left: 1.25rem;
+        width: 48px;
+        height: 48px;
+    }
+}
+
+@media (max-width: 640px) {
+    .toc-mobile-button {
+        bottom: calc(64px + 1.25rem); // Adjust for smaller nav
+        left: 1.25rem;
+        width: 44px;
+        height: 44px;
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .toc-mobile-header h3 {
+        font-size: 1.3rem;
+    }
+
+    .toc-mobile-content {
+        padding: 1.25rem 1.25rem 2.5rem 1.25rem; // Extra bottom padding for mobile
+
+        nav ul li a {
+            font-size: 1.3rem;
+        }
+    }
+}
+
+// ========================================
+// SCROLL TO TOP BUTTON - Bottom-right mirror to TOC button
+// ========================================
+
+.scroll-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-button-circle);
+    background: var(--card-background);
+    box-shadow: var(--shadow-l2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 150ms ease,
+                visibility 150ms ease,
+                transform 150ms ease,
+                border-color 200ms ease;
+
+    svg {
+        width: 20px;
+        height: 20px;
+        stroke: var(--body-text-color);
+        transition: stroke 200ms ease;
+    }
+
+    &.visible {
+        opacity: 0.9;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    // Active/tap state (matches TOC button)
+    &:active {
+        transform: scale(0.95);
+        opacity: 1;
+        border-color: var(--gold);
+
+        svg {
+            stroke: var(--gold);
+        }
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    &:focus-visible {
+        border-color: var(--gold);
+        box-shadow: var(--shadow-l2), 0 0 0 2px rgba(139, 115, 85, 0.2);
+    }
+}
+
+// Mobile responsiveness - adjust position for bottom nav
+@media (max-width: 768px) {
+    .scroll-to-top {
+        bottom: calc(72px + 1.25rem); // Above mobile bottom nav
+        right: 1.25rem;
+        width: 48px;
+        height: 48px;
+
+        svg {
+            width: 22px;
+            height: 22px;
+        }
+    }
+}
+
+@media (max-width: 640px) {
+    .scroll-to-top {
+        bottom: calc(64px + 1.25rem); // Adjust for smaller nav
+        right: 1.25rem;
+        width: 44px;
+        height: 44px;
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+}
