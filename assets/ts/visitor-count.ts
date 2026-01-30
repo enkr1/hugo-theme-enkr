@@ -1,8 +1,10 @@
 /**
  * Visitor Count Display
- * Fetches and displays total visitor count from Firebase Firestore
- * Same logic as Hexo v1 implementation
+ * Fetches and displays visitor counts from Firebase Firestore with caching
+ * Cache: Total (20min), Article-specific (10min)
  */
+
+import { VisitorCountCache } from './visitor-cache.js';
 
 // Firebase SDK will be loaded dynamically
 declare global {
@@ -15,10 +17,15 @@ declare global {
 class VisitorCounter {
     private sidebarElement: HTMLElement | null;
     private footerElement: HTMLElement | null;
+    private articleSlug: string | null;
 
     constructor() {
         this.sidebarElement = document.getElementById('visitor-count-sidebar');
         this.footerElement = document.getElementById('visitor-count-footer');
+
+        // Get article slug from meta tag (if on article page)
+        const metaSlug = document.querySelector('meta[property="article:slug"]');
+        this.articleSlug = metaSlug ? metaSlug.getAttribute('content') : null;
     }
 
     /**
@@ -107,6 +114,73 @@ class VisitorCounter {
     }
 
     /**
+     * Fetch article-specific visitor count from Firebase Firestore
+     */
+    private async fetchArticleViewCount(slug: string): Promise<number> {
+        try {
+            const db = await this.initFirebase();
+            const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js');
+
+            const articleDoc = doc(db, 'articles', slug);
+            const snapshot = await getDoc(articleDoc);
+
+            if (snapshot.exists()) {
+                const count = snapshot.data().count || 0;
+                console.debug('[Hugo v2] Article view count:', slug, count);
+                return count;
+            }
+
+            console.debug('[Hugo v2] Article not found in Firestore:', slug);
+            return 0;
+        } catch (error) {
+            console.error('[Hugo v2] Error fetching article count:', error);
+            return 0;
+        }
+    }
+
+    /**
+     * Get total visitor count (with caching)
+     */
+    private async getTotalCount(): Promise<number> {
+        // Check cache first
+        const cached = VisitorCountCache.getTotal();
+        if (cached !== null) {
+            console.debug('[Cache] Using cached total count:', cached);
+            return cached;
+        }
+
+        // Cache miss - fetch from Firebase
+        console.debug('[Cache] Total count cache miss, fetching from Firebase');
+        const count = await this.fetchTotalViewCount();
+
+        // Store in cache
+        VisitorCountCache.setTotal(count);
+
+        return count;
+    }
+
+    /**
+     * Get article-specific visitor count (with caching)
+     */
+    private async getArticleCount(slug: string): Promise<number> {
+        // Check cache first
+        const cached = VisitorCountCache.getArticle(slug);
+        if (cached !== null) {
+            console.debug('[Cache] Using cached article count:', slug, cached);
+            return cached;
+        }
+
+        // Cache miss - fetch from Firebase
+        console.debug('[Cache] Article count cache miss, fetching from Firebase:', slug);
+        const count = await this.fetchArticleViewCount(slug);
+
+        // Store in cache
+        VisitorCountCache.setArticle(slug, count);
+
+        return count;
+    }
+
+    /**
      * Initialize and fetch count
      */
     public async init(): Promise<void> {
@@ -122,10 +196,15 @@ class VisitorCounter {
             return;
         }
 
-        // Fetch real count from Firebase
+        // Fetch count (total or article-specific)
         try {
-            const totalCount = await this.fetchTotalViewCount();
-            const formattedCount = this.formatCount(totalCount);
+            let count: number;
+
+            // If on article page and slug is available, could show article-specific count
+            // For now, always show total count (article-specific can be added to UI later)
+            count = await this.getTotalCount();
+
+            const formattedCount = this.formatCount(count);
             this.updateDisplay(formattedCount);
 
             console.debug('[DEBUG] Visitor count updated:', formattedCount);
@@ -135,6 +214,16 @@ class VisitorCounter {
         }
 
         console.groupEnd();
+    }
+
+    /**
+     * Public method to get article count (for future use in article metadata)
+     */
+    public async getArticleViewCount(slug: string): Promise<number> {
+        if (!this.isProduction()) {
+            return 0;
+        }
+        return await this.getArticleCount(slug);
     }
 }
 
@@ -148,3 +237,6 @@ if (document.readyState === 'loading') {
     const counter = new VisitorCounter();
     counter.init();
 }
+
+// Export for potential use in other modules
+export default VisitorCounter;
