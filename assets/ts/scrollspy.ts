@@ -13,17 +13,25 @@ function debounced(func: Function) {
 }
 
 const headersQuery = ".article-content h1[id], .article-content h2[id], .article-content h3[id], .article-content h4[id], .article-content h5[id], .article-content h6[id]";
-const tocQuery = "#TableOfContents";
+const tocQuery = "#TableOfContents"; // The TOC nav element itself is the scroll container
 const navigationQuery = "#TableOfContents li";
 const activeClass = "active-class";
 
 function scrollToTocElement(tocElement: HTMLElement, scrollableNavigation: HTMLElement) {
-    let textHeight = tocElement.querySelector("a").offsetHeight;
-    let scrollTop = tocElement.offsetTop - scrollableNavigation.offsetHeight / 2 + textHeight / 2 - scrollableNavigation.offsetTop;
-    if (scrollTop < 0) {
-        scrollTop = 0;
-    }
-    scrollableNavigation.scrollTo({ top: scrollTop, behavior: "smooth" });
+    // Calculate positions using getBoundingClientRect for accurate measurements
+    const elementRect = tocElement.getBoundingClientRect();
+    const containerRect = scrollableNavigation.getBoundingClientRect();
+
+    // Calculate element position relative to the scroll container
+    const relativeTop = elementRect.top - containerRect.top;
+
+    // Center the element: current scroll + relative position - (half container height) + (half element height)
+    const scrollTop = scrollableNavigation.scrollTop + relativeTop - (containerRect.height / 2) + (elementRect.height / 2);
+
+    scrollableNavigation.scrollTo({
+        top: Math.max(0, scrollTop), // Don't scroll to negative values
+        behavior: "smooth"
+    });
 }
 
 type IdToElementMap = { [key: string]: HTMLElement };
