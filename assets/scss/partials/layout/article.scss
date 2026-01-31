@@ -153,7 +153,7 @@
         }
 
         li.active-class > a {
-            border-left: var(--heading-border-size) solid var(--accent-color);
+            border-left: var(--heading-border-size) solid red;
             font-weight: bold;
             color: var(--accent);
         }
