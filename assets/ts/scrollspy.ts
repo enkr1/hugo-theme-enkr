@@ -59,23 +59,30 @@ function computeOffsets(headers: NodeListOf<Element>) {
 }
 
 function setupScrollspy() {
+    console.log('[Scrollspy] Initializing...');
+
     let headers = document.querySelectorAll(headersQuery);
-    if (!headers) {
-        console.warn("No header matched query", headers);
+    console.log('[Scrollspy] Headers found:', headers.length);
+    if (!headers || headers.length === 0) {
+        console.warn("[Scrollspy] No header matched query", headersQuery);
         return;
     }
 
     let scrollableNavigation = document.querySelector(tocQuery) as HTMLElement | undefined;
+    console.log('[Scrollspy] TOC element:', scrollableNavigation);
     if (!scrollableNavigation) {
-        console.warn("No toc matched query", tocQuery);
+        console.warn("[Scrollspy] No toc matched query", tocQuery);
         return;
     }
 
     let navigation = document.querySelectorAll(navigationQuery);
-    if (!navigation) {
-        console.warn("No navigation matched query", navigationQuery);
+    console.log('[Scrollspy] Navigation items found:', navigation.length);
+    if (!navigation || navigation.length === 0) {
+        console.warn("[Scrollspy] No navigation matched query", navigationQuery);
         return;
     }
+
+    console.log('[Scrollspy] Setup successful! Listening for scroll events...');
 
     let sectionsOffsets = computeOffsets(headers);
 
@@ -91,6 +98,7 @@ function setupScrollspy() {
 
     function scrollHandler() {
         let scrollPosition = document.documentElement.scrollTop || document.body.scrollTop;
+        console.log('[Scrollspy] Scroll event - position:', scrollPosition);
 
         let newActiveSection: HTMLElement | undefined;
 
@@ -102,6 +110,8 @@ function setupScrollspy() {
             }
         });
 
+        console.log('[Scrollspy] Active section:', newActiveSection?.id);
+
         // Find the link for the active section. Once again, there are a few edge cases:
         // - No active section = no link => undefined
         // - No active section but the link does not exist in toc (e.g. because it is outside of the applicable ToC levels) => undefined
@@ -112,14 +122,17 @@ function setupScrollspy() {
 
         if (newActiveSection && !newActiveSectionLink) {
             // The active section does not have a link in the ToC, so we can't scroll to it.
-            console.debug("No link found for section", newActiveSection);
+            console.debug("[Scrollspy] No link found for section", newActiveSection);
         } else if (newActiveSectionLink !== activeSectionLink) {
+            console.log('[Scrollspy] Changing active section from', activeSectionLink, 'to', newActiveSectionLink);
             if (activeSectionLink)
                 activeSectionLink.classList.remove(activeClass);
             if (newActiveSectionLink) {
                 newActiveSectionLink.classList.add(activeClass);
+                console.log('[Scrollspy] Added active-class to:', newActiveSectionLink);
                 if (!tocHovered) {
                     // Scroll so that newActiveSectionLink is in the middle of scrollableNavigation, except when it's from a manual click (hence the tocHovered check)
+                    console.log('[Scrollspy] Auto-scrolling TOC to active item');
                     scrollToTocElement(newActiveSectionLink, scrollableNavigation);
                 }
             }
