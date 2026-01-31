@@ -13,7 +13,7 @@ function debounced(func: Function) {
 }
 
 const headersQuery = ".article-content h1[id], .article-content h2[id], .article-content h3[id], .article-content h4[id], .article-content h5[id], .article-content h6[id]";
-const tocQuery = "#TableOfContents"; // The TOC nav element itself is the scroll container
+const tocQuery = "#TableOfContents";
 const navigationQuery = "#TableOfContents li";
 const activeClass = "active-class";
 
@@ -68,17 +68,19 @@ function setupScrollspy() {
         return;
     }
 
-    let scrollableNavigation = document.querySelector(tocQuery) as HTMLElement | undefined;
+    // Target desktop TOC specifically (not mobile TOC) - mobile TOC renders first in DOM
+    let scrollableNavigation = document.querySelector('.widget--toc ' + tocQuery) as HTMLElement | undefined;
     console.log('[Scrollspy] TOC element:', scrollableNavigation);
     if (!scrollableNavigation) {
-        console.warn("[Scrollspy] No toc matched query", tocQuery);
+        console.warn("[Scrollspy] No toc matched query", '.widget--toc ' + tocQuery);
         return;
     }
 
-    let navigation = document.querySelectorAll(navigationQuery);
+    // Get navigation items from desktop TOC only
+    let navigation = scrollableNavigation.querySelectorAll('li');
     console.log('[Scrollspy] Navigation items found:', navigation.length);
     if (!navigation || navigation.length === 0) {
-        console.warn("[Scrollspy] No navigation matched query", navigationQuery);
+        console.warn("[Scrollspy] No navigation items found in TOC");
         return;
     }
 
