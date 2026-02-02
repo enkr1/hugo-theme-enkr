@@ -59,32 +59,22 @@ function computeOffsets(headers: NodeListOf<Element>) {
 }
 
 function setupScrollspy() {
-    console.log('[Scrollspy] Initializing...');
-
     let headers = document.querySelectorAll(headersQuery);
-    console.log('[Scrollspy] Headers found:', headers.length);
     if (!headers || headers.length === 0) {
-        console.warn("[Scrollspy] No header matched query", headersQuery);
         return;
     }
 
     // Target desktop TOC specifically (not mobile TOC) - mobile TOC renders first in DOM
     let scrollableNavigation = document.querySelector('.widget--toc ' + tocQuery) as HTMLElement | undefined;
-    console.log('[Scrollspy] TOC element:', scrollableNavigation);
     if (!scrollableNavigation) {
-        console.warn("[Scrollspy] No toc matched query", '.widget--toc ' + tocQuery);
         return;
     }
 
     // Get navigation items from desktop TOC only
     let navigation = scrollableNavigation.querySelectorAll('li');
-    console.log('[Scrollspy] Navigation items found:', navigation.length);
     if (!navigation || navigation.length === 0) {
-        console.warn("[Scrollspy] No navigation items found in TOC");
         return;
     }
-
-    console.log('[Scrollspy] Setup successful! Listening for scroll events...');
 
     let sectionsOffsets = computeOffsets(headers);
 
@@ -100,8 +90,6 @@ function setupScrollspy() {
 
     function scrollHandler() {
         let scrollPosition = document.documentElement.scrollTop || document.body.scrollTop;
-        console.log('[Scrollspy] Scroll event - position:', scrollPosition);
-
         let newActiveSection: HTMLElement | undefined;
 
         // Find the section that is currently active.
@@ -111,8 +99,6 @@ function setupScrollspy() {
                 newActiveSection = document.getElementById(section.id);
             }
         });
-
-        console.log('[Scrollspy] Active section:', newActiveSection?.id);
 
         // Find the link for the active section. Once again, there are a few edge cases:
         // - No active section = no link => undefined
@@ -124,17 +110,13 @@ function setupScrollspy() {
 
         if (newActiveSection && !newActiveSectionLink) {
             // The active section does not have a link in the ToC, so we can't scroll to it.
-            console.debug("[Scrollspy] No link found for section", newActiveSection);
         } else if (newActiveSectionLink !== activeSectionLink) {
-            console.log('[Scrollspy] Changing active section from', activeSectionLink, 'to', newActiveSectionLink);
             if (activeSectionLink)
                 activeSectionLink.classList.remove(activeClass);
             if (newActiveSectionLink) {
                 newActiveSectionLink.classList.add(activeClass);
-                console.log('[Scrollspy] Added active-class to:', newActiveSectionLink);
                 if (!tocHovered) {
                     // Scroll so that newActiveSectionLink is in the middle of scrollableNavigation, except when it's from a manual click (hence the tocHovered check)
-                    console.log('[Scrollspy] Auto-scrolling TOC to active item');
                     scrollToTocElement(newActiveSectionLink, scrollableNavigation);
                 }
             }

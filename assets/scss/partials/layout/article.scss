@@ -126,13 +126,15 @@
         a {
             display: block;
             color: var(--text-secondary);
-            border-left: 2px solid transparent;
+            border-left: var(--heading-border-size) solid transparent;
             transition: all var(--transition-fast);
             text-decoration: none;
+            background: transparent;
 
             &:hover {
                 color: var(--text);
-                border-left-color: var(--accent);
+                border-left-color: var(--accent-color);
+                background: var(--accent-subtle, rgba(139, 115, 85, 0.03));
             }
         }
 
@@ -153,9 +155,11 @@
         }
 
         li.active-class > a {
-            border-left: var(--heading-border-size) solid red;
+            border-left: var(--heading-border-size) solid var(--accent-color) !important;
             font-weight: bold;
             color: var(--accent);
+            background: var(--accent-subtle, rgba(139, 115, 85, 0.08));
+            transition: all var(--transition-base, 150ms ease);
         }
 
         ul li.active-class > a {
