@@ -126,7 +126,9 @@
         a {
             display: block;
             color: var(--text-secondary);
-            border-left: var(--heading-border-size) solid transparent;
+            border-left-width: var(--heading-border-size);
+            border-left-style: solid;
+            border-left-color: transparent;
             transition: all var(--transition-fast);
             text-decoration: none;
             background: transparent;
@@ -155,7 +157,9 @@
         }
 
         li.active-class > a {
-            border-left: var(--heading-border-size) solid var(--accent-color) !important;
+            border-left-width: var(--heading-border-size) !important;
+            border-left-style: solid !important;
+            border-left-color: var(--accent-color) !important;
             font-weight: bold;
             color: var(--accent);
             background: var(--accent-subtle, rgba(139, 115, 85, 0.08));
