@@ -115,6 +115,8 @@ main.main {
 
     @include respond(md) {
         padding-top: var(--main-top-padding);
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
 }
 
