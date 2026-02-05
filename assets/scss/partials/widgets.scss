@@ -148,12 +148,14 @@
             flex: 1;
             color: var(--text-secondary);
             text-decoration: none;
-            border-left: 2px solid transparent;
             transition: all var(--transition-fast);
 
             &:hover {
-                color: var(--accent); // Turn gold (matches archives)
-                border-left-color: var(--accent);
+                color: var(--accent);
+
+                .category-name {
+                    border-left-color: var(--accent);
+                }
 
                 .category-line {
                     opacity: 1;
@@ -167,6 +169,9 @@
 
         .category-name {
             font-family: var(--font-body);
+            border-left: 2px solid transparent;
+            padding-left: 0.5rem;  // Space between border and text
+            transition: border-color var(--transition-fast);
             flex-shrink: 0;
         }
 
