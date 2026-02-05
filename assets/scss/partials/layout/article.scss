@@ -206,6 +206,35 @@
         margin: 1.5em 0;
     }
 
+    // Lists - Clean dash style markers
+    ul, ol {
+        margin: 0 0 1.5em 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            position: relative;
+            padding-left: 1.7rem;
+            margin-bottom: 0.5em;
+
+            &::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: calc(1em * var(--line-height-relaxed, 1.8) / 2);
+                transform: translateY(-50%);
+                width: 1rem;
+                height: 2px;
+                background: var(--accent);
+            }
+        }
+
+        // Nested lists
+        ul, ol {
+            margin: 0.5em 0 0.5em 0;
+        }
+    }
+
     h1,
     h2,
     h3,
@@ -302,13 +331,13 @@
         }
     }
 
+    // Horizontal rule - minimal accent line
     hr {
-        width: 100px;
-        margin: 40px auto;
-        background: var(--card-text-color-tertiary);
+        border: none;
         height: 2px;
-        border: 0;
-        opacity: 0.55;
+        background: var(--accent);
+        margin: var(--spacing-xl) 0;
+        opacity: 0.3;
     }
 
     code {

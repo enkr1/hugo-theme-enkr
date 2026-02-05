@@ -1,7 +1,65 @@
-footer.site-footer {
+/* ===========================================
+   FOOTER - Ba Zi styled
+   =========================================== */
+
+// Minimal footer variant - centered with gold gradient divider
+.site-footer.site-footer--minimal {
+    padding: var(--spacing-xl) 0 var(--spacing-lg);
+    text-align: center;
+    position: relative;
+
+    &::before {
+        content: '';
+        display: block;
+        width: 200px;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--gold),
+            transparent
+        );
+        margin: 0 auto var(--spacing-lg);
+        opacity: 0.6;
+    }
+
+    .footer-divider {
+        display: none;
+    }
+
+    .copyright {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4em;
+        font-size: var(--font-size-xs);
+        font-family: var(--font-body);
+        font-weight: var(--font-weight-normal);
+        color: var(--text-tertiary);
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    .copyright-symbol {
+        font-size: 0.9em;
+    }
+
+    .copyright-dot {
+        opacity: 0.5;
+    }
+
+    .copyright-name {
+        font-weight: var(--font-weight-medium);
+        color: var(--text-secondary);
+    }
+}
+
+// Standard footer
+footer.site-footer:not(.site-footer--minimal) {
     padding: 20px 0 var(--section-separation) 0;
-    font-size: 1.4rem;
+    font-size: var(--font-size-sm);
     line-height: 1.75;
+    color: var(--text-tertiary);
 
     &:before {
         content: "";
@@ -25,6 +83,15 @@ footer.site-footer {
 
         a {
             color: var(--body-text-color);
+        }
+    }
+
+    a {
+        color: var(--text-secondary);
+        transition: color var(--transition-fast);
+
+        &:hover {
+            color: var(--accent);
         }
     }
 
