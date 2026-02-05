@@ -404,6 +404,47 @@
     .widget-icon {
         display: none;
     }
+
+    // Home link - quick nav back (matches .widget-title styling)
+    .toc-home-link {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        text-decoration: none;
+        padding-top: var(--spacing-lg);
+        padding-bottom: var(--spacing-md);
+        margin-bottom: var(--spacing-sm);
+        transition: color var(--transition-base);
+
+        svg {
+            width: 1.2rem;
+            height: 1.2rem;
+            stroke-width: 2.5;
+        }
+
+        &:hover {
+            color: var(--gold, var(--accent-color));
+
+            svg {
+                transform: translateX(-2px);
+            }
+        }
+
+        // Subtle underline hint for clickability
+        span {
+            border-bottom: 1px solid transparent;
+            transition: border-color var(--transition-base);
+        }
+
+        &:hover span {
+            border-bottom-color: currentColor;
+        }
+    }
 }
 
 // ========================================
