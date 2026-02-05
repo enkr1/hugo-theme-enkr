@@ -82,10 +82,6 @@
     line-height: 1.5;
     margin: 0;
     font-size: var(--font-size-base);
-
-    @include respond(xl) {
-        font-size: 1.8rem;
-    }
 }
 
 .article-title-wrapper {
