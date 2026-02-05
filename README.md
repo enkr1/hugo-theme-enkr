@@ -1,28 +1,49 @@
-![image](https://user-images.githubusercontent.com/5889006/190859441-141b5f81-8483-40d2-bd96-ebf85616a46d.png)
+# hugo-theme-enkr
 
-# Hugo Theme Stack
+A personalized fork of [Hugo Theme Stack](https://github.com/CaiJimmy/hugo-theme-stack) with a Ba Zi (八字) energy-inspired design system.
 
-<img align="right" width="150" alt="logo" src="https://user-images.githubusercontent.com/5889006/190859553-5b229b4f-c476-4cbd-928f-890f5265ca4c.png">
+**Live:** [blog.enkr1.com](https://blog.enkr1.com)
 
-Card-style Hugo theme designed for bloggers.
+## What's Different
 
-## Quickstart
+This fork replaces Stack's default styling with a refined color system based on Chinese five-element theory:
 
-Use this template: [CaiJimmy/hugo-theme-stack-starter](https://github.com/CaiJimmy/hugo-theme-stack-starter)
+| Element | Color | Usage |
+|---------|-------|-------|
+| 内蕴金 (Metal) | `#C9A882` Gold | Accents, hovers, CTAs |
+| 智慧海 (Water) | `#1E4B8C` Navy | Links, code, tags |
+| 流年曦 (Fire) | `#F59E0B` Amber | Dynamic interactions |
 
-## Demo
+### Key Customizations
 
-* Starter template demo: [demo.stack.jimmycai.com](https://demo.stack.jimmycai.com)
-* Dev build: [dev.stack.jimmycai.com](https://dev.stack.jimmycai.com)
+- **Typography**: Cormorant Garamond display + Inter body fonts
+- **Cards**: Animated gold border trace on hover
+- **Tags**: Transparent `#hashtag` style (no pill backgrounds)
+- **Categories**: Collapsible tree widget in sidebar
+- **Mobile**: Bottom navigation bar with frosted glass
+- **Dark mode**: Full support with inverted palette
 
-## Documentation
+## Structure
 
-Visit [stack.jimmycai.com](https://stack.jimmycai.com)
+```
+assets/scss/
+├── _mixins.scss      # Shared style mixins
+├── variables.scss    # Ba Zi color tokens + theme variables
+└── partials/
+    ├── article.scss  # Post styling, tags, categories
+    ├── widgets.scss  # Sidebar widgets, tag cloud
+    └── ...
+```
 
-## Copyright
+## Usage
 
-**Licensed under the GNU General Public License v3.0**
+This theme is designed for my personal blog. Feel free to fork, but note:
 
-Please do not remove the "*Theme Stack designed by Jimmy*" text and link.
+1. Colors and typography are opinionated for my aesthetic
+2. Some features assume specific content structure (journals, nested categories)
+3. The `custom.scss` in the parent Hugo project contains additional overrides
 
-If you want to port this theme to another blogging platform, please let me know🙏.
+## Credits
+
+- Original theme: [Hugo Theme Stack](https://github.com/CaiJimmy/hugo-theme-stack) by Jimmy Cai
+- Licensed under GNU General Public License v3.0

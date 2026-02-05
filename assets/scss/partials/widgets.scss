@@ -12,25 +12,16 @@
     }
 }
 
-/* Tag cloud widget */
+/* Tag cloud widget - #hashtag style (matches article tags) */
 .tagCloud {
     .tagCloud-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 0.5rem 1rem;
 
         a {
-            background: var(--card-background);
-            box-shadow: var(--shadow-l1);
-            border-radius: var(--tag-border-radius);
-            padding: 8px 20px;
-            color: var(--card-text-color-main);
-            font-size: 1.4rem;
-            transition: box-shadow 0.3s ease;
-
-            &:hover {
-                box-shadow: var(--shadow-l2);
-            }
+            @include hashtag-link;
+            font-size: inherit;
         }
     }
 }

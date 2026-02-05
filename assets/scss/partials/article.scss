@@ -77,13 +77,14 @@
 }
 
 .article-subtitle {
-    font-weight: normal;
-    color: var(--card-text-color-secondary);
+    font-weight: var(--font-weight-normal);
+    color: var(--text-secondary);
     line-height: 1.5;
     margin: 0;
-    font-size: 1.75rem;
+    font-size: var(--font-size-base);
+
     @include respond(xl) {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 }
 
@@ -134,24 +135,45 @@
     }
 }
 
-.article-category,
+/* Tags - #hashtag style (transparent, accent-colored) */
 .article-tags {
     display: flex;
-    gap: 10px;
     flex-wrap: wrap;
+    gap: 0.5rem;
 
     a {
-        color: var(--accent-color-text);
-        background-color: var(--accent-color);
-        padding: 8px 16px;
-        border-radius: var(--tag-border-radius);
-        display: inline-block;
-        font-size: 1.4rem;
-        transition: background-color 0.5s ease;
+        @include hashtag-link;
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* Categories - subtle label style */
+.article-category {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+
+    a {
+        background: transparent;
+        border: none;
+        color: var(--secondary);
+        font-family: var(--font-body);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-normal);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0;
+        transition: color var(--transition-fast);
 
         &:hover {
-            color: var(--accent-color-text);
-            background-color: var(--accent-color-darker);
+            color: var(--accent);
+        }
+
+        // Separator between multiple categories
+        &:not(:last-child)::after {
+            content: "/";
+            margin-left: 0.5rem;
+            opacity: 0.4;
         }
     }
 }

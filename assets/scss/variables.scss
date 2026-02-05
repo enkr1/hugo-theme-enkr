@@ -80,6 +80,15 @@ $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
     --dynamic: var(--fire);
     --surface: var(--card-background);
 
+    // Typography tokens (shared with custom.scss)
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-xs: 1.2rem;
+    --font-size-sm: 1.4rem;
+    --font-size-base: 1.6rem;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --transition-fast: 75ms ease;
+
     --scrollbar-thumb: #CBD5E0;
     --scrollbar-track: var(--body-background);
 
