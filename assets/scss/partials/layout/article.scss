@@ -244,21 +244,21 @@
         // Typography - Ba Zi design tokens
         color: var(--text);
         margin: var(--spacing-lg) 0 var(--spacing-sm);
-
-        // Layout - left border accent (existing theme)
-        margin-inline-start: calc((var(--card-padding)) * -1);
-        padding-inline-start: calc(var(--card-padding) - var(--heading-border-size));
-        border-inline-start: var(--heading-border-size) solid var(--accent-color);
         position: relative;
+
+        // Layout - vertical left border accent (closer to text than default theme)
+        padding-inline-start: 1rem;
+        padding-block: 0.2rem;
+        border-inline-start: var(--heading-border-size) solid var(--accent-color);
 
         a.header-anchor {
             transition: opacity 0.3s ease;
             opacity: 0;
             position: absolute;
-            left: 0;
-            width: var(--card-padding);
-            text-align: center;
+            right: 0;
+            top: 0;
             color: var(--accent-color);
+            font-size: 0.8em;
 
             &:before {
                 content: "#";
