@@ -190,7 +190,7 @@
 
         // Level 0 (root)
         &.depth-0 > a {
-            padding: 0.4rem 0 0.4rem 1rem;
+            padding: 0.4rem 0 0.4rem 0.75rem;  // Match TOC left padding
             font-size: var(--font-size-sm); // 1.4rem (one size smaller)
             font-weight: var(--font-weight-medium);
             color: var(--text-secondary);
@@ -203,7 +203,7 @@
 
         // Level 1
         &.depth-1 > a {
-            padding: 0.25rem 0 0.25rem 2rem;
+            padding: 0.25rem 0 0.25rem 1.75rem;
             font-size: var(--font-size-sm);
             color: var(--text-tertiary);
 
@@ -215,7 +215,7 @@
 
         // Level 2
         &.depth-2 > a {
-            padding: 0.2rem 0 0.2rem 3rem;
+            padding: 0.2rem 0 0.2rem 2.75rem;
             font-size: var(--font-size-xs);
             color: var(--text-tertiary);
             opacity: 0.8;
