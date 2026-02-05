@@ -7,7 +7,15 @@ class StackColorScheme {
 
     constructor(toggleEl: HTMLElement) {
         this.bindMatchMedia();
-        this.currentScheme = this.getSavedScheme();
+
+        // Force auto mode on mobile (≤768px) - follow system theme
+        if (this.isMobile()) {
+            this.currentScheme = 'auto';
+            this.saveScheme();
+        } else {
+            this.currentScheme = this.getSavedScheme();
+        }
+
         if (window.matchMedia('(prefers-color-scheme: dark)').matches === true)
             this.systemPreferScheme = 'dark'
         else
@@ -15,11 +23,16 @@ class StackColorScheme {
 
         this.dispatchEvent(document.documentElement.dataset.scheme as colorScheme);
 
-        if (toggleEl)
+        // Only bind toggle on desktop (mobile has no toggle)
+        if (toggleEl && !this.isMobile())
             this.bindClick(toggleEl);
 
         if (document.body.style.transition == '')
             document.body.style.setProperty('transition', 'background-color .3s ease');
+    }
+
+    private isMobile(): boolean {
+        return window.innerWidth <= 768;
     }
 
     private saveScheme() {

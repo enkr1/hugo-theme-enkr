@@ -330,28 +330,10 @@
 // MOBILE RESPONSIVENESS
 // ========================================
 @media (max-width: 768px) {
-    // Theme toggle - reposition and resize for tablet
-    // SSOT: Just override the variables, everything recalculates
+    // Theme toggle - hide on mobile, use system theme (auto mode)
+    // Mobile users expect native behavior (iOS/Android system theme)
     #dark-mode-toggle.theme-toggle {
-        --toggle-width: 52px;
-        --toggle-height: 26px;
-        --toggle-padding: 2px;
-        --toggle-icon-size: 12px;
-        --toggle-icon-padding: 6px;
-        top: 1rem;
-        right: 1rem;
-    }
-}
-
-@media (max-width: 640px) {
-    // Theme toggle - smaller for mobile
-    // SSOT: Just override the variables
-    #dark-mode-toggle.theme-toggle {
-        --toggle-width: 44px;
-        --toggle-height: 22px;
-        --toggle-padding: 2px;
-        --toggle-icon-size: 10px;
-        --toggle-icon-padding: 5px;
+        display: none;
     }
 }
 
