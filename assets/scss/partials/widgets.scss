@@ -195,15 +195,10 @@
 
         // Level 0 (root)
         &.depth-0 > a {
-            padding: 0.4rem 0 0.4rem 0.75rem;  // Match TOC left padding
-            font-size: var(--font-size-sm); // 1.4rem (one size smaller)
+            padding: 0.4rem 0 0.4rem 0.75rem;
+            font-size: var(--font-size-sm);
             font-weight: var(--font-weight-medium);
             color: var(--text-secondary);
-
-            &:hover {
-                color: var(--accent); // Turn gold (standardized)
-                border-left-color: var(--accent);
-            }
         }
 
         // Level 1
@@ -211,11 +206,6 @@
             padding: 0.25rem 0 0.25rem 1.75rem;
             font-size: var(--font-size-sm);
             color: var(--text-tertiary);
-
-            &:hover {
-                color: var(--accent); // Turn gold (standardized)
-                border-left-color: var(--accent);
-            }
         }
 
         // Level 2
@@ -227,8 +217,6 @@
 
             &:hover {
                 opacity: 1;
-                color: var(--accent); // Turn gold (standardized)
-                border-left-color: var(--accent);
             }
         }
 
@@ -243,8 +231,6 @@
 
             &:hover {
                 opacity: 1;
-                color: var(--accent); // Turn gold (standardized)
-                border-left-color: var(--accent);
             }
         }
 
