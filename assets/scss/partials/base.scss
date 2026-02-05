@@ -1,6 +1,12 @@
 html {
     font-size: 62.5%;
     overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
+
+/* Scrollbar width calculation for layout */
+:root {
+    --scrollbar-actual-width: calc(100vw - 100%);
 }
 
 * {
