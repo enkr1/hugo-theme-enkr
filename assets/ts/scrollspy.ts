@@ -119,6 +119,15 @@ function setupScrollspy() {
                     // Scroll so that newActiveSectionLink is in the middle of scrollableNavigation, except when it's from a manual click (hence the tocHovered check)
                     scrollToTocElement(newActiveSectionLink, scrollableNavigation);
                 }
+
+                // Update URL hash for scroll position persistence
+                const newHash = '#' + newActiveSection.id;
+                if (window.location.hash !== newHash) {
+                    history.replaceState(null, '', newHash);
+                }
+            } else if (window.location.hash) {
+                // At top of page with no active section - clear hash
+                history.replaceState(null, '', window.location.pathname + window.location.search);
             }
             activeSectionLink = newActiveSectionLink;
         }
