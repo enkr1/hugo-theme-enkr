@@ -11,6 +11,7 @@
 // - https://bugs.chromium.org/p/chromium/issues/detail?id=1121151
 
 const anchorLinksQuery = "a[href]";
+const SCROLL_MARGIN_TOP = 20; // px - breathing room above headings
 
 function setupSmoothAnchors() {
     document.querySelectorAll(anchorLinksQuery).forEach(aElement => {
@@ -23,7 +24,7 @@ function setupSmoothAnchors() {
 
             const targetId = decodeURI(aElement.getAttribute("href").substring(1)),
                 target = document.getElementById(targetId) as HTMLElement,
-                offset = target.getBoundingClientRect().top - document.documentElement.getBoundingClientRect().top;
+                offset = target.getBoundingClientRect().top - document.documentElement.getBoundingClientRect().top - SCROLL_MARGIN_TOP;
 
             window.history.pushState({}, "", aElement.getAttribute("href"));
             scrollTo({
