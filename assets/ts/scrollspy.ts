@@ -95,7 +95,7 @@ function setupScrollspy() {
         // Find the section that is currently active.
         // It is possible for no section to be active, so newActiveSection may be undefined.
         sectionsOffsets.forEach((section) => {
-            if (scrollPosition >= section.offset - 20) {
+            if (scrollPosition >= section.offset - 40) {
                 newActiveSection = document.getElementById(section.id);
             }
         });
