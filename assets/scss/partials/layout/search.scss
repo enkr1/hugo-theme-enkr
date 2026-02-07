@@ -171,6 +171,7 @@
         0 4px 6px rgba(0, 0, 0, 0.05),
         0 16px 32px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    border-radius: 12px;
     transform: translateY(-8px) scale(0.98);
     opacity: 0;
     transition: transform var(--transition-base), opacity var(--transition-base);
@@ -238,8 +239,8 @@
     a {
         display: flex;
         flex-direction: column;
-        gap: 2px;
-        padding: var(--spacing-sm) var(--spacing-lg);
+        gap: 4px;
+        padding: var(--spacing-md) var(--spacing-lg);
         color: var(--text);
         text-decoration: none;
     }
@@ -254,7 +255,7 @@
 
 .search-modal-result-preview {
     display: -webkit-box;
-    -webkit-line-clamp: 7;  // Show 7 lines
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     font-size: var(--font-size-sm);
