@@ -3,8 +3,6 @@
     {{ $filtered := where $pages "Params.hidden" "!=" true }}
 
     {{/* Use weight for sorting - Hugo's native approach */}}
-    {{/* Map sticky to weight: higher sticky = lower weight (appears first) */}}
-    {{/* For posts without sticky, use 0 which sorts after negative weights */}}
     {{ $pag := .Paginate $filtered }}
 
     {{/* Get sticky posts to show at top of first page only */}}
@@ -35,5 +33,7 @@
 {{ end }}
 
 {{ define "right-sidebar" }}
-    {{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}
+    {{ if not .Site.Params.layout.floatingSidebars }}
+        {{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}
+    {{ end }}
 {{ end }}

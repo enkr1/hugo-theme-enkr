@@ -30,12 +30,12 @@ $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
     // ========================================
     // Glass Morphism System
     // ========================================
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-bg-hover: rgba(255, 255, 255, 0.06);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-border-hover: rgba(201, 168, 130, 0.3);
-    --glass-blur: 20px;
-    --glass-blur-light: 10px;
+    --glass-bg: rgba(255, 255, 255, 0.55);       // Apple-style translucent — see-through
+    --glass-bg-hover: rgba(255, 255, 255, 0.70);
+    --glass-border: rgba(255, 255, 255, 0.35);   // Light frosted edge
+    --glass-border-hover: rgba(201, 168, 130, 0.4);
+    --glass-blur: 24px;
+    --glass-blur-light: 12px;
 
     // ========================================
     // Layout & Spacing
@@ -106,10 +106,11 @@ $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
     --spacing-lg: 2rem;
     --spacing-xl: 3rem;
 
-    // Border radius tokens
-    --radius-card: 0;
-    --radius-widget: 0;
-    --radius-image: 0;
+    // Border radius tokens — single base unit, components scale from it
+    --radius-base: 2rem;              // 32px — generous rounding
+    --radius-card: var(--radius-base);
+    --radius-widget: var(--radius-base);
+    --radius-image: calc(var(--radius-base) * 0.67);  // 8px — slightly tighter for images
     --radius-button-circle: 50%;
 
     --scrollbar-thumb: #CBD5E0;
@@ -146,10 +147,10 @@ $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
         --scrollbar-thumb: #334155;
         --scrollbar-track: var(--body-background);
 
-        // Dark mode glass adjustments
-        --glass-bg: rgba(255, 255, 255, 0.02);
-        --glass-bg-hover: rgba(255, 255, 255, 0.04);
-        --glass-border: rgba(255, 255, 255, 0.06);
+        // Dark mode glass — translucent dark surface
+        --glass-bg: rgba(10, 14, 26, 0.60);
+        --glass-bg-hover: rgba(10, 14, 26, 0.75);
+        --glass-border: rgba(255, 255, 255, 0.12);
     }
 }
 
@@ -174,7 +175,7 @@ $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
     --card-text-color-tertiary: var(--text-tertiary);
     --card-separator-color: rgba(0, 0, 0, 0.06);
 
-    --card-border-radius: 8px;
+    --card-border-radius: var(--radius-base);
     --card-border: 1px solid rgba(0, 0, 0, 0.06);
 
     --card-padding: 20px;

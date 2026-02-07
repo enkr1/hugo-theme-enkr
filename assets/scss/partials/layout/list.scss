@@ -33,28 +33,8 @@
     }
 }
 
-// Border trace animation keyframes
-@keyframes trace-top {
-    from { width: 0; }
-    to { width: 100%; }
-}
-
-@keyframes trace-right {
-    from { height: 0; }
-    to { height: 100%; }
-}
-
-@keyframes trace-bottom {
-    from { width: 0; }
-    to { width: 100%; }
-}
-
-@keyframes trace-left {
-    from { height: 0; }
-    to { height: 100%; }
-}
-
-// Article list cards with border trace hover effect
+// Article list cards with border glow hover effect
+// Uses border-color transition — works with any border-radius
 .article-list article,
 .article-list .article-card {
     border: 1px solid var(--border);
@@ -62,44 +42,14 @@
     overflow: hidden;
     position: relative;
     cursor: pointer;
-
-    // Top edge - traces left to right
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 0;
-        height: 1px;
-        background: var(--accent);
-        z-index: 3;
-        pointer-events: none;
-    }
-
-    // Right edge - traces top to bottom
-    &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 1px;
-        height: 0;
-        background: var(--accent);
-        z-index: 3;
-        pointer-events: none;
-    }
+    transition: border-color 300ms ease, box-shadow 300ms ease;
 
     &:hover {
-        &::before {
-            animation: trace-top 0.18s ease-out forwards;
-        }
-
-        &::after {
-            animation: trace-right 0.18s ease-out 0.18s forwards;
-        }
+        border-color: var(--accent);
+        box-shadow: var(--shadow-glow-subtle);
     }
 
-    // Stretched link covers entire card - also used for bottom & left borders
+    // Stretched link covers entire card
     .article-card__link {
         position: absolute;
         top: 0;
@@ -107,42 +57,6 @@
         right: 0;
         bottom: 0;
         z-index: 1;
-
-        // Bottom edge - traces right to left
-        &::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 0;
-            height: 1px;
-            background: var(--accent);
-            z-index: 3;
-            pointer-events: none;
-        }
-
-        // Left edge - traces bottom to top
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 1px;
-            height: 0;
-            background: var(--accent);
-            z-index: 3;
-            pointer-events: none;
-        }
-    }
-
-    &:hover .article-card__link {
-        &::before {
-            animation: trace-bottom 0.18s ease-out 0.36s forwards;
-        }
-
-        &::after {
-            animation: trace-left 0.18s ease-out 0.54s forwards;
-        }
     }
 
     // Category links sit above stretched link
@@ -283,6 +197,164 @@
         font-weight: bold;
         text-transform: uppercase;
     }
+}
+
+/* ===========================================
+   CLEAN-ROW — 金渊映日 Scannable list
+   date | title | tags — grouped by year
+   Used in floating-layout homepage
+   =========================================== */
+
+.clean-row-section {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.clean-row-year {
+    margin-bottom: 3rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.clean-row-year__title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--card-text-color-main);
+    margin: 0 0 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--gold);
+    display: inline-block;
+
+    // Gold accent underline
+    position: relative;
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--gold), transparent);
+    }
+}
+
+.clean-row-year__entries {
+    display: flex;
+    flex-direction: column;
+}
+
+.clean-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.75rem 0.75rem;
+    margin: 0 -0.75rem;
+    border-radius: 6px;
+    border-bottom: none;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    transition: background 200ms ease;
+
+    // Subtle separator between items
+    &:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0.75rem;
+        right: 0.75rem;
+        height: 1px;
+        background: var(--card-separator-color);
+    }
+
+    &:hover {
+        background: var(--gold-subtle);
+
+        .clean-row__title {
+            color: var(--gold);
+        }
+
+        // Gold accent bar on left edge
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 25%;
+            bottom: 25%;
+            width: 2px;
+            background: var(--gold);
+            border-radius: 1px;
+        }
+
+        time {
+            color: var(--text-secondary);
+        }
+    }
+
+    time {
+        flex: 0 0 5rem;
+        font-family: var(--code-font-family);
+        font-size: var(--font-size-xs);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        transition: color 150ms ease;
+    }
+}
+
+.clean-row__separator {
+    color: var(--card-separator-color);
+    flex-shrink: 0;
+    font-weight: 300;
+}
+
+.clean-row__title {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--card-text-color-main);
+    margin: 0;
+    flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 200ms ease;
+    line-height: var(--line-height-snug);
+}
+
+.clean-row__tags {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.4rem;
+    font-size: 1.1rem;
+
+    span {
+        white-space: nowrap;
+        color: var(--text-tertiary);
+        padding: 0.1rem 0.4rem;
+        border: 1px solid var(--card-separator-color);
+        border-radius: 3px;
+        transition: all 150ms ease;
+    }
+
+    .clean-row:hover & span {
+        border-color: var(--gold-subtle);
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 640px) {
+        display: none;
+    }
+}
+
+// Sticky posts in clean-row mode — gold left border
+.clean-row-section .article-list--sticky .clean-row {
+    border-left: 2px solid var(--gold);
+    padding-left: calc(0.75rem + 2px);
+    background: var(--gold-subtle);
 }
 
 .subsection-list {

@@ -84,6 +84,29 @@
     }
 }
 
+// Floating toolbar layout — sidebars removed from flow, content centered
+.floating-layout {
+    .container.main-container {
+        max-width: 1320px;
+        margin: 0 auto;
+
+        @include respond(md) {
+            padding-left: 60px;  // ~52px toolbar + breathing room
+            padding-right: 2rem; // no right toolbar — standard padding
+        }
+    }
+
+    .left-sidebar,
+    .right-sidebar {
+        display: none !important;
+    }
+
+    main.main {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
 .flex {
     display: flex;
     flex-direction: row;

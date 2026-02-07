@@ -1,0 +1,134 @@
+/* ===========================================
+   FLOATING TOOLBAR - Apple Glass Buttons
+   Single left-side frosted-glass nav, vertically centered
+   Tooltip label on hover — no panel expansion
+   Only active when body.floating-layout
+   =========================================== */
+
+// ── Spacing tokens ──────────────────────────
+$float-inset: 1.5rem;         // gap from screen edge
+$float-radius: 16px;          // pill rounding
+$toolbar-icon-size: 40px;     // button hit area
+$toolbar-gap: 4px;            // gap between icons
+
+.floating-toolbar {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: $float-inset;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: $toolbar-gap;
+    padding: 6px;
+    border-radius: $float-radius;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    box-shadow:
+        0 0 0 1px var(--glass-border),
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+
+    .floating-layout & {
+        display: flex;
+    }
+
+    @media (max-width: 767px) {
+        display: none !important;
+    }
+}
+
+// ── Icon button ─────────────────────────────
+
+.toolbar-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $toolbar-icon-size;
+    height: $toolbar-icon-size;
+    color: var(--text-tertiary);
+    border-radius: 10px;
+    transition: color 200ms ease, background 200ms ease, transform 200ms ease;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+
+    svg {
+        width: 2rem;
+        height: 2rem;
+        stroke-width: 1.8;
+    }
+
+    &:hover {
+        color: var(--gold);
+        background: rgba(201, 168, 130, 0.15);
+        transform: scale(1.08);
+    }
+
+    // ── Tooltip label (appears to the right) ──
+    &::after {
+        content: attr(aria-label);
+        position: absolute;
+        top: 50%;
+        left: calc(100% + 8px);
+        transform: translateY(-50%);
+        padding: 4px 10px;
+        background: var(--glass-bg-hover);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        font-size: 1.2rem;
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 150ms ease, transform 150ms ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    &:hover::after {
+        opacity: 1;
+        transform: translateY(-50%) translateX(2px);
+    }
+}
+
+// ── Separator ───────────────────────────────
+
+.toolbar-separator {
+    width: 20px;
+    height: 1px;
+    background: var(--glass-border);
+    margin: 2px 0;
+}
+
+// ── Accessibility ───────────────────────────
+
+.toolbar-icon:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .floating-toolbar,
+    .toolbar-icon {
+        transition: none;
+    }
+
+    .toolbar-icon::after {
+        transition: none;
+    }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+    .floating-toolbar {
+        background: var(--card-background);
+        opacity: 0.95;
+    }
+}

@@ -1,0 +1,14 @@
+<a href="{{ .RelPermalink }}" class="clean-row">
+    <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "Jan 02" }}</time>
+    <span class="clean-row__separator">&mdash;</span>
+    <h3 class="clean-row__title">{{ .Title }}</h3>
+    <div class="clean-row__tags">
+        {{/* TODO(human): Design decision — how should rows handle posts with no tags,
+             and should we show view counts inline? See the Learn by Doing prompt below. */}}
+        {{ with .Params.tags }}
+            {{ range first 3 . }}
+                <span>#{{ . }}</span>
+            {{ end }}
+        {{ end }}
+    </div>
+</a>
