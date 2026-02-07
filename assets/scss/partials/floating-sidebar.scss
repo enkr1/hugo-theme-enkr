@@ -8,8 +8,8 @@
 // ── Spacing tokens ──────────────────────────
 $float-inset: 1.5rem;         // gap from screen edge
 $float-radius: 16px;          // pill rounding
-$toolbar-icon-size: 40px;     // button hit area
-$toolbar-gap: 4px;            // gap between icons
+$toolbar-icon-size: 36px;     // fixed px — immune to 62.5% html font-size
+$toolbar-gap: 2px;            // minimal gap between icons
 
 .floating-toolbar {
     position: fixed;
@@ -21,7 +21,7 @@ $toolbar-gap: 4px;            // gap between icons
     flex-direction: column;
     align-items: center;
     gap: $toolbar-gap;
-    padding: 6px;
+    padding: 8px;
     border-radius: $float-radius;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(24px);
@@ -59,8 +59,8 @@ $toolbar-gap: 4px;            // gap between icons
     text-decoration: none;
 
     svg {
-        width: 2rem;
-        height: 2rem;
+        width: 20px;
+        height: 20px;
         stroke-width: 1.8;
     }
 
