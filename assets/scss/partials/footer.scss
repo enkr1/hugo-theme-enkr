@@ -52,6 +52,26 @@
         font-weight: var(--font-weight-medium);
         color: var(--text-secondary);
     }
+
+    .footer-visitor-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35em;
+
+        svg {
+            width: 1em;
+            height: 1em;
+            opacity: 0.5;
+        }
+
+        #visitor-count-footer {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .visitor-label {
+            opacity: 0.7;
+        }
+    }
 }
 
 // Standard footer
