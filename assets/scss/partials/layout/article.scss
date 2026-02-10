@@ -14,6 +14,10 @@
         overflow: hidden;
 
         .article-header {
+            .article-title {
+                font-size: 4rem;
+            }
+
             .article-image {
                 img {
                     height: auto;
@@ -288,7 +292,7 @@
 
     h2 {
         font-size: var(--font-size-xl);
-        font-weight: var(--font-weight-semibold);
+        font-weight: var(--font-weight-medium);
         line-height: var(--line-height-tight);
     }
 
