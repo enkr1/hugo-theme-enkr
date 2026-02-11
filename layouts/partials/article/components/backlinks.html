@@ -12,10 +12,11 @@
 {{- $content := replace (string .Content) $absPrefix `href="/` -}}
 
 {{/* ── Incoming: pages that link TO this page ("Mentioned in") ── */}}
+{{- $currentNoSlash := strings.TrimRight "/" $currentURL -}}
 {{- $mentionedIn := slice -}}
 {{- range where site.RegularPages "RelPermalink" "!=" $currentURL -}}
     {{- $c := replace (string .Content) $absPrefix `href="/` -}}
-    {{- if findRE (printf `href="%s"` $currentURL) $c -}}
+    {{- if or (findRE (printf `href="%s"` $currentURL) $c) (findRE (printf `href="%s"` $currentNoSlash) $c) -}}
         {{- $mentionedIn = $mentionedIn | append . -}}
     {{- end -}}
 {{- end -}}
@@ -26,6 +27,7 @@
 {{- range $rawLinks -}}
     {{- $path := replaceRE `href="([^"]+)"` "$1" . -}}
     {{- $path = replaceRE `#.*` "" $path -}}
+    {{- if not (strings.HasSuffix $path "/") -}}{{- $path = printf "%s/" $path -}}{{- end -}}
     {{- $page := index $pagesByURL $path -}}
     {{- with $page -}}
         {{- if ne .RelPermalink $currentURL -}}
@@ -122,6 +124,8 @@
         }).catch(function() { return 0; });
     }
 
+    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
     items.forEach(function(li) {
         var title = li.dataset.title;
         var span = li.querySelector('.backlinks-views');
@@ -132,6 +136,7 @@
             span.textContent = cached.toLocaleString();
             return;
         }
+        if (isLocal) { span.textContent = '—'; return; }
 
         fetchCount(title).then(function(count) {
             span.textContent = count ? count.toLocaleString() : '—';
