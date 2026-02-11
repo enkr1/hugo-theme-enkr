@@ -130,16 +130,16 @@
         var title = li.dataset.title;
         var span = li.querySelector('.backlinks-views');
         if (!span || !title) return;
+        if (isLocal) { span.textContent = '...'; return; }
 
         var cached = readCache(title);
         if (cached !== null) {
             span.textContent = cached.toLocaleString();
             return;
         }
-        if (isLocal) { span.textContent = '—'; return; }
 
         fetchCount(title).then(function(count) {
-            span.textContent = count ? count.toLocaleString() : '—';
+            span.textContent = count ? count.toLocaleString() : '...';
         });
     });
 })();
