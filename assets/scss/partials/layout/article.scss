@@ -405,12 +405,27 @@
         }
     }
 
+    // Lark-style callout
     blockquote {
         position: relative;
         margin: 1.5em 0;
-        border-inline-start: var(--blockquote-border-size) solid var(--card-separator-color);
-        padding: 15px calc(var(--card-padding) - var(--blockquote-border-size));
-        background-color: var(--blockquote-background-color);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        background: rgba(201, 168, 130, 0.08);
+        font-style: normal;
+        font-family: var(--font-body);
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-relaxed);
+        color: var(--text-secondary);
+
+        > p:first-child {
+            margin-top: 0;
+        }
+
+        > p:last-child {
+            margin-bottom: 0;
+        }
 
         .cite {
             display: block;
