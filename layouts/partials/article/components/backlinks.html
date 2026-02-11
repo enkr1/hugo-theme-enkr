@@ -1,0 +1,146 @@
+{{- $currentURL := .RelPermalink -}}
+{{- $baseURL := strings.TrimRight "/" site.BaseURL -}}
+{{- $absPrefix := printf `href="%s/` $baseURL -}}
+
+{{/* Build URL→Page lookup map for resolving hrefs to pages */}}
+{{- $pagesByURL := dict -}}
+{{- range site.RegularPages -}}
+    {{- $pagesByURL = merge $pagesByURL (dict .RelPermalink .) -}}
+{{- end -}}
+
+{{/* Normalize content: replace absolute baseURL hrefs with relative ones */}}
+{{- $content := replace (string .Content) $absPrefix `href="/` -}}
+
+{{/* ── Incoming: pages that link TO this page ("Mentioned in") ── */}}
+{{- $mentionedIn := slice -}}
+{{- range where site.RegularPages "RelPermalink" "!=" $currentURL -}}
+    {{- $c := replace (string .Content) $absPrefix `href="/` -}}
+    {{- if findRE (printf `href="%s"` $currentURL) $c -}}
+        {{- $mentionedIn = $mentionedIn | append . -}}
+    {{- end -}}
+{{- end -}}
+
+{{/* ── Outgoing: pages this page links TO ("Mentions") ── */}}
+{{- $rawLinks := findRE `href="(/[^"]+)"` $content -}}
+{{- $mentions := slice -}}
+{{- range $rawLinks -}}
+    {{- $path := replaceRE `href="([^"]+)"` "$1" . -}}
+    {{- $path = replaceRE `#.*` "" $path -}}
+    {{- $page := index $pagesByURL $path -}}
+    {{- with $page -}}
+        {{- if ne .RelPermalink $currentURL -}}
+            {{- $mentions = $mentions | append . -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+{{- $mentions = $mentions | uniq -}}
+
+{{/* ── Render: only if at least one direction has results ── */}}
+{{ if or $mentionedIn $mentions }}
+<div class="backlinks-container">
+    {{ with $mentionedIn }}
+    <section class="backlinks-section">
+        <h2 class="backlinks-label">Mentioned in</h2>
+        <ul class="backlinks-list">
+            {{ range . }}
+            <li data-slug="{{ .File.ContentBaseName }}">
+                <a href="{{ .RelPermalink }}">
+                    <span class="backlinks-title">{{ .Title }}</span>
+                    <span class="backlinks-line"></span>
+                    <span class="backlinks-views">...</span>
+                </a>
+            </li>
+            {{ end }}
+        </ul>
+    </section>
+    {{ end }}
+
+    {{ with $mentions }}
+    <section class="backlinks-section">
+        <h2 class="backlinks-label">Mentions</h2>
+        <ul class="backlinks-list">
+            {{ range . }}
+            <li data-slug="{{ .File.ContentBaseName }}">
+                <a href="{{ .RelPermalink }}">
+                    <span class="backlinks-title">{{ .Title }}</span>
+                    <span class="backlinks-line"></span>
+                    <span class="backlinks-views">...</span>
+                </a>
+            </li>
+            {{ end }}
+        </ul>
+    </section>
+    {{ end }}
+</div>
+<script>
+(function() {
+    var CACHE_PREFIX = 'visitor-count-article-';
+    var items = document.querySelectorAll('.backlinks-list li[data-slug]');
+    if (!items.length) return;
+
+    function readCache(slug) {
+        try {
+            var raw = localStorage.getItem(CACHE_PREFIX + slug);
+            if (!raw) return null;
+            var entry = JSON.parse(raw);
+            if (Date.now() - entry.timestamp > entry.ttl) return null;
+            return entry.data;
+        } catch(e) { return null; }
+    }
+
+    // Lazy-init Firebase only if needed
+    var firebaseReady = null;
+    function getDb() {
+        if (firebaseReady) return firebaseReady;
+        firebaseReady = Promise.all([
+            import('https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js'),
+            import('https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js')
+        ]).then(function(mods) {
+            var initializeApp = mods[0].initializeApp, getApps = mods[0].getApps, getApp = mods[0].getApp;
+            var getFirestore = mods[1].getFirestore;
+            var app = !getApps().length ? initializeApp({
+                apiKey: "AIzaSyBxexVzGzOqDUGFzHVT_-oYxkqAetlFUSo",
+                projectId: "hexo-blog-9ccea"
+            }) : getApp();
+            return getFirestore(app);
+        });
+        return firebaseReady;
+    }
+
+    function fetchCount(slug) {
+        return getDb().then(function(db) {
+            return import('https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js').then(function(mod) {
+                return mod.getDoc(mod.doc(db, 'articles', slug));
+            });
+        }).then(function(snap) {
+            var count = snap.exists() ? (snap.data().count || 0) : 0;
+            try {
+                localStorage.setItem(CACHE_PREFIX + slug, JSON.stringify({
+                    data: count, timestamp: Date.now(), ttl: 600000
+                }));
+            } catch(e) {}
+            return count;
+        }).catch(function() { return 0; });
+    }
+
+    var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+    items.forEach(function(li) {
+        var slug = li.dataset.slug;
+        var span = li.querySelector('.backlinks-views');
+        if (!span || !slug) return;
+
+        var cached = readCache(slug);
+        if (cached !== null) {
+            span.textContent = cached.toLocaleString();
+            return;
+        }
+        if (isLocal) { span.textContent = '—'; return; }
+
+        fetchCount(slug).then(function(count) {
+            span.textContent = count ? count.toLocaleString() : '—';
+        });
+    });
+})();
+</script>
+{{ end }}
