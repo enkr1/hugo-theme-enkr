@@ -238,7 +238,8 @@
         align-items: center;
         padding: 0.5rem 0;
         text-decoration: none;
-        transition: all var(--transition-fast);
+        background-image: none;
+        transition: color var(--transition-fast);
 
         &:hover {
             .backlinks-title {
@@ -429,19 +430,6 @@
 
         a {
             box-shadow: none;
-            text-decoration: underline;
-            text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
-            text-underline-offset: 2px;
-            text-decoration-thickness: 1.5px;
-
-            // Disable the ::after pseudo underline (doesn't work multi-line)
-            &::after {
-                display: none;
-            }
-
-            &:hover {
-                text-decoration-color: currentColor;
-            }
         }
 
         .cite {
