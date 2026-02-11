@@ -427,6 +427,23 @@
             margin-bottom: 0;
         }
 
+        a {
+            box-shadow: none;
+            text-decoration: underline;
+            text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+            text-underline-offset: 2px;
+            text-decoration-thickness: 1.5px;
+
+            // Disable the ::after pseudo underline (doesn't work multi-line)
+            &::after {
+                display: none;
+            }
+
+            &:hover {
+                text-decoration-color: currentColor;
+            }
+        }
+
         .cite {
             display: block;
             text-align: right;
