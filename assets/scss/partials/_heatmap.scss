@@ -1,0 +1,259 @@
+// ============================================
+// Archive Heatmap - GitHub-style activity grid
+// Ba Zi color scale: gold intensity by post count
+// ============================================
+
+.heatmap-section {
+    margin-bottom: var(--section-separation);
+}
+
+// Year navigation header
+.heatmap-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.heatmap-year {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--card-text-color-main);
+    min-width: 4ch;
+    text-align: center;
+}
+
+.heatmap-nav {
+    background: none;
+    border: 1px solid var(--card-separator-color);
+    border-radius: var(--radius-button);
+    color: var(--card-text-color-secondary);
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+    font-size: var(--font-size-sm);
+    transition: color var(--transition-base), border-color var(--transition-base);
+
+    &:hover:not(:disabled) {
+        color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: default;
+    }
+}
+
+// Grid wrapper - centered, horizontal scroll on mobile
+.heatmap-grid {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--spacing-xs);
+    display: flex;
+    justify-content: center;
+
+    // Subtle scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-separator-color) transparent;
+
+    &::-webkit-scrollbar {
+        height: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: var(--card-separator-color);
+        border-radius: 2px;
+    }
+}
+
+// Inner grid layout
+.heatmap-inner {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 0 auto;
+}
+
+// Month labels row
+.heatmap-months {
+    display: flex;
+    padding-left: 32px; // align with grid (past day labels)
+    margin-bottom: 4px;
+    position: relative;
+    height: 1.4em;
+}
+
+.heatmap-month-label {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--card-text-color-secondary);
+}
+
+// Grid body: day labels + cells
+.heatmap-body {
+    display: flex;
+    gap: 3px;
+}
+
+// Day labels column (Mon, Wed, Fri)
+.heatmap-days {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-right: 6px;
+}
+
+.heatmap-day-label {
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--card-text-color-tertiary);
+}
+
+// Weeks container
+.heatmap-weeks {
+    display: flex;
+    gap: 3px;
+}
+
+// Single week column
+.heatmap-week {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+// Individual day cell
+.heatmap-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    border: none;
+    padding: 0;
+    cursor: default;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    position: relative;
+
+    // Empty day
+    &[data-count="0"] {
+        background-color: var(--card-separator-color);
+        opacity: 0.3;
+    }
+
+    // 1 post - subtle gold
+    &[data-count="1"] {
+        background-color: var(--gold-subtle);
+        cursor: pointer;
+        opacity: 1;
+    }
+
+    // 2 posts - medium gold
+    &[data-count="2"] {
+        background-color: var(--gold);
+        opacity: 0.6;
+        cursor: pointer;
+    }
+
+    // 3+ posts - full gold
+    &[data-count="3"] {
+        background-color: var(--gold);
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    // Today ring
+    &[data-today="true"] {
+        box-shadow: 0 0 0 2px var(--fire);
+    }
+
+    // Hover state (only cells with posts)
+    &[data-count="1"],
+    &[data-count="2"],
+    &[data-count="3"] {
+        &:hover {
+            transform: scale(1.4);
+            box-shadow: 0 0 6px var(--gold-subtle);
+            z-index: 2;
+        }
+
+        // Keep today ring on hover
+        &[data-today="true"]:hover {
+            box-shadow: 0 0 0 2px var(--fire), 0 0 6px var(--gold-subtle);
+        }
+    }
+
+    // Outside current year - dimmed
+    &[data-outside="true"] {
+        opacity: 0.15 !important;
+    }
+}
+
+// Tooltip
+.heatmap-tooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100;
+    padding: 0.5rem 0.8rem;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--card-text-color-main);
+    background: var(--card-background);
+    border: 1px solid var(--card-separator-color);
+    border-radius: var(--radius-code-inline);
+    box-shadow: var(--shadow-l2);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+
+    &.visible {
+        opacity: 1;
+    }
+}
+
+// Filter banner - matches card/section styling
+.heatmap-filter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-md);
+    padding: 0.8rem var(--spacing-md);
+    font-size: var(--font-size-sm);
+    color: var(--card-text-color-secondary);
+    background: var(--card-background);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-l1);
+    transition: box-shadow var(--transition-base);
+
+    &[hidden] {
+        display: none;
+    }
+}
+
+.heatmap-filter-date {
+    font-weight: var(--font-weight-semibold);
+    color: var(--accent-color);
+}
+
+.heatmap-clear {
+    background: none;
+    border: 1px solid var(--card-separator-color);
+    border-radius: var(--radius-button);
+    color: var(--card-text-color-secondary);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    padding: 0.2rem 0.6rem;
+    line-height: 1;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+
+    &:hover {
+        color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+}
