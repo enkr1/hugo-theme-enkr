@@ -1,0 +1,56 @@
+/* ===========================================
+   PRINT STYLES
+   Hide interactive UI chrome when printing
+   =========================================== */
+
+@media print {
+    // ── Hide UI chrome ──────────────────────────
+    .mobile-nav,
+    .toc-left-sidebar,
+    .toc-mobile-button,
+    .toc-mobile-overlay,
+    .left-sidebar,
+    .right-sidebar,
+    .scroll-to-top,
+    .site-footer,
+    .waveform,
+    .related-content--wrapper,
+    .disqus-container,
+    .copyCodeButton {
+        display: none !important;
+    }
+
+    // ── Font size ───────────────────────────────
+    html {
+        font-size: 50% !important;
+    }
+
+    // ── Strip ALL spacing to use full page ──────
+    :root {
+        --card-padding: 0 !important;
+        --card-border-radius: 0 !important;
+        --main-top-padding: 0 !important;
+        --section-separation: 0 !important;
+        --container-padding: 0 !important;
+    }
+
+    .main-container {
+        padding: 0 !important;
+    }
+
+    main.main {
+        padding: 0 !important;
+    }
+
+    // Remove card decoration
+    .main-article {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+        outline: none !important;
+    }
+
+    body {
+        padding: 0 !important;
+    }
+}
