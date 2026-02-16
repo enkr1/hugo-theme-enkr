@@ -262,8 +262,7 @@
         font-size: var(--font-size-sm);
         color: var(--text-secondary);
         transition: color var(--transition-fast);
-        flex-shrink: 0;
-        max-width: 80%;
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
