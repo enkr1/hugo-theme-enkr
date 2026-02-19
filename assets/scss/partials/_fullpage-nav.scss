@@ -1,0 +1,228 @@
+/* ===========================================
+   FULL-PAGE NAVIGATION OVERLAY
+   Modern minimal design with Ba Zi aesthetics
+   Migrated from custom.scss
+   =========================================== */
+
+// Hamburger button - top-left with scroll-based visibility
+.nav-hamburger {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    width: 44px;
+    height: 44px;
+    background: var(--card-background);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0;
+    transition: opacity var(--transition-slow), transform var(--transition-slow), background var(--transition-fast), border-color var(--transition-fast);
+
+    // On >= iPad: smaller size, positioned above sidebar content
+    @media (min-width: 769px) {
+        width: 36px;
+        height: 36px;
+        top: 1.5rem;
+        left: 1.5rem;
+        gap: 5px;
+
+        .hamburger-line {
+            width: 20px;
+        }
+    }
+
+    &:hover {
+        background: var(--accent-subtle);
+        border-color: var(--accent);
+    }
+
+    // Hidden state when scrolling down
+    &.hidden {
+        opacity: 0;
+        transform: translateY(-1rem);
+        pointer-events: none;
+    }
+
+    // Three lines
+    .hamburger-line {
+        width: 24px;
+        height: 2px;
+        background: var(--text);
+        transition: all var(--transition-base);
+        border-radius: 2px;
+    }
+
+    // Animate to X when overlay is open
+    &.active {
+        .hamburger-line:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-line:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+    }
+}
+
+// Full-page overlay
+.fullpage-nav {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-base),
+                visibility var(--transition-base);
+
+    &.active {
+        opacity: 1;
+        visibility: visible;
+
+        .fullpage-nav__content {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+}
+
+// Navigation content - centered with entrance animation
+.fullpage-nav__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform var(--transition-base),
+                opacity var(--transition-base);
+}
+
+// Menu list
+.fullpage-nav__menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+
+    li {
+        padding: 0;
+        margin: 0;
+
+        a {
+            display: block;
+            font-family: var(--font-display);
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-semibold);
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color var(--transition-fast),
+                        transform var(--transition-fast);
+            position: relative;
+            padding: 0.5rem 1rem;
+
+            &:hover {
+                color: var(--gold);
+                transform: translateX(8px);
+            }
+
+            // Subtle underline on hover
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 1rem;
+                width: 0;
+                height: 2px;
+                background: var(--gold);
+                transition: width var(--transition-base);
+            }
+
+            &:hover::after {
+                width: calc(100% - 2rem);
+            }
+        }
+
+        &.active a {
+            color: var(--gold);
+        }
+    }
+}
+
+// Theme toggle at bottom
+.fullpage-nav__toggle {
+    margin-top: 2rem;
+
+    button {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-button);
+        padding: 0.75rem 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        font-family: var(--font-body);
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+
+        &:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        svg {
+            width: 20px;
+            height: 20px;
+            transition: transform var(--transition-base);
+        }
+
+        .sun-icon,
+        .moon-icon {
+            display: none;
+        }
+
+        // Show appropriate icon based on theme
+        &[data-theme="light"] .sun-icon,
+        &[data-theme="dark"] .moon-icon {
+            display: block;
+        }
+
+        &:hover svg {
+            transform: rotate(15deg);
+        }
+    }
+}
+
+// Mobile adjustments
+@media (max-width: 768px) {
+    .nav-hamburger {
+        top: 1.5rem;
+        left: 1.5rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .fullpage-nav__menu li a {
+        font-size: var(--font-size-xl);
+    }
+}

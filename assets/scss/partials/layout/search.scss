@@ -302,3 +302,53 @@
         margin-right: 3px;
     }
 }
+
+/* ===========================================
+   RIGHT SIDEBAR SEARCH - Modern minimal trigger
+   Migrated from custom.scss
+   =========================================== */
+
+.right-sidebar .search-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.2rem;
+    margin-bottom: var(--spacing-lg);
+    background: var(--card-background);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-body);
+
+    &:hover {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-subtle);
+    }
+
+    &:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-subtle);
+    }
+
+    .search-trigger__text {
+        flex: 1;
+        text-align: left;
+        font-size: var(--font-size-sm);
+        color: var(--text-tertiary);
+        font-weight: var(--font-weight-normal);
+    }
+
+    .search-trigger__kbd {
+        font-family: var(--font-mono);
+        font-size: var(--font-size-xs);
+        padding: 0.3rem 0.6rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 0;
+        color: var(--text-tertiary);
+        font-weight: var(--font-weight-normal);
+    }
+}
