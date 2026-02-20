@@ -1,0 +1,100 @@
+/* ===========================================
+   CODE - Clean Minimal Style
+   Inline code, code blocks, Chroma syntax highlighting
+   Migrated from custom.scss
+   =========================================== */
+
+.article-content code {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-code);
+    background: var(--code-background-color);
+    color: var(--code-text-color);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-code-inline);
+    border: none;
+}
+
+.article-content pre {
+    code {
+        background: transparent;
+        padding: 0;
+        border: none;
+        font-size: var(--font-size-code);
+    }
+}
+
+.article-content .highlight {
+    background: var(--pre-background-color);
+    border-radius: var(--radius-code-block);
+    border-left: 3px solid var(--secondary);
+    padding: 1rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    max-width: 100%;
+    line-height: var(--line-height-snug);  // 1.4 - compact spacing for code
+
+    pre {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        white-space: pre-wrap;
+        word-break: break-word;
+        line-height: inherit;
+    }
+
+    code {
+        white-space: pre-wrap;
+        word-break: break-word;
+        line-height: inherit;
+    }
+
+    // Chroma syntax highlighter wrapper
+    .chroma {
+        // Line numbers table - research-backed fix for vertical spacing
+        .lntable {
+            border-spacing: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            width: auto;
+            overflow: auto;
+            display: block;  // Key: prevents table cell expansion
+
+            // Table cells - no padding, top-aligned
+            .lntd {
+                vertical-align: top;
+                padding: 0;
+                margin: 0;
+                border: 0;
+            }
+
+            // Code cell - full width, prevents overflow issues
+            .lntd + .lntd {
+                width: 100%;
+            }
+
+            // Line number elements - display:flex prevents height mismatch
+            .lnt,
+            .hl {
+                display: flex;
+                color: var(--text-tertiary);
+                padding-right: 1rem;
+                user-select: none;
+            }
+
+            // Code content inside table
+            pre {
+                margin: 0;
+                padding: 0;
+                line-height: var(--line-height-snug);  // 1.4 - compact
+            }
+        }
+
+        // Inline line numbers fallback (when lineNumbersInTable = false)
+        .ln {
+            color: var(--text-tertiary);
+            padding-right: 1rem;
+            user-select: none;
+        }
+    }
+}

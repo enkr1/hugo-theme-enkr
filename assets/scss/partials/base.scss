@@ -50,3 +50,55 @@ body {
     }
 }
 /**/
+
+/* ===========================================
+   BUTTONS - Gold hover, Fire click flash
+   Migrated from custom.scss
+   =========================================== */
+
+button,
+.btn,
+input[type="submit"] {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-button);
+    padding: 0.4rem 1.2rem;
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-normal);
+    color: var(--text-secondary);
+    transition: border-color var(--transition-fast), color var(--transition-fast), font-weight var(--transition-fast);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        font-weight: var(--font-weight-medium);
+    }
+
+    // Fire flash on click (流年曦)
+    &:active {
+        box-shadow: inset 0 0 20px var(--dynamic-glow);
+    }
+}
+
+// Primary CTA - ONLY filled button (key conversion point)
+.btn-primary,
+.btn--primary,
+button[type="submit"].primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-color-text);
+    font-weight: var(--font-weight-medium);
+
+    &:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+        color: var(--accent-color-text);
+    }
+
+    &:active {
+        box-shadow: inset 0 0 30px var(--dynamic-glow);
+    }
+}

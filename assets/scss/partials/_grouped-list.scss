@@ -1,0 +1,108 @@
+/* ===========================================
+   GROUPED LIST - Year/Month hierarchy (SSOT)
+   Used by: journals, posts
+   Migrated from custom.scss
+   =========================================== */
+
+// Page header for grouped lists
+.section-header--grouped {
+    margin-bottom: 2.5rem;
+
+    .section-title {
+        font-family: var(--font-display);
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-semibold);
+        color: var(--card-text-color-main);
+    }
+}
+
+// Grouped list container
+.grouped-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.grouped-list__year {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.grouped-list__year-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--card-text-color-main);
+    margin: 0;
+}
+
+.grouped-list__month {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.grouped-list__month-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--card-text-color-secondary);
+    margin: 1.2rem 0 0.5rem 0;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.grouped-list__entries {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.grouped-list__row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    transition: color var(--transition-base);
+
+    time {
+        color: var(--card-text-color-secondary);
+        font-size: var(--font-size-sm);
+        font-family: var(--font-body);
+        flex: 0 0 2rem;
+        white-space: nowrap;
+    }
+
+    .separator {
+        color: var(--card-text-color-tertiary);
+    }
+
+    .title {
+        color: var(--card-text-color-main);
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: var(--font-weight-medium);
+    }
+
+    .preview {
+        flex-basis: 100%;
+        color: var(--card-text-color-tertiary);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-normal);
+        padding-left: 3rem;
+    }
+
+    &:hover {
+        .title {
+            color: var(--gold);
+        }
+
+        .preview {
+            color: var(--card-text-color-secondary);
+        }
+    }
+}
