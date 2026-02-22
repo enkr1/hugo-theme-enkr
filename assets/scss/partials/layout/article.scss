@@ -200,6 +200,7 @@
 .backlinks-section {
     margin: 0;
     padding: 0;
+    min-width: 0; // Allow grid child to shrink below content size
 }
 
 .backlinks-label {
@@ -240,6 +241,7 @@
         text-decoration: none;
         background-image: none;
         transition: color var(--transition-fast);
+        overflow: hidden; // Constrain flex children so text truncation works
 
         &:hover {
             .backlinks-title {
