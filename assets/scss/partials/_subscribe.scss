@@ -39,7 +39,7 @@
 
 .subscribe-form__fields {
     display: flex;
-    column-gap: 0.5rem;
+    column-gap: 2rem;
     row-gap: 0.75rem;
     justify-content: center;
     flex-wrap: wrap;
@@ -51,8 +51,9 @@
     font-family: var(--font-body);
     font-size: var(--font-size-sm);
     padding: 0.75rem 1rem;
-    border: 1px solid var(--card-text-color-tertiary);
-    border-radius: 1rem;
+    border: none;
+    border-bottom: 1px solid var(--card-text-color-tertiary);
+    border-radius: 0;
     background: transparent;
     color: var(--card-text-color-main);
     outline: none;
