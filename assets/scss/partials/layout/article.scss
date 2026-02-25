@@ -500,6 +500,7 @@
             display: block;
             margin: 0;
             overflow: hidden;
+            border-radius: var(--radius-image);
             position: relative;
             max-width: 100%;
 
@@ -508,6 +509,8 @@
                 max-width: 100%;
                 height: auto;
                 display: block;
+                border-radius: var(--radius-image);
+                clip-path: inset(0 round var(--radius-image));
                 transition: transform 0.3s ease;
             }
 
