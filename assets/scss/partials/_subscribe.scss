@@ -1,0 +1,121 @@
+// ============================================
+// Subscribe Form — minimal editorial style
+// Matches related-content separator pattern
+// ============================================
+
+.subscribe-form {
+    max-width: calc(77ch + 4rem);
+    width: 100%;
+    margin: 2rem auto;
+    padding-top: 2rem;
+    border-top: 1px solid var(--card-separator-color);
+    text-align: center;
+
+    .article-page--toc-left & {
+        max-width: calc(95ch + 4rem);
+    }
+}
+
+.subscribe-form__title {
+    font-family: var(--font-body);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--card-text-color-tertiary);
+    margin: 0 0 0.4rem;
+}
+
+.subscribe-form__desc {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    color: var(--card-text-color-secondary);
+    margin: 0 0 1.2rem;
+}
+
+.subscribe-form__fields {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.subscribe-form__input {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--card-separator-color);
+    border-radius: 1rem;
+    background: transparent;
+    color: var(--card-text-color-main);
+    outline: none;
+    transition: border-color var(--transition-fast);
+
+    &::placeholder {
+        color: var(--card-text-color-tertiary);
+    }
+
+    &:focus {
+        border-color: var(--accent-color);
+    }
+
+    &--email {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    &--name {
+        flex: 0.6;
+        min-width: 140px;
+    }
+}
+
+.subscribe-form__btn {
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--card-separator-color);
+    border-radius: 1rem;
+    background: transparent;
+    color: var(--card-text-color-secondary);
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+        color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: wait;
+    }
+}
+
+.subscribe-form__feedback {
+    margin-top: 1rem;
+    font-family: var(--font-body);
+    font-size: var(--font-size-sm);
+
+    &--ok {
+        color: var(--accent-color);
+    }
+
+    &--error {
+        color: var(--fire);
+    }
+}
+
+// Mobile: stack vertically
+@media (max-width: 640px) {
+    .subscribe-form__fields {
+        flex-direction: column;
+    }
+
+    .subscribe-form__input--email,
+    .subscribe-form__input--name {
+        min-width: 100%;
+    }
+}
