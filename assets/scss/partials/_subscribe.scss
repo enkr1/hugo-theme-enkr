@@ -68,13 +68,8 @@
     }
 
     &--email {
-        flex: 1;
-        min-width: 10rem;
-    }
-
-    &--name {
-        flex: 0.8;
-        min-width: 10rem;
+        width: 70%;
+        text-align: center;
     }
 }
 
