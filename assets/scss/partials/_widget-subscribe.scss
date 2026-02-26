@@ -1,0 +1,165 @@
+// ============================================
+// Subscribe Popup — 金渊 premium floating card
+// Desktop-only, bottom-right
+// Default: 0.7 opacity, ambient presence
+// Hover/focus: full opacity + gold glow
+// ============================================
+
+.subscribe-popup {
+    position: fixed;
+    bottom: 5.5rem;
+    right: 2rem;
+    z-index: 998;
+
+    width: 280px;
+    padding: 1.5rem 1.5rem 1.25rem;
+    background: var(--card-background);
+    border: 1px solid var(--border);
+    border-radius: var(--card-border-radius);
+    box-shadow: inset 0 3px 0 0 var(--gold), var(--shadow-l2);
+
+    // Ambient state — fades into page
+    opacity: 0.65;
+    transition: opacity var(--transition-slow),
+                box-shadow var(--transition-slow),
+                transform var(--transition-slow);
+
+    // Desktop only
+    display: none;
+
+    @include respond(lg) {
+        display: block;
+    }
+
+    // Active state — full presence + gold glow
+    &:hover,
+    &:focus-within {
+        opacity: 1;
+        box-shadow: inset 0 3px 0 0 var(--gold), var(--shadow-glow-hover);
+        transform: translateY(-2px);
+    }
+
+    // ── Close button ──
+    &__close {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: none;
+        border: none;
+        padding: 0.3rem;
+        cursor: pointer;
+        color: var(--card-text-color-tertiary);
+        line-height: 0;
+        opacity: 0;
+        transition: opacity var(--transition-fast),
+                    color var(--transition-fast);
+
+        .subscribe-popup:hover &,
+        .subscribe-popup:focus-within & {
+            opacity: 1;
+        }
+
+        &:hover {
+            color: var(--card-text-color-main);
+        }
+    }
+
+    // ── Title — Cormorant italic, gold ──
+    &__title {
+        font-family: var(--font-display);
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        font-style: italic;
+        color: var(--gold);
+        margin: 0 0 0.35rem;
+        line-height: var(--line-height-tight);
+    }
+
+    // ── Description ──
+    &__desc {
+        font-family: var(--font-body);
+        font-size: var(--font-size-sm);
+        color: var(--card-text-color-secondary);
+        margin: 0 0 1.25rem;
+        line-height: var(--line-height-normal);
+    }
+
+    // ── Inline field: input + arrow ──
+    &__field {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        border-bottom: 1px solid var(--border);
+        transition: border-color var(--transition-fast);
+
+        &:focus-within {
+            border-color: var(--gold);
+        }
+    }
+
+    &__input {
+        font-family: var(--font-body);
+        font-size: var(--font-size-sm);
+        padding: 0.5rem 0;
+        border: none;
+        background: transparent;
+        color: var(--card-text-color-main);
+        outline: none;
+        flex: 1;
+        min-width: 0;
+
+        &::placeholder {
+            color: var(--card-text-color-tertiary);
+        }
+    }
+
+    &__submit {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: none;
+        border: none;
+        padding: 0.4rem 0;
+        cursor: pointer;
+        color: var(--gold);
+        font-family: var(--font-body);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        flex-shrink: 0;
+        white-space: nowrap;
+        transition: color var(--transition-fast);
+
+        svg {
+            transition: transform var(--transition-fast);
+        }
+
+        &:hover {
+            color: var(--gold-dark);
+
+            svg {
+                transform: translateX(2px);
+            }
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: wait;
+        }
+    }
+
+    // ── Feedback ──
+    &__feedback {
+        font-family: var(--font-body);
+        font-size: var(--font-size-sm);
+        text-align: center;
+        margin-top: 0.5rem;
+
+        &--ok {
+            color: var(--accent-color);
+        }
+
+        &--error {
+            color: var(--fire);
+        }
+    }
+}
