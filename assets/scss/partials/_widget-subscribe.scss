@@ -24,11 +24,13 @@
                 box-shadow var(--transition-slow),
                 transform var(--transition-slow);
 
-    // Desktop only
+    // Hidden by default — JS adds --visible class
     display: none;
 
-    @include respond(lg) {
-        display: block;
+    &--visible {
+        @include respond(lg) {
+            display: block;
+        }
     }
 
     // Active state — full presence + gold glow
