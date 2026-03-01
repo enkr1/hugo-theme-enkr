@@ -311,7 +311,7 @@
     background: rgba(217, 119, 6, 0.25); // --fire tint
     border-radius: 2px;
     padding: 1px 0;
-    transition: background 0.6s ease;
+    transition: background var(--transition-base);
 
     &--fade {
         background: transparent;
