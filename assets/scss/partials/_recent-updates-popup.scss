@@ -1,0 +1,168 @@
+// ============================================
+// Recent Updates Popup — floating notification
+// Desktop-only, top-right
+// Mirrors subscribe-popup styling pattern
+// ============================================
+
+.recent-updates-popup {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 997;
+
+    width: 280px;
+    padding: 1.25rem 1.5rem;
+    background: var(--card-background);
+    border: 1px solid var(--border);
+    border-radius: var(--card-border-radius);
+    box-shadow: inset 0 3px 0 0 var(--gold), var(--shadow-l2);
+
+    opacity: 0.65;
+    transition: opacity var(--transition-slow),
+                box-shadow var(--transition-slow),
+                transform var(--transition-slow);
+
+    // Hidden by default — JS adds --visible class
+    display: none;
+
+    &--visible {
+        @include respond(lg) {
+            display: block;
+        }
+    }
+
+    &:hover,
+    &:focus-within {
+        opacity: 1;
+        box-shadow: inset 0 3px 0 0 var(--gold), var(--shadow-glow-hover);
+        transform: translateY(-2px);
+    }
+
+    // ── Close button ──
+    &__close {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        background: none;
+        border: none;
+        padding: 0.3rem;
+        cursor: pointer;
+        color: var(--card-text-color-tertiary);
+        line-height: 0;
+        opacity: 0;
+        transition: opacity var(--transition-fast),
+                    color var(--transition-fast);
+
+        .recent-updates-popup:hover &,
+        .recent-updates-popup:focus-within & {
+            opacity: 1;
+        }
+
+        &:hover {
+            color: var(--card-text-color-main);
+        }
+    }
+
+    // ── Header link ──
+    &__header {
+        display: block;
+        text-decoration: none;
+    }
+
+    &__title {
+        font-family: var(--font-display);
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        font-style: italic;
+        color: var(--gold);
+        margin: 0 0 0.75rem;
+        line-height: var(--line-height-tight);
+    }
+
+    // ── Post list ──
+    &__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    &__item {
+        border-bottom: 1px solid var(--border);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    &__link {
+        display: flex;
+        align-items: baseline;
+        padding: 0.4rem 0;
+        text-decoration: none;
+        transition: color var(--transition-fast);
+
+        // Middle connecting line — grows on hover (matches widget pattern)
+        &::before {
+            content: '';
+            order: 1;
+            height: 1px;
+            background: var(--card-text-color-tertiary);
+            margin: 0 0.5rem;
+            max-width: 0;
+            flex: 1;
+            opacity: 0;
+            transition: max-width var(--transition-fast),
+                        opacity var(--transition-fast);
+        }
+
+        &:hover {
+            .recent-updates-popup__post-title {
+                color: var(--gold);
+            }
+
+            &::before {
+                max-width: 100%;
+                opacity: 1;
+            }
+        }
+    }
+
+    &__post-title {
+        font-family: var(--font-body);
+        font-size: var(--font-size-xs);
+        color: var(--card-text-color-main);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+        order: 0;
+        transition: color var(--transition-fast);
+    }
+
+    &__date {
+        font-family: var(--font-body);
+        font-size: var(--font-size-xs);
+        color: var(--card-text-color-tertiary);
+        white-space: nowrap;
+        flex-shrink: 0;
+        order: 2;
+    }
+
+    // ── Footer ──
+    &__footer {
+        display: block;
+        margin-top: 0.75rem;
+        text-align: right;
+        font-family: var(--font-body);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--gold);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+
+        &:hover {
+            color: var(--gold-dark);
+        }
+    }
+}
