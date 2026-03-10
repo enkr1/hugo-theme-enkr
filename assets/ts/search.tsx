@@ -196,6 +196,17 @@ class Search {
         const results = await this.searchKeywords(keywords);
         this.clear();
 
+        const query = keywords.join(' ');
+
+        // GA4: track search query + result count
+        if (typeof gtag === 'function') {
+            console.log('[GA4] blog_search →', query, '(' + results.length + ' results)');
+            gtag('event', 'blog_search', {
+                search_term:   query,
+                results_count: results.length
+            });
+        }
+
         for (const item of results) {
             this.list.append(Search.render(item));
         }
@@ -311,6 +322,8 @@ declare global {
     interface Window {
         searchResultTitleTemplate: string;
     }
+    // GA4 gtag global function
+    function gtag(...args: any[]): void;
 }
 
 window.addEventListener('load', () => {
