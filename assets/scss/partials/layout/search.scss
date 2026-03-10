@@ -263,7 +263,8 @@
     line-height: var(--line-height-normal);
 }
 
-.search-modal-result mark {
+.search-modal-result mark,
+.search-result mark {
     background: transparent;
     color: var(--accent);
     font-weight: var(--font-weight-medium);
