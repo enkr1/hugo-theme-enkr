@@ -208,7 +208,7 @@ class Search {
         }
 
         for (const item of results) {
-            this.list.append(Search.render(item));
+            this.list.append(Search.render(item, query));
         }
 
         const endTime = performance.now();
@@ -301,9 +301,12 @@ class Search {
         }
     }
 
-    public static render(item: pageData) {
+    public static render(item: pageData, query?: string) {
+        const href = query
+            ? `${item.permalink}?highlight=${encodeURIComponent(query)}`
+            : item.permalink;
         return <article>
-            <a href={item.permalink}>
+            <a href={href}>
                 <div class="article-details">
                     <h2 class="article-title" dangerouslySetInnerHTML={{ __html: item.title }}></h2>
                     <section class="article-preview" dangerouslySetInnerHTML={{ __html: item.preview }}></section>
