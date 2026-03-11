@@ -69,7 +69,7 @@
         {{ range .Site.Menus.main }}
         {{ $active := or (eq $currentPage.RelPermalink .URL) (or ($currentPage.HasMenuCurrent "main" .) ($currentPage.IsMenuCurrent "main" .)) }}
         <li {{ if $active }} class='current' {{ end }}>
-            <a href='{{ .URL }}' {{ if eq .Params.newTab true }}target="_blank"{{ end }}>
+            <a href='{{ .URL }}' {{ if eq .Params.newTab true }}target="_blank" rel="noopener"{{ end }}>
                 {{ $icon := default .Pre .Params.Icon }}
                 {{ if .Pre }}
                     {{ warnf "Menu item [%s] is using [pre] field to set icon, please use [params.icon] instead.\nMore information: https://stack.jimmycai.com/config/menu" .URL }}
