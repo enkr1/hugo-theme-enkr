@@ -200,7 +200,6 @@ class Search {
 
         // GA4: track search query + result count
         if (typeof gtag === 'function') {
-            console.log('[GA4] blog_search →', query, '(' + results.length + ' results)');
             gtag('event', 'blog_search', {
                 search_term:   query,
                 results_count: results.length
