@@ -1,3 +1,27 @@
+// Layout - center children and constrain article width
+// Migrated from custom.scss
+.article-page main.main {
+    align-items: center;
+}
+
+.article-page .main-article {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--accent);
+    max-width: calc(77ch + 4rem);  // 77ch content + padding
+    width: 100%;
+}
+
+// Article pages with TOC on left - wider for better space utilization
+.article-page--toc-left .main-article {
+    max-width: calc(95ch + 4rem);  // Wider reading width, balanced with TOC on left
+}
+
+// Article pages with TOC on left - wider related content and comments
+.article-page--toc-left .related-content--wrapper,
+.article-page--toc-left .disqus-container {
+    max-width: calc(95ch + 4rem);  // Match wider article width
+}
+
 .article-page {
     &.hide-sidebar-sm .left-sidebar {
         display: none;

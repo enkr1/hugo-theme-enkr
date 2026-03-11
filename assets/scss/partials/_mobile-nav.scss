@@ -1,0 +1,102 @@
+// Mobile bottom navigation
+// Migrated from custom.scss
+
+.mobile-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    // Mobile bottom navigation - show with frosted glass
+    .mobile-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        // min-height so safe-area padding extends the nav (bg fills into home indicator area)
+        min-height: 72px;
+        background: rgba(var(--card-background-rgb), 0.2);
+        backdrop-filter: blur(0.7rem);
+        -webkit-backdrop-filter: blur(0.7rem);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+        z-index: 1000;
+        // Safe area padding - bottom extends into home indicator zone on notched devices
+        // Bottom: 0.5rem base + safe-area for content breathing room
+        padding: 0.5rem Max(0.5rem, env(safe-area-inset-right)) calc(0.5rem + env(safe-area-inset-bottom, 0)) Max(0.5rem, env(safe-area-inset-left));
+    }
+
+    .mobile-nav__item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 8px 4px;
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-family: var(--font-body);
+        font-size: 10px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color var(--transition-fast);
+
+        svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 1.5;
+        }
+
+        &:hover {
+            color: var(--accent);
+        }
+
+        &.active {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        &.active svg {
+            stroke-width: 2;
+        }
+    }
+
+    // Hide fullpage nav hamburger on mobile (bottom nav replaces it)
+    .nav-hamburger {
+        display: none !important;
+    }
+
+    // Hide left sidebar menu on mobile (search is in bottom nav)
+    .left-sidebar #main-menu {
+        display: none;
+    }
+
+    // Add bottom padding to body for mobile nav
+    body {
+        padding-bottom: 72px;
+    }
+}
+
+@media (max-width: 640px) {
+    // Mobile nav - smaller height
+    .mobile-nav {
+        min-height: 64px;
+    }
+
+    .mobile-nav__item {
+        font-size: 9px;
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    // Update body padding for nav
+    body {
+        padding-bottom: 64px;
+    }
+}

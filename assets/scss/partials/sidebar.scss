@@ -797,3 +797,50 @@
         }
     }
 }
+
+// ========================================
+// NAV LINKS - Gold on hover (migrated from custom.scss)
+// ========================================
+.menu a,
+.sidebar a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+
+    &:hover {
+        color: var(--accent);
+    }
+}
+
+// ========================================
+// LEFT SIDEBAR LAYOUT (migrated from custom.scss)
+// Keep existing behavior: full-height flex column
+// ========================================
+.left-sidebar {
+    height: 100vh;
+    overflow: hidden;
+    padding-bottom: 0 !important;
+
+    header {
+        flex-shrink: 0;
+    }
+}
+
+// ========================================
+// SIDEBAR HEADER (migrated from custom.scss)
+// Ba Zi typography overrides
+// ========================================
+.sidebar header {
+    .site-name {
+        font-family: var(--font-display);
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-xl);
+        color: var(--text);
+    }
+
+    .site-description {
+        color: var(--text-tertiary);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-normal);
+    }
+}

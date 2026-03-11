@@ -83,6 +83,13 @@ input[type="submit"] {
     }
 }
 
+// Selection - Gold highlight
+// Migrated from custom.scss
+::selection {
+    background: var(--accent-subtle);
+    color: var(--text);
+}
+
 // Primary CTA - ONLY filled button (key conversion point)
 .btn-primary,
 .btn--primary,

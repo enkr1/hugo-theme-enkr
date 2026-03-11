@@ -1,0 +1,101 @@
+// Responsive styles (non-mobile-nav)
+// Migrated from custom.scss
+
+@media (max-width: 768px) {
+    // Left sidebar - fit content height on mobile/tablet (no scrollable categories)
+    .left-sidebar {
+        height: fit-content;
+        overflow: visible;
+    }
+
+    // Hide left sidebar categories widget on mobile/tablet (breadcrumb shows at top)
+    .left-sidebar .widget.categories-tree {
+        display: none;
+    }
+
+    // Search modal - mobile adjustments
+    // Use svh/svw (small viewport) to account for mobile browser chrome
+    .search-modal {
+        padding-top: 5svh;
+    }
+
+    .search-modal-container {
+        width: 90svw;
+        max-width: none;
+        margin: 0;
+    }
+
+    .search-modal-results {
+        max-height: 90svh;
+    }
+
+    .search-modal-footer {
+        display: none;
+    }
+
+    // Typography scaling
+    h1 {
+        font-size: 2.4rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+
+    // Spacing adjustments
+    .infinite-scroll-end {
+        padding: 2rem 1rem;
+        gap: 1rem;
+
+        &::before,
+        &::after {
+            width: 40px;
+        }
+    }
+}
+
+@media (max-width: 640px) {
+    // Typography scaling
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.6rem;
+    }
+
+    h3 {
+        font-size: 1.4rem;
+    }
+
+    // Search input - prevent iOS zoom
+    .search-form input {
+        font-size: 16px;
+    }
+
+    // Pagination - smaller touch targets
+    .pagination .page-link {
+        min-width: 36px;
+        height: 36px;
+        font-size: var(--font-size-sm);
+    }
+
+    // TOC - limit height on mobile (svh for browser chrome)
+    #TableOfContents {
+        max-height: 50svh;
+    }
+
+    // Article details - tighter padding
+    .article-details {
+        padding: 1rem;
+    }
+
+    // Infinite scroll
+    .infinite-scroll-loader {
+        padding: 1.5rem;
+    }
+
+    .infinite-scroll-end span {
+        font-size: var(--font-size-base);
+    }
+}

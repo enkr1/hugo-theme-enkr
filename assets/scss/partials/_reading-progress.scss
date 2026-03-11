@@ -1,0 +1,18 @@
+// Reading progress bar - Gold energy
+// Migrated from custom.scss
+.reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--secondary));
+    z-index: 9999;
+    transition: width 0.1s ease;
+    pointer-events: none;
+
+    // Hide on pages with infinite scroll
+    .infinite-scroll-active & {
+        display: none;
+    }
+}

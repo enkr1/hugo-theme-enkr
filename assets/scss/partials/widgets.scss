@@ -296,3 +296,121 @@
         }
     }
 }
+
+// ========================================
+// SIDEBAR CATEGORIES WIDGET (migrated from custom.scss)
+// Grows to fill available sidebar space
+// ========================================
+.widget.categories-tree {
+    display: flex;
+    flex-direction: column;
+    flex: 1; // Take all available space
+    min-height: 0; // Allow flexbox shrinking
+    margin-bottom: 0 !important; // Remove bottom margin to maximize space
+
+    .widget-title {
+        flex-shrink: 0; // Fixed height title
+    }
+
+    .categories-list {
+        flex: 1; // Grow to fill remaining space
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-gutter: stable; // Reserve space for scrollbar to prevent layout shifts
+        min-height: 0; // Allow scrolling when content overflows
+        padding-bottom: 1rem; // Small padding for breathing room at scroll end
+    }
+}
+
+// ========================================
+// WIDGET BASE - Clean header design (migrated from custom.scss)
+// ========================================
+.widget {
+    // Header: icon + title inline
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    .widget-icon {
+        display: none; // Hide the large standalone icon
+    }
+
+    .widget-title {
+        font-family: var(--font-body);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-tertiary);
+        padding-bottom: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
+        border-bottom: 1px solid var(--border);
+
+        // Icon as inline prefix
+        &::before {
+            display: none;
+        }
+    }
+}
+
+// Archives widget (migrated from custom.scss)
+.widget.archives {
+    .widget-archive--list {
+        box-shadow: none;
+        background: transparent;
+        border-radius: var(--radius-widget);
+    }
+
+    .archives-year {
+        &:not(:last-of-type) {
+            border-bottom: 1px solid var(--secondary-subtle);
+        }
+
+        a {
+            padding: 0.6rem 0;
+            font-size: var(--font-size-sm);
+
+            span.year {
+                color: var(--text);
+                font-weight: var(--font-weight-medium);
+            }
+
+            span.count {
+                color: var(--secondary);
+                font-size: var(--font-size-xs);
+            }
+
+            &:hover {
+                span.year {
+                    color: var(--accent);
+                }
+            }
+        }
+    }
+}
+
+// ========================================
+// SUBCATEGORIES TREE + SECTION DIVIDER (migrated from custom.scss)
+// ========================================
+.subcategories-tree {
+    margin-bottom: 2rem;
+
+    .categories-list {
+        padding-left: 0;
+    }
+
+    .tree-divider {
+        width: 60px;
+        height: 2px;
+        background: var(--gold);
+        margin-top: 1.5rem;
+    }
+}
+
+/* Section divider - gold accent line */
+.section-divider {
+    width: 60px;
+    height: 2px;
+    background: var(--gold);
+    margin-top: 1rem;
+}
