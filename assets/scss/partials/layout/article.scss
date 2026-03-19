@@ -466,6 +466,48 @@
                 text-decoration: underline;
             }
         }
+
+        // Pullquote — decorative " marks for personal voice
+        &.pullquote {
+            border: none;
+            background: none;
+            padding: 1.5rem 2.5rem;
+            text-align: center;
+            font-family: var(--font-display);
+            font-size: 1.15em;
+            font-style: italic;
+            color: var(--card-text-color-main);
+            position: relative;
+
+            &::before,
+            &::after {
+                font-family: Georgia, serif;
+                font-size: 3.5em;
+                line-height: 1;
+                color: var(--gold);
+                opacity: 0.4;
+                position: absolute;
+            }
+
+            &::before {
+                content: "\201C"; // "
+                top: -0.15em;
+                left: 0;
+            }
+
+            &::after {
+                content: "\201D"; // "
+                bottom: -0.4em;
+                right: 0;
+            }
+
+            .cite {
+                font-style: normal;
+                font-family: var(--font-body);
+                font-size: 0.75em;
+                opacity: 0.7;
+            }
+        }
     }
 
     // Horizontal rule - minimal accent line
