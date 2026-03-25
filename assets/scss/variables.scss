@@ -1,6 +1,33 @@
 $defaultTagBackgrounds: #8ea885, #df7988, #0177b8, #ffb900, #6b69d6;
 $defaultTagColors: #fff, #fff, #fff, #fff, #fff;
 
+// ============================================
+// Ba Zi Token Overrides — 内蕴金 (Refined Gold) mood
+// Must come BEFORE @import so !default values are skipped
+// ============================================
+$bazi-metal: #C9A882;
+$bazi-metal-dark: #B89968;
+$bazi-metal-light: #E8C8A0;
+$bazi-metal-subtle-alpha: 0.20;
+$bazi-water: #1E4B8C;
+$bazi-water-dark: #19437B;
+$bazi-water-light: #5B8FD9;
+$bazi-water-subtle-alpha: 0.08;
+$bazi-fire: #F59E0B;
+$bazi-fire-glow-alpha: 0.25;
+$bazi-glass-bg-alpha: 0.55;
+$bazi-glass-bg-hover-alpha: 0.70;
+$bazi-glass-border-alpha: 0.35;
+$bazi-glass-border-hover-alpha: 0.4;
+$bazi-glass-blur: 24px;
+$bazi-glass-blur-light: 12px;
+$bazi-glow-alpha: 0.15;
+$bazi-glow-hover-alpha: 0.25;
+$bazi-glow-subtle-alpha: 0.1;
+$bazi-glow-intense-alpha: 0.3;
+
+@import 'bazi/scss/bazi';
+
 /*
 *   Ba Zi Energy Color System - 金渊映日
 *   Metal generates Water, Fire transforms to Metal
