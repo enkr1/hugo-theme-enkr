@@ -9,6 +9,7 @@
  */
 import { initAuth } from './auth';
 import { subscribeComments } from './store';
+import { initUI, updateComments, destroyUI } from './ui';
 import type { Comment } from './types';
 
 /** Extract article slug from the root element's data attribute */
@@ -25,6 +26,16 @@ async function init(): Promise<void> {
         return;
     }
 
+    const rootEl = document.getElementById('inline-comments-root');
+    const articleEl = document.querySelector('.article-content') as HTMLElement | null;
+    if (!rootEl || !articleEl) {
+        console.warn('[inline-comments] Missing root or article element. Skipping.');
+        return;
+    }
+
+    // Initialize UI (builds panel, sets up selection detection)
+    initUI(rootEl, articleEl);
+
     // Initialize auth for returning users (lazy — skips Auth SDK for anonymous readers)
     await initAuth();
 
@@ -32,8 +43,7 @@ async function init(): Promise<void> {
     const unsubscribe = await subscribeComments(
         slug,
         (comments: Comment[]) => {
-            // TODO(T7): render UI with comments
-            console.log(`[inline-comments] ${comments.length} comments loaded for "${slug}"`);
+            updateComments(comments);
         },
         (err: Error) => {
             console.error('[inline-comments] Failed to load comments:', err);
@@ -43,6 +53,7 @@ async function init(): Promise<void> {
     // Cleanup on page navigation (SPA-like themes)
     window.addEventListener('beforeunload', () => {
         unsubscribe();
+        destroyUI();
     });
 }
 

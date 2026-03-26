@@ -1,0 +1,81 @@
+/** Shared utilities for inline comments */
+
+/** Format a Firestore timestamp as relative time */
+export function timeAgo(timestamp: unknown): string {
+    if (!timestamp) return '';
+    // Firestore Timestamp has .toDate(), plain Date works directly
+    const date = typeof (timestamp as { toDate?: () => Date }).toDate === 'function'
+        ? (timestamp as { toDate: () => Date }).toDate()
+        : new Date(timestamp as string | number);
+
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    return date.toLocaleDateString();
+}
+
+/** Truncate text with ellipsis */
+export function truncate(str: string, maxLen: number): string {
+    return str.length > maxLen ? str.substring(0, maxLen) + '\u2026' : str;
+}
+
+/** Deterministic avatar gradient from UID */
+const GRADIENTS = [
+    'linear-gradient(135deg, #5bb5a2, #4a90d9)',
+    'linear-gradient(135deg, #e8915b, #e06b8f)',
+    'linear-gradient(135deg, #8b7de8, #5bb5a2)',
+    'linear-gradient(135deg, #4a90d9, #8b7de8)',
+    'linear-gradient(135deg, #e06b8f, #f7c948)',
+    'linear-gradient(135deg, #34c182, #4a90d9)',
+    'linear-gradient(135deg, #f7c948, #e8915b)',
+    'linear-gradient(135deg, #5bb5a2, #8b7de8)',
+];
+
+export function avatarGradient(uid: string): string {
+    let hash = 0;
+    for (let i = 0; i < uid.length; i++) {
+        hash = ((hash << 5) - hash + uid.charCodeAt(i)) | 0;
+    }
+    return GRADIENTS[Math.abs(hash) % GRADIENTS.length]!;
+}
+
+/** Get initials from display name (max 2 chars) */
+export function initials(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+        return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+}
+
+/** Create a DOM element with optional class and attributes */
+export function el(
+    tag: string,
+    className?: string,
+    attrs?: Record<string, string>,
+): HTMLElement {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (attrs) {
+        for (const [key, value] of Object.entries(attrs)) {
+            element.setAttribute(key, value);
+        }
+    }
+    return element;
+}
+
+/** Create a text node */
+export function text(content: string): Text {
+    return document.createTextNode(content);
+}
+
+/** Rate limit: returns true if action is allowed */
+const rateLimits = new Map<string, number>();
+export function rateLimit(key: string, intervalMs: number): boolean {
+    const last = rateLimits.get(key) ?? 0;
+    if (Date.now() - last < intervalMs) return false;
+    rateLimits.set(key, Date.now());
+    return true;
+}
