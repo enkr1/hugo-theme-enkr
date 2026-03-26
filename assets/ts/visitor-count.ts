@@ -59,27 +59,30 @@ class VisitorCounter {
      * Initialize Firebase
      */
     private async initFirebase(): Promise<any> {
-        // Dynamically import Firebase modules
+        // Use the global Firebase instance initialized in head/custom.html
+        // This is the single source of truth for Firebase config
+        if (window.firestoreDb) {
+            return window.firestoreDb;
+        }
+
+        // Fallback: if head script hasn't run yet (shouldn't happen, but defensive)
         const { initializeApp, getApps, getApp } = await import('https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js');
         const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js');
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxexVzGzOqDUGFzHVT_-oYxkqAetlFUSo",
-            authDomain: "enkr1.com",
-            projectId: "hexo-blog-9ccea",
-            storageBucket: "hexo-blog-9ccea.appspot.com",
-            messagingSenderId: "71411607593",
-            appId: "1:71411607593:web:d0fb244020c34c5895d438",
-            measurementId: "G-TJPENBTDNS"
-        };
+        const app = !getApps().length
+            ? initializeApp({
+                apiKey: "AIzaSyBxexVzGzOqDUGFzHVT_-oYxkqAetlFUSo",
+                authDomain: "hexo-blog-9ccea.firebaseapp.com",
+                projectId: "hexo-blog-9ccea",
+                storageBucket: "hexo-blog-9ccea.appspot.com",
+                messagingSenderId: "71411607593",
+                appId: "1:71411607593:web:d04c5895d438fb244020c3"
+            })
+            : getApp();
 
-        // Initialize Firebase (singleton pattern)
-        if (!window.firebaseApp) {
-            window.firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-            window.firebaseDb = getFirestore(window.firebaseApp);
-        }
-
-        return window.firebaseDb;
+        window.firebaseApp = app;
+        window.firestoreDb = getFirestore(app);
+        return window.firestoreDb;
     }
 
     /**
