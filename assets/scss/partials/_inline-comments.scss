@@ -106,7 +106,7 @@ mark.inline-comment-hl {
     flex-direction: column;
     overflow: hidden;
     pointer-events: auto;
-    font-size: 1rem; // match site base for readability
+    font-size: var(--font-size-base, 1.6rem);
 }
 
 .ic-panel-header {
