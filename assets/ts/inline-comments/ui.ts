@@ -9,6 +9,7 @@ import { createReply, toggleLike } from './store';
 import { signIn, signOut, onAuthStateChange, getCurrentUser } from './auth';
 import { anchorComment, removeHighlight, captureAnchor } from './anchoring';
 import { initSelection } from './selection';
+import { repositionCards } from './positioning';
 import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit } from './utils';
 
 // ─── State ───────────────────────────────────────────────────────
@@ -127,6 +128,9 @@ function renderAll(): void {
     if (composerEl) {
         composerEl.style.display = composerData ? 'block' : 'none';
     }
+
+    // Reposition cards after DOM update
+    repositionCards();
 }
 
 // ─── Comment Card ────────────────────────────────────────────────

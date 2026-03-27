@@ -10,6 +10,7 @@
 import { initAuth } from './auth';
 import { subscribeComments } from './store';
 import { initUI, updateComments, destroyUI } from './ui';
+import { initPositioning } from './positioning';
 import type { Comment } from './types';
 
 /** Extract article slug from the root element's data attribute */
@@ -36,6 +37,17 @@ async function init(): Promise<void> {
     // Initialize UI (builds panel, sets up selection detection)
     initUI(rootEl, articleEl);
 
+    // Initialize scroll-synced positioning
+    // The panel body is created by initUI, find it
+    const panelBody = rootEl.querySelector('.ic-panel-body') as HTMLElement | null;
+    // Article area is the scrollable parent of .article-content
+    const scrollableArticle = articleEl.closest('.article-area') as HTMLElement
+        ?? articleEl.parentElement as HTMLElement;
+    let cleanupPositioning: (() => void) | null = null;
+    if (panelBody && scrollableArticle) {
+        cleanupPositioning = initPositioning(panelBody, scrollableArticle);
+    }
+
     // Initialize auth for returning users (lazy — skips Auth SDK for anonymous readers)
     await initAuth();
 
@@ -53,6 +65,7 @@ async function init(): Promise<void> {
     // Cleanup on page navigation (SPA-like themes)
     window.addEventListener('beforeunload', () => {
         unsubscribe();
+        cleanupPositioning?.();
         destroyUI();
     });
 }
