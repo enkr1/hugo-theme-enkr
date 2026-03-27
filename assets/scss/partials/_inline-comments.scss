@@ -39,12 +39,12 @@ mark.inline-comment-hl {
 .inline-comment-popup {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 4px;
     background: var(--card-text-color-main, #1f1f1f);
     color: #fff;
-    padding: 0.35rem 0.75rem;
+    padding: 6px 12px;
     border-radius: 6px;
-    font-size: 0.78rem;
+    font-size: 14px;
     white-space: nowrap;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     cursor: pointer;
@@ -89,7 +89,7 @@ mark.inline-comment-hl {
     width: 360px;
     z-index: 50;
     pointer-events: none;
-    font-size: var(--article-font-size, 1.6rem);
+    font-size: 16px; // reset rem context for the root container
 
     // Hide on narrow viewports (desktop-only v1)
     @media (max-width: 1399px) {
@@ -106,7 +106,7 @@ mark.inline-comment-hl {
     flex-direction: column;
     overflow: hidden;
     pointer-events: auto;
-    font-size: var(--font-size-base, 1.6rem);
+    font-size: 16px; // reset rem base — site uses html{font-size:62.5%} making 1rem=6.25px
 }
 
 .ic-panel-header {
