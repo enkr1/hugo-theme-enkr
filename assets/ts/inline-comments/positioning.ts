@@ -6,8 +6,9 @@
  * positions, and resolves collisions when cards overlap.
  */
 
-const HIGHLIGHT_CLASS = 'inline-comment-hl';
-const MIN_GAP = 10; // minimum px between cards
+import { HIGHLIGHT_CLASS, CARD_CLASS, CARD_FOCUSED_CLASS } from './utils';
+
+const MIN_GAP = 10;
 const TRANSITION = 'top 0.4s cubic-bezier(0.25, 0.1, 0.25, 1)';
 
 /** Cached highlight Y-positions (invalidated on resize/content change) */
@@ -38,9 +39,13 @@ export function initPositioning(panel: HTMLElement, article: HTMLElement): () =>
     // Debounced resize handler
     window.addEventListener('resize', onResize);
 
-    // ResizeObserver for dynamic card height changes (reply expansion, etc.)
+    // ResizeObserver for dynamic card height changes — deduplicated
+    let resizeDirty = false;
     observers = new ResizeObserver(() => {
-        requestAnimationFrame(positionCards);
+        if (!resizeDirty) {
+            resizeDirty = true;
+            requestAnimationFrame(() => { resizeDirty = false; positionCards(); });
+        }
     });
 
     // Initial positioning
@@ -82,7 +87,7 @@ function positionCards(): void {
     if (!panelBody || !articleArea) return;
 
     const panelRect = panelBody.getBoundingClientRect();
-    const cards = panelBody.querySelectorAll<HTMLElement>('.ic-card');
+    const cards = panelBody.querySelectorAll<HTMLElement>(`.${CARD_CLASS}`);
     if (cards.length === 0) return;
 
     // Refresh cache if invalid
@@ -205,7 +210,7 @@ function syncPanelScroll(): void {
     if (!panelBody || !articleArea) return;
 
     // Find the focused card or the card nearest to viewport center
-    const focusedCard = panelBody.querySelector<HTMLElement>('.ic-card--focused');
+    const focusedCard = panelBody.querySelector<HTMLElement>(`.${CARD_FOCUSED_CLASS}`);
     if (focusedCard) {
         const cardTop = parseFloat(focusedCard.style.top) || 0;
         const panelHeight = panelBody.clientHeight;
@@ -258,7 +263,7 @@ function observeCards(): void {
     if (!observers || !panelBody) return;
     observers.disconnect();
 
-    const cards = panelBody.querySelectorAll<HTMLElement>('.ic-card');
+    const cards = panelBody.querySelectorAll<HTMLElement>(`.${CARD_CLASS}`);
     for (const card of cards) {
         observers.observe(card);
     }

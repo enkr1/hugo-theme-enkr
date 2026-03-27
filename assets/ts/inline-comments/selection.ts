@@ -5,25 +5,12 @@
  * popup above the selection. Excludes code blocks from commentable regions.
  */
 
-/** Elements whose text cannot be commented on */
-const EXCLUDED_SELECTORS = 'pre, code, .highlight, .code-block';
+import { isInsideExcluded } from './utils';
 
 type SelectionCallback = () => void;
 
 let popup: HTMLElement | null = null;
 let onAddComment: SelectionCallback | null = null;
-
-/** Check if a node is inside an excluded element */
-function isInsideExcluded(node: Node): boolean {
-    let current: Node | null = node;
-    while (current) {
-        if (current instanceof HTMLElement && current.matches(EXCLUDED_SELECTORS)) {
-            return true;
-        }
-        current = current.parentNode;
-    }
-    return false;
-}
 
 /** Create the popup element (once) */
 function createPopup(): HTMLElement {

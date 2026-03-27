@@ -8,12 +8,9 @@
  * Excludes code blocks (pre, code, .highlight) from commentable regions.
  */
 import type { Comment, Anchor } from './types';
+import { HIGHLIGHT_CLASS, isInsideExcluded } from './utils';
 
-const HIGHLIGHT_CLASS = 'inline-comment-hl';
 const CONTEXT_LENGTH = 30;
-
-/** Elements whose descendants should never be highlighted */
-const EXCLUDED_SELECTORS = 'pre, code, .highlight, .code-block';
 
 /**
  * Capture anchor data from the current browser Selection.
@@ -259,18 +256,6 @@ function getTextNodesInRange(range: Range): Array<{ node: Text; startOffset: num
     }
 
     return result;
-}
-
-/** Check if a node is inside an excluded element (code blocks, etc.) */
-function isInsideExcluded(node: Node): boolean {
-    let current: Node | null = node;
-    while (current) {
-        if (current instanceof HTMLElement && current.matches(EXCLUDED_SELECTORS)) {
-            return true;
-        }
-        current = current.parentNode;
-    }
-    return false;
 }
 
 /** Length of common suffix between two strings */

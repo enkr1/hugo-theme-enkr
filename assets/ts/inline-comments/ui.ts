@@ -5,12 +5,12 @@
  * Matches the interactive mockup at docs/mockups/inline-comments-live.html.
  */
 import type { Comment, Reply, AuthUser, NewReply } from './types';
-import { createReply, toggleLike } from './store';
+import { createComment, createReply, toggleLike } from './store';
 import { signIn, signOut, onAuthStateChange, getCurrentUser } from './auth';
 import { anchorComment, removeHighlight, captureAnchor } from './anchoring';
 import { initSelection } from './selection';
 import { repositionCards } from './positioning';
-import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit } from './utils';
+import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS } from './utils';
 
 // ─── State ───────────────────────────────────────────────────────
 let comments: Comment[] = [];
@@ -26,6 +26,8 @@ let commentsListEl: HTMLElement | null = null;
 let badgeEl: HTMLElement | null = null;
 let articleEl: HTMLElement | null = null;
 let cleanupSelection: (() => void) | null = null;
+let cleanupAuth: (() => void) | null = null;
+const anchoredIds = new Set<string>();
 
 // ─── Public API ──────────────────────────────────────────────────
 
@@ -34,8 +36,8 @@ export function initUI(rootEl: HTMLElement, articleContentEl: HTMLElement): void
     articleEl = articleContentEl;
     buildPanel(rootEl);
 
-    // Listen for auth state changes
-    onAuthStateChange((user) => {
+    // Listen for auth state changes (store unsubscribe for cleanup)
+    cleanupAuth = onAuthStateChange((user) => {
         currentUser = user;
         renderAll();
     });
@@ -48,12 +50,13 @@ export function initUI(rootEl: HTMLElement, articleContentEl: HTMLElement): void
 export function updateComments(newComments: Comment[]): void {
     comments = newComments;
 
-    // Anchor all comments to the article text
+    // Anchor only new comments (skip already-anchored)
     if (articleEl) {
         for (const comment of comments) {
+            if (anchoredIds.has(comment.id)) continue;
             const found = anchorComment(articleEl, comment);
-            if (!found && comment.anchorStatus === 'active') {
-                comment.anchorStatus = 'orphaned';
+            if (found) {
+                anchoredIds.add(comment.id);
             }
         }
         // Attach click handlers to highlights
@@ -66,8 +69,10 @@ export function updateComments(newComments: Comment[]): void {
 /** Cleanup all UI resources */
 export function destroyUI(): void {
     cleanupSelection?.();
+    cleanupAuth?.();
     panelEl?.remove();
     panelEl = null;
+    anchoredIds.clear();
 }
 
 // ─── Panel Construction ──────────────────────────────────────────
@@ -623,7 +628,6 @@ function renderComposer(): void {
         textarea.disabled = true;
 
         try {
-            const { createComment } = await import('./store');
             const slug = document.getElementById('inline-comments-root')?.dataset.articleSlug;
             if (!slug) throw new Error('No article slug');
 
@@ -742,15 +746,19 @@ function buildSignInPrompt(): HTMLElement {
 function focusComment(commentId: string): void {
     focusedCommentId = commentId;
 
-    // Focus highlight in article
-    document.querySelectorAll('mark.inline-comment-hl.active').forEach(m => m.classList.remove('active'));
-    const marks = document.querySelectorAll(`mark.inline-comment-hl[data-comment-id="${commentId}"]`);
+    // Toggle card focus class (no full rebuild)
+    panelBodyEl?.querySelector(`.${CARD_FOCUSED_CLASS}`)?.classList.remove(CARD_FOCUSED_CLASS);
+    const card = panelBodyEl?.querySelector(`[data-comment-id="${commentId}"]`);
+    card?.classList.add(CARD_FOCUSED_CLASS);
+    card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Toggle highlight active class
+    document.querySelectorAll(`mark.${HIGHLIGHT_CLASS}.active`).forEach(m => m.classList.remove('active'));
+    const marks = document.querySelectorAll(`mark.${HIGHLIGHT_CLASS}[data-comment-id="${commentId}"]`);
     marks.forEach(m => {
         m.classList.add('active');
         m.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
-
-    renderAll();
 }
 
 function navigateComment(direction: number): void {

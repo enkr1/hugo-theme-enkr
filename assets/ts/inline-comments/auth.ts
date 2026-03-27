@@ -4,13 +4,14 @@
  * Uses localStorage flag to skip Auth SDK download for anonymous readers.
  */
 import type { AuthUser } from './types';
+import { FIREBASE_CDN } from './utils';
 
-const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/10.11.1';
 const AUTH_STORAGE_KEY = 'inline-comments-auth-active';
 
 type AuthStateCallback = (user: AuthUser | null) => void;
 
 let authInstance: unknown = null;
+let cachedAuthFns: Awaited<ReturnType<typeof loadAuthFns>> | null = null;
 let currentUser: AuthUser | null = null;
 const listeners: AuthStateCallback[] = [];
 
@@ -32,8 +33,7 @@ function getApp(): unknown {
     return app;
 }
 
-/** Lazy-import Firebase Auth functions */
-async function getAuthFns() {
+async function loadAuthFns() {
     const mod = await import(`${FIREBASE_CDN}/firebase-auth.js`);
     return {
         getAuth: mod.getAuth,
@@ -44,6 +44,11 @@ async function getAuthFns() {
         signOut: mod.signOut,
         onAuthStateChanged: mod.onAuthStateChanged,
     };
+}
+
+async function getAuthFns() {
+    if (!cachedAuthFns) cachedAuthFns = await loadAuthFns();
+    return cachedAuthFns;
 }
 
 /** Ensure Auth SDK is loaded and auth instance exists */

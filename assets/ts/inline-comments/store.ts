@@ -4,11 +4,12 @@
  * Real-time via onSnapshot, atomic likes via FieldValue.increment/arrayUnion.
  */
 import type { Comment, Reply, NewComment, NewReply, AuthUser } from './types';
+import { FIREBASE_CDN } from './utils';
 
-const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/10.11.1';
+/** Cached Firestore module — imported once, reused */
+let cachedFs: Awaited<ReturnType<typeof loadFirestoreFns>> | null = null;
 
-/** Lazy-import Firestore functions (only when first needed) */
-async function getFirestoreFns() {
+async function loadFirestoreFns() {
     const mod = await import(`${FIREBASE_CDN}/firebase-firestore.js`);
     return {
         collection: mod.collection,
@@ -25,6 +26,11 @@ async function getFirestoreFns() {
         arrayUnion: mod.arrayUnion,
         arrayRemove: mod.arrayRemove,
     };
+}
+
+async function getFirestoreFns() {
+    if (!cachedFs) cachedFs = await loadFirestoreFns();
+    return cachedFs;
 }
 
 function getDb(): unknown {
@@ -54,9 +60,8 @@ export async function subscribeComments(
     const unsubscribe = fs.onSnapshot(
         q,
         async (snapshot: { docs: Array<{ id: string; data: () => Record<string, unknown> }> }) => {
-            const comments: Comment[] = [];
-
-            for (const docSnap of snapshot.docs) {
+            // Build comments in parallel (fixes N+1 sequential reply fetches)
+            const comments = await Promise.all(snapshot.docs.map(async (docSnap) => {
                 const data = docSnap.data();
                 const comment: Comment = {
                     id: docSnap.id,
@@ -74,7 +79,6 @@ export async function subscribeComments(
                     replies: [],
                 };
 
-                // Fetch replies subcollection
                 const repliesQuery = fs.query(
                     fs.collection(db, 'comments', docSnap.id, 'replies'),
                     fs.orderBy('createdAt', 'asc'),
@@ -92,8 +96,8 @@ export async function subscribeComments(
                     };
                 });
 
-                comments.push(comment);
-            }
+                return comment;
+            }));
 
             onUpdate(comments);
         },

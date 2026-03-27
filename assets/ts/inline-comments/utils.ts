@@ -1,4 +1,23 @@
-/** Shared utilities for inline comments */
+/** Shared utilities and constants for inline comments */
+
+// ─── Shared Constants ────────────────────────────────────────────
+export const FIREBASE_CDN = 'https://www.gstatic.com/firebasejs/10.11.1';
+export const HIGHLIGHT_CLASS = 'inline-comment-hl';
+export const EXCLUDED_SELECTORS = 'pre, code, .highlight, .code-block';
+export const CARD_CLASS = 'ic-card';
+export const CARD_FOCUSED_CLASS = 'ic-card--focused';
+
+/** Check if a node is inside an excluded element (code blocks, etc.) */
+export function isInsideExcluded(node: Node): boolean {
+    let current: Node | null = node;
+    while (current) {
+        if (current instanceof HTMLElement && current.matches(EXCLUDED_SELECTORS)) {
+            return true;
+        }
+        current = current.parentNode;
+    }
+    return false;
+}
 
 /** Format a Firestore timestamp as relative time */
 export function timeAgo(timestamp: unknown): string {

@@ -9,6 +9,7 @@
     --comment-highlight-bg: rgba(139, 115, 85, 0.12);
     --comment-highlight-bg-active: rgba(139, 115, 85, 0.22);
     --comment-highlight-border: var(--gold, #8B7355);
+    --comment-accent-blue: #4a90d9;
 }
 
 [data-scheme="dark"] {
@@ -364,7 +365,7 @@ mark.inline-comment-hl {
     }
 
     &:focus {
-        border-color: #4a90d9;
+        border-color: var(--comment-accent-blue);
         background: var(--card-background, #fff);
     }
 }
@@ -462,7 +463,7 @@ mark.inline-comment-hl {
     background: var(--body-background, #fafafa);
 
     &:focus {
-        border-color: #4a90d9;
+        border-color: var(--comment-accent-blue);
         background: var(--card-background, #fff);
     }
 }
@@ -496,7 +497,7 @@ mark.inline-comment-hl {
 
     &--primary {
         border: none;
-        background: #4a90d9;
+        background: var(--comment-accent-blue);
         color: #fff;
 
         &:hover { background: #3a7bc8; }
