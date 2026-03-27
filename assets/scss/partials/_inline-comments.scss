@@ -70,15 +70,8 @@ mark.inline-comment-hl {
 
 // ─── Comment Panel ───────────────────────────────────────────────
 
-// Push main content left to make room for the fixed panel
-// Targets the main container that holds the article
-@media (min-width: 1400px) {
-    body:has(#inline-comments-root) {
-        .main-container {
-            padding-right: 380px;
-        }
-    }
-}
+// No padding-right needed — the comment panel overlays the existing empty right space.
+// The site layout already has free space on the right side of articles.
 
 // The root div sits inside <article> but the panel needs to float on the right
 #inline-comments-root {
