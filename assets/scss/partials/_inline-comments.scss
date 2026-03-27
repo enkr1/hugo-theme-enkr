@@ -69,6 +69,16 @@ mark.inline-comment-hl {
 
 // ─── Comment Panel ───────────────────────────────────────────────
 
+// Push main content left to make room for the fixed panel
+// Targets the main container that holds the article
+@media (min-width: 1400px) {
+    body:has(#inline-comments-root) {
+        .main-container {
+            padding-right: 380px;
+        }
+    }
+}
+
 // The root div sits inside <article> but the panel needs to float on the right
 #inline-comments-root {
     position: fixed;
@@ -77,10 +87,11 @@ mark.inline-comment-hl {
     height: 100vh;
     width: 360px;
     z-index: 50;
-    pointer-events: none; // allow clicks through when panel is empty
+    pointer-events: none;
+    font-size: var(--article-font-size, 1.6rem);
 
     // Hide on narrow viewports (desktop-only v1)
-    @media (max-width: 1400px) {
+    @media (max-width: 1399px) {
         display: none;
     }
 }
@@ -93,7 +104,8 @@ mark.inline-comment-hl {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    pointer-events: auto; // re-enable clicks on the panel itself
+    pointer-events: auto;
+    font-size: 0.875rem; // 14px — compact panel text, independent of article font size
 }
 
 .ic-panel-header {
