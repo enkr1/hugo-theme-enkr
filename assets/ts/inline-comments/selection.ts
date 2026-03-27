@@ -58,12 +58,12 @@ function showPopup(rect: DOMRect): void {
 
     popup.style.display = 'flex';
 
-    // Position above the selection, centered horizontally
+    // Position above the selection, centered horizontally (fixed = viewport coords)
     const popupWidth = popup.offsetWidth;
     const left = rect.left + rect.width / 2 - popupWidth / 2;
-    const top = rect.top - 40 + window.scrollY;
+    const top = rect.top - 40;
 
-    popup.style.position = 'absolute';
+    popup.style.position = 'fixed';
     popup.style.left = `${Math.max(8, left)}px`;
     popup.style.top = `${Math.max(8, top)}px`;
     popup.style.zIndex = '1000';
