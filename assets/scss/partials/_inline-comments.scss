@@ -82,7 +82,7 @@ mark.inline-comment-hl {
     width: 360px;
     z-index: 50;
     pointer-events: none;
-    font-size: 16px; // reset rem context for the root container
+    font-size: var(--font-size-base, 1.6rem); // 1.6rem=16px. Children use em relative to this.
 
     // Hide on narrow viewports (desktop-only v1)
     @media (max-width: 1399px) {
@@ -99,11 +99,11 @@ mark.inline-comment-hl {
     flex-direction: column;
     overflow: hidden;
     pointer-events: auto;
-    font-size: 16px; // reset rem base — site uses html{font-size:62.5%} making 1rem=6.25px
+    font-size: var(--font-size-base, 1.6rem); // 1.6rem=16px. Children use em relative to this.
 }
 
 .ic-panel-header {
-    padding: 0.7rem 1rem;
+    padding: 0.7em 1em;
     border-bottom: 1px solid var(--card-separator-color, #f0f0f0);
     display: flex;
     align-items: center;
@@ -112,7 +112,7 @@ mark.inline-comment-hl {
 }
 
 .ic-panel-title {
-    font-size: 0.9rem;
+    font-size: 0.9em;
     font-weight: 600;
     color: var(--card-text-color-main, #1f1f1f);
 }
@@ -126,16 +126,16 @@ mark.inline-comment-hl {
     border-radius: 10px;
     background: var(--accent-color, #D97706);
     color: #fff;
-    font-size: 0.6rem;
+    font-size: 0.6em;
     font-weight: 700;
     padding: 0 5px;
-    margin-left: 0.3rem;
+    margin-left: 0.3em;
 }
 
 .ic-panel-body {
     flex: 1;
     overflow-y: auto;
-    padding: 0.5rem 0;
+    padding: 0.5em 0;
     position: relative;
 }
 
@@ -162,8 +162,8 @@ mark.inline-comment-hl {
 .ic-card-header {
     display: flex;
     align-items: center;
-    padding: 0.6rem 0.75rem 0.4rem;
-    gap: 0.5rem;
+    padding: 0.6em 0.75em 0.4em;
+    gap: 0.5em;
 }
 
 .ic-quoted-bar {
@@ -180,13 +180,13 @@ mark.inline-comment-hl {
         align-self: stretch;
         background: var(--comment-highlight-border);
         border-radius: 2px;
-        margin-right: 0.5rem;
+        margin-right: 0.5em;
         flex-shrink: 0;
     }
 }
 
 .ic-quoted-text {
-    font-size: 0.82rem;
+    font-size: 0.82em;
     color: var(--card-text-color-secondary, #8f959e);
     opacity: 0.7;
     white-space: nowrap;
@@ -198,7 +198,7 @@ mark.inline-comment-hl {
 .ic-card-controls {
     display: flex;
     align-items: center;
-    gap: 0.15rem;
+    gap: 0.15em;
     flex-shrink: 0;
     opacity: 0;
     transition: opacity 0.15s ease;
@@ -232,8 +232,8 @@ mark.inline-comment-hl {
 
 .ic-entry {
     display: flex;
-    gap: 0.6rem;
-    padding: 0.3rem 0.75rem 0.5rem;
+    gap: 0.6em;
+    padding: 0.3em 0.75em 0.5em;
     position: relative;
 }
 
@@ -245,7 +245,7 @@ mark.inline-comment-hl {
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-size: 0.65rem;
+    font-size: 0.65em;
     font-weight: 700;
     flex-shrink: 0;
 }
@@ -258,23 +258,23 @@ mark.inline-comment-hl {
 .ic-entry-meta {
     display: flex;
     align-items: baseline;
-    gap: 0.4rem;
-    margin-bottom: 0.1rem;
+    gap: 0.4em;
+    margin-bottom: 0.1em;
 }
 
 .ic-author-name {
-    font-size: 0.82rem;
+    font-size: 0.82em;
     font-weight: 600;
     color: var(--card-text-color-main, #1f1f1f);
 }
 
 .ic-timestamp {
-    font-size: 0.72rem;
+    font-size: 0.72em;
     color: var(--card-text-color-secondary, #8f959e);
 }
 
 .ic-entry-text {
-    font-size: 0.88rem;
+    font-size: 0.88em;
     line-height: 1.5;
     color: var(--card-text-color-main, #1f1f1f);
     word-wrap: break-word;
@@ -284,13 +284,13 @@ mark.inline-comment-hl {
 .ic-entry-actions {
     display: none;
     position: absolute;
-    right: 0.5rem;
-    top: 0.3rem;
-    gap: 0.1rem;
+    right: 0.5em;
+    top: 0.3em;
+    gap: 0.1em;
     background: var(--card-background, #fff);
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 4px;
-    padding: 0.1rem;
+    padding: 0.1em;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
     .ic-entry:hover & {
@@ -309,7 +309,7 @@ mark.inline-comment-hl {
     border-radius: 3px;
     cursor: pointer;
     color: var(--card-text-color-secondary, #8f959e);
-    font-size: 0.8rem;
+    font-size: 0.8em;
 
     &:hover {
         background: var(--card-separator-color, #f0f0f0);
@@ -323,10 +323,10 @@ mark.inline-comment-hl {
     display: inline;
     background: var(--comment-mention-bg);
     color: var(--comment-mention-text);
-    padding: 0.15rem 0.5rem;
+    padding: 0.15em 0.5em;
     border-radius: 100px;
     font-weight: 500;
-    font-size: 0.8rem;
+    font-size: 0.8em;
     white-space: nowrap;
 }
 
@@ -335,9 +335,9 @@ mark.inline-comment-hl {
 .ic-reply-box {
     display: flex;
     align-items: center;
-    padding: 0.4rem 0.75rem 0.5rem;
+    padding: 0.4em 0.75em 0.5em;
     border-top: 1px solid var(--card-separator-color, #f0f0f0);
-    gap: 0.4rem;
+    gap: 0.4em;
     position: relative;
 }
 
@@ -345,8 +345,8 @@ mark.inline-comment-hl {
     flex: 1;
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 6px;
-    padding: 0.4rem 0.6rem;
-    font-size: 0.82rem;
+    padding: 0.4em 0.6em;
+    font-size: 0.82em;
     font-family: var(--base-font-family);
     outline: none;
     color: var(--card-text-color-main, #1f1f1f);
@@ -387,8 +387,8 @@ mark.inline-comment-hl {
 .ic-mention-dropdown {
     position: absolute;
     bottom: 100%;
-    left: 0.75rem;
-    right: 0.75rem;
+    left: 0.75em;
+    right: 0.75em;
     background: var(--card-background, #fff);
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 8px;
@@ -400,17 +400,17 @@ mark.inline-comment-hl {
 }
 
 .ic-mention-header {
-    font-size: 0.68rem;
+    font-size: 0.68em;
     color: var(--card-text-color-secondary, #8f959e);
-    padding: 0.4rem 0.6rem 0.2rem;
+    padding: 0.4em 0.6em 0.2em;
 }
 
 .ic-mention-option {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.45rem 0.6rem;
-    font-size: 0.82rem;
+    gap: 0.5em;
+    padding: 0.45em 0.6em;
+    font-size: 0.82em;
     cursor: pointer;
     color: var(--card-text-color-main, #1f1f1f);
     transition: background 0.08s;
@@ -423,7 +423,7 @@ mark.inline-comment-hl {
     .ic-avatar {
         width: 24px;
         height: 24px;
-        font-size: 0.5rem;
+        font-size: 0.5em;
     }
 }
 
@@ -439,15 +439,15 @@ mark.inline-comment-hl {
 }
 
 .ic-composer-body {
-    padding: 0.3rem 0.75rem 0.5rem;
+    padding: 0.3em 0.75em 0.5em;
 }
 
 .ic-composer-textarea {
     width: 100%;
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 6px;
-    padding: 0.5rem 0.6rem;
-    font-size: 0.85rem;
+    padding: 0.5em 0.6em;
+    font-size: 0.85em;
     font-family: var(--base-font-family);
     resize: vertical;
     min-height: 60px;
@@ -464,14 +464,14 @@ mark.inline-comment-hl {
 .ic-composer-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 0.3rem;
-    margin-top: 0.4rem;
+    gap: 0.3em;
+    margin-top: 0.4em;
 }
 
 .ic-btn {
-    padding: 0.35rem 0.8rem;
+    padding: 0.35em 0.8em;
     border-radius: 6px;
-    font-size: 0.78rem;
+    font-size: 0.78em;
     font-family: var(--base-font-family);
     cursor: pointer;
     font-weight: 500;
@@ -502,49 +502,49 @@ mark.inline-comment-hl {
 
 .ic-empty {
     text-align: center;
-    padding: 3rem 1rem;
+    padding: 3em 1em;
     color: var(--card-text-color-secondary, #8f959e);
 }
 
 .ic-empty-icon {
-    font-size: 2rem;
-    margin-bottom: 0.4rem;
+    font-size: 2em;
+    margin-bottom: 0.4em;
     opacity: 0.2;
 }
 
 .ic-empty-text {
-    font-size: 0.85rem;
+    font-size: 0.85em;
 }
 
 .ic-empty-sub {
-    font-size: 0.75rem;
-    margin-top: 0.2rem;
+    font-size: 0.75em;
+    margin-top: 0.2em;
 }
 
 // ─── Sign-In Prompt ──────────────────────────────────────────────
 
 .ic-signin-prompt {
     text-align: center;
-    padding: 1rem;
-    margin-top: 0.5rem;
+    padding: 1em;
+    margin-top: 0.5em;
 }
 
 .ic-signin-text {
-    font-size: 0.8rem;
+    font-size: 0.8em;
     color: var(--card-text-color-secondary, #8f959e);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.5em;
 }
 
 .ic-signin-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.45rem 1rem;
+    gap: 0.5em;
+    padding: 0.45em 1em;
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 8px;
     background: var(--card-background, #fff);
     font-family: var(--base-font-family);
-    font-size: 0.82rem;
+    font-size: 0.82em;
     color: var(--card-text-color-main, #1f1f1f);
     cursor: pointer;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
