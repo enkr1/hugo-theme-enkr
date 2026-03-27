@@ -106,7 +106,7 @@ mark.inline-comment-hl {
     flex-direction: column;
     overflow: hidden;
     pointer-events: auto;
-    font-size: 0.875rem; // 14px — compact panel text, independent of article font size
+    font-size: 1rem; // match site base for readability
 }
 
 .ic-panel-header {
