@@ -72,12 +72,21 @@ mark.inline-comment-hl {
 
 // Show right sidebar on article pages when comments panel exists.
 // The sidebar is normally hidden via .article-page--toc-left .right-sidebar { display: none }
+// Also widen it — the default 17% is too narrow for a comment panel.
 .article-page--toc-left .right-sidebar:has(#inline-comments-root) {
     display: flex !important;
     flex-direction: column;
     position: sticky;
     top: 0;
     height: 100vh;
+    max-width: 320px !important;
+    min-width: 280px;
+    flex-shrink: 0;
+}
+
+// Override the grid's right-sidebar-max-width when comments are present
+.article-page--toc-left:has(#inline-comments-root) .container.extended {
+    --right-sidebar-max-width: 25%;
 }
 
 #inline-comments-root {
