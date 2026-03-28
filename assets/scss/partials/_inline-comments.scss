@@ -70,22 +70,25 @@ mark.inline-comment-hl {
 
 // ─── Comment Panel ───────────────────────────────────────────────
 
-// No padding-right needed — the comment panel overlays the existing empty right space.
-// The site layout already has free space on the right side of articles.
-
-// The root div sits inside <article> but the panel needs to float on the right
-#inline-comments-root {
-    position: fixed;
+// Show right sidebar on article pages when comments panel exists.
+// The sidebar is normally hidden via .article-page--toc-left .right-sidebar { display: none }
+.article-page--toc-left .right-sidebar:has(#inline-comments-root) {
+    display: flex !important;
+    flex-direction: column;
+    position: sticky;
     top: 0;
-    right: 0;
     height: 100vh;
-    width: 360px;
-    z-index: 50;
-    pointer-events: none;
+}
+
+#inline-comments-root {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
     font-size: var(--font-size-base, 1.6rem); // 1.6rem=16px. Children use em relative to this.
 
-    // Hide on narrow viewports (desktop-only v1)
-    @media (max-width: 1399px) {
+    // Desktop-only v1
+    @media (max-width: 1024px) {
         display: none;
     }
 }
@@ -98,8 +101,7 @@ mark.inline-comment-hl {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    pointer-events: auto;
-    font-size: var(--font-size-base, 1.6rem); // 1.6rem=16px. Children use em relative to this.
+    font-size: var(--font-size-base, 1.6rem);
 }
 
 .ic-panel-header {
