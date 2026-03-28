@@ -7,8 +7,9 @@
 import type { Comment, Reply, AuthUser, NewReply } from './types';
 import { createComment, createReply, toggleLike } from './store';
 import { signIn, signOut, onAuthStateChange, getCurrentUser } from './auth';
-import { anchorComment, removeHighlight, captureAnchor } from './anchoring';
+import { anchorComment, removeHighlight } from './anchoring';
 import { initSelection } from './selection';
+import type { CapturedSelection } from './selection';
 import { repositionCards } from './positioning';
 import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS } from './utils';
 
@@ -664,12 +665,9 @@ function cancelCompose(): void {
 
 // ─── Selection → Compose Flow ────────────────────────────────────
 
-async function onSelectionComment(): Promise<void> {
-    if (!articleEl) return;
-
-    // Capture the selected text anchor
-    const anchor = captureAnchor(articleEl);
-    if (!anchor) return;
+async function onSelectionComment(captured: CapturedSelection): Promise<void> {
+    // Selection data was pre-captured when the popup appeared (not on click)
+    // so it's always valid even if the browser selection was cleared
 
     // Ensure signed in
     if (!currentUser) {
@@ -677,18 +675,12 @@ async function onSelectionComment(): Promise<void> {
         if (!user) return;
     }
 
-    // Open composer
-    composerData = anchor;
+    // Open composer with pre-captured data
+    composerData = captured;
     if (composerEl) {
         composerEl.style.display = 'block';
         renderComposer();
     }
-
-    // Clear browser selection
-    window.getSelection()?.removeAllRanges();
-
-    // Scroll panel to top to show composer
-    panelBodyEl?.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ─── Empty & Sign-In States ──────────────────────────────────────

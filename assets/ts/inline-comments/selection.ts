@@ -2,15 +2,25 @@
  * Selection Detection + Popup
  *
  * Listens for text selection on .article-content, shows an "Add comment"
- * popup above the selection. Excludes code blocks from commentable regions.
+ * popup above the selection. Captures anchor data at selection time
+ * (not click time) to avoid losing the selection.
  */
 
 import { isInsideExcluded } from './utils';
+import type { Anchor } from './types';
 
-type SelectionCallback = () => void;
+export interface CapturedSelection {
+    quotedText: string;
+    anchor: Anchor;
+}
+
+type SelectionCallback = (captured: CapturedSelection) => void;
 
 let popup: HTMLElement | null = null;
 let onAddComment: SelectionCallback | null = null;
+let pendingCapture: CapturedSelection | null = null;
+
+const CONTEXT_LENGTH = 30;
 
 /** Create the popup element (once) */
 function createPopup(): HTMLElement {
@@ -19,7 +29,6 @@ function createPopup(): HTMLElement {
     el.setAttribute('role', 'button');
     el.setAttribute('aria-label', 'Add comment');
 
-    // Comment icon
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
     svg.setAttribute('width', '14');
@@ -35,7 +44,7 @@ function createPopup(): HTMLElement {
     el.appendChild(text);
 
     el.addEventListener('mousedown', (e) => {
-        e.preventDefault(); // Prevent selection from clearing
+        e.preventDefault();
         e.stopPropagation();
     });
 
@@ -43,10 +52,13 @@ function createPopup(): HTMLElement {
         e.preventDefault();
         e.stopPropagation();
         hidePopup();
-        onAddComment?.();
+        // Use the pre-captured selection data (captured when popup appeared)
+        if (pendingCapture && onAddComment) {
+            onAddComment(pendingCapture);
+        }
+        pendingCapture = null;
     });
 
-    // Hidden by default
     el.style.display = 'none';
     document.body.appendChild(el);
     return el;
@@ -56,35 +68,51 @@ function createPopup(): HTMLElement {
 function showPopup(rect: DOMRect): void {
     if (!popup) popup = createPopup();
 
-    // Make visible off-screen first to measure width
     popup.style.position = 'fixed';
     popup.style.display = 'flex';
     popup.style.left = '-9999px';
     popup.style.top = '-9999px';
     popup.style.zIndex = '1000';
 
-    // Force reflow to get accurate width
     const popupWidth = popup.getBoundingClientRect().width;
+    const popupHeight = popup.getBoundingClientRect().height;
 
-    // Now position centered above the selection
     const left = rect.left + rect.width / 2 - popupWidth / 2;
-    const top = rect.top - popup.getBoundingClientRect().height - 8;
+    const top = rect.top - popupHeight - 8;
 
     popup.style.left = `${Math.max(8, left)}px`;
     popup.style.top = `${Math.max(8, top)}px`;
 }
 
-/** Hide the popup */
 function hidePopup(): void {
     if (popup) popup.style.display = 'none';
 }
 
+/** Capture selection data from the current browser selection */
+function captureFromSelection(articleEl: HTMLElement): CapturedSelection | null {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) return null;
+
+    const quotedText = sel.toString().trim();
+    if (!quotedText) return null;
+
+    const fullText = articleEl.textContent ?? '';
+    const idx = fullText.indexOf(quotedText);
+    const prefix = idx > 0 ? fullText.substring(Math.max(0, idx - CONTEXT_LENGTH), idx) : '';
+    const suffix = idx >= 0
+        ? fullText.substring(idx + quotedText.length, idx + quotedText.length + CONTEXT_LENGTH)
+        : '';
+
+    return {
+        quotedText,
+        anchor: { prefix, suffix },
+    };
+}
+
 /**
  * Initialize selection detection on the article content area.
- *
- * @param articleEl - The .article-content element to watch
- * @param onSelect - Called when user clicks "Add comment" on a valid selection
- * @returns Cleanup function to remove listeners
+ * The callback receives pre-captured selection data (captured when popup appears,
+ * not when button is clicked — avoids losing selection to click events or sign-in popups).
  */
 export function initSelection(
     articleEl: HTMLElement,
@@ -93,24 +121,31 @@ export function initSelection(
     onAddComment = onSelect;
 
     function handleMouseUp(): void {
-        // Small delay so browser finalizes the selection
         setTimeout(() => {
             const sel = window.getSelection();
             if (!sel || sel.isCollapsed || !sel.toString().trim()) {
                 hidePopup();
+                pendingCapture = null;
                 return;
             }
 
             const range = sel.getRangeAt(0);
 
-            // Selection must be within the article
             if (!articleEl.contains(range.commonAncestorContainer)) {
                 hidePopup();
+                pendingCapture = null;
                 return;
             }
 
-            // Selection must not be inside excluded elements
             if (isInsideExcluded(range.startContainer) || isInsideExcluded(range.endContainer)) {
+                hidePopup();
+                pendingCapture = null;
+                return;
+            }
+
+            // Capture selection data NOW while selection is guaranteed valid
+            pendingCapture = captureFromSelection(articleEl);
+            if (!pendingCapture) {
                 hidePopup();
                 return;
             }
@@ -121,17 +156,15 @@ export function initSelection(
     }
 
     function handleMouseDown(e: MouseEvent): void {
-        // Don't hide if clicking the popup itself
         if (popup && popup.contains(e.target as Node)) return;
-        // Don't hide if clicking inside the comment panel
         if ((e.target as HTMLElement).closest?.('#inline-comments-root')) return;
         hidePopup();
+        pendingCapture = null;
     }
 
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousedown', handleMouseDown);
 
-    // Cleanup
     return () => {
         document.removeEventListener('mouseup', handleMouseUp);
         document.removeEventListener('mousedown', handleMouseDown);
@@ -141,5 +174,6 @@ export function initSelection(
             popup = null;
         }
         onAddComment = null;
+        pendingCapture = null;
     };
 }
