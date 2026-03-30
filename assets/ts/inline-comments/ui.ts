@@ -10,7 +10,6 @@ import { signIn, signOut, onAuthStateChange, getCurrentUser } from './auth';
 import { anchorComment, removeHighlight } from './anchoring';
 import { initSelection } from './selection';
 import type { CapturedSelection } from './selection';
-import { repositionCards } from './positioning';
 import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS } from './utils';
 
 // ─── State ───────────────────────────────────────────────────────
@@ -135,8 +134,6 @@ function renderAll(): void {
         composerEl.style.display = composerData ? 'block' : 'none';
     }
 
-    // Reposition cards after DOM update
-    repositionCards();
 }
 
 // ─── Comment Card ────────────────────────────────────────────────
