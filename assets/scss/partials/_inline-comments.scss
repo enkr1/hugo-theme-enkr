@@ -93,10 +93,10 @@ mark.inline-comment-hl {
     width: 100%;
     flex: 1;
     min-height: 0;
+    height: 100%;
     overflow: hidden;
-    font-size: var(--font-size-base, 1.6rem); // 1.6rem=16px. Children use em relative to this.
+    font-size: var(--font-size-base, 1.6rem);
 
-    // Desktop-only v1
     @media (max-width: 1024px) {
         display: none;
     }
