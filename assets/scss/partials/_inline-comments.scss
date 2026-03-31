@@ -39,17 +39,25 @@ mark.inline-comment-hl {
 .inline-comment-popup {
     display: flex;
     align-items: center;
-    gap: 4px;
-    background: var(--card-text-color-main, #1f1f1f);
+    gap: 6px;
+    background: var(--gold, #8B7355);
     color: #fff;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
     white-space: nowrap;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 2px 12px rgba(139, 115, 85, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
     cursor: pointer;
     user-select: none;
     font-family: var(--base-font-family);
+    backdrop-filter: blur(8px);
+    transition: all 0.15s ease;
+
+    svg {
+        opacity: 0.85;
+    }
 
     &::after {
         content: '';
@@ -59,12 +67,19 @@ mark.inline-comment-hl {
         transform: translateX(-50%);
         width: 8px;
         height: 8px;
-        background: var(--card-text-color-main, #1f1f1f);
+        background: var(--gold, #8B7355);
         rotate: 45deg;
     }
 
     &:hover {
-        background: #1a1a2e;
+        background: #7a644a;
+        box-shadow: 0 4px 20px rgba(139, 115, 85, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+        transform: translateY(1px);
+    }
+
+    &:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 8px rgba(139, 115, 85, 0.3);
     }
 }
 
