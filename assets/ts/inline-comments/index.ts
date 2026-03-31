@@ -1,71 +1,55 @@
 /**
  * Inline Comments — Entry Point
  *
- * Loaded as a separate Hugo js.Build bundle on article pages with comments enabled.
- * Initializes auth (if returning user), subscribes to Firestore, and renders the UI.
- *
- * This file is bundled by Hugo's esbuild. All imports within inline-comments/
- * are resolved at build time into a single bundle.
+ * Flow: show sign-in prompt → user signs in → subscribe to comments → show them.
+ * No Firestore queries for anonymous visitors.
  */
-import { initAuth } from './auth';
+import { initAuth, onAuthStateChange } from './auth';
 import { subscribeComments } from './store';
 import { initUI, updateComments, destroyUI } from './ui';
 import type { Comment } from './types';
 
-/** Extract article slug from the root element's data attribute */
 function getArticleSlug(): string | null {
     const root = document.getElementById('inline-comments-root');
     return root?.dataset.articleSlug ?? null;
 }
 
-/** Main initialization */
 async function init(): Promise<void> {
-    console.log('[inline-comments] init() starting...');
-
     const slug = getArticleSlug();
-    if (!slug) {
-        console.warn('[inline-comments] No article slug found. Skipping.');
-        return;
-    }
-    console.log('[inline-comments] slug:', slug);
+    if (!slug) return;
 
     const rootEl = document.getElementById('inline-comments-root');
     const articleEl = document.querySelector('.article-content') as HTMLElement | null;
-    if (!rootEl || !articleEl) {
-        console.warn('[inline-comments] Missing root or article element. Skipping.');
-        return;
-    }
-    console.log('[inline-comments] rootEl + articleEl found');
+    if (!rootEl || !articleEl) return;
 
-    // Initialize UI (builds panel, sets up selection detection)
+    // Build UI (panel with sign-in prompt, selection detection)
     initUI(rootEl, articleEl);
-    console.log('[inline-comments] UI initialized');
 
-    // Subscribe to comments FIRST (public read, no auth needed)
-    // Auth runs in parallel — don't block comment loading
-    console.log('[inline-comments] subscribing to comments for slug:', slug);
-    initAuth().then(() => console.log('[inline-comments] auth ready'))
-              .catch(err => console.warn('[inline-comments] auth init failed:', err));
-    try {
-        const unsubscribe = await subscribeComments(
-            slug,
-            (comments: Comment[]) => {
-                console.log(`[inline-comments] onSnapshot: ${comments.length} comments received`);
-                updateComments(comments);
-            },
-            (err: Error) => {
-                console.error('[inline-comments] Firestore subscription error:', err.message, err);
-            },
-        );
-        console.log('[inline-comments] subscription active');
+    // Init auth (lazy — only loads SDK if user signed in before)
+    initAuth().catch(() => {});
 
-        window.addEventListener('beforeunload', () => {
-            unsubscribe();
-            destroyUI();
-        });
-    } catch (err) {
-        console.error('[inline-comments] subscribeComments threw:', err);
-    }
+    // Subscribe to comments ONLY after user signs in
+    let unsubscribe: (() => void) | null = null;
+
+    onAuthStateChange(async (user) => {
+        if (user && !unsubscribe) {
+            // User signed in — start loading comments
+            try {
+                unsubscribe = await subscribeComments(
+                    slug,
+                    (comments: Comment[]) => updateComments(comments),
+                    (err: Error) => console.error('[inline-comments] subscription error:', err.message),
+                );
+            } catch (err) {
+                console.error('[inline-comments] subscribe failed:', err);
+            }
+        }
+    });
+
+    window.addEventListener('beforeunload', () => {
+        unsubscribe?.();
+        destroyUI();
+    });
 }
 
-init().catch(err => console.error('[inline-comments] init() failed:', err));
+init().catch(err => console.error('[inline-comments] init failed:', err));
