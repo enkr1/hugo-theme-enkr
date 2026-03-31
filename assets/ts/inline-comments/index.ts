@@ -41,17 +41,11 @@ async function init(): Promise<void> {
     initUI(rootEl, articleEl);
     console.log('[inline-comments] UI initialized');
 
-    // Initialize auth for returning users
-    console.log('[inline-comments] initializing auth...');
-    await initAuth();
-    console.log('[inline-comments] auth initialized');
-
-    // Check Firebase state
-    const db = (window as unknown as Record<string, unknown>).firestoreDb;
-    console.log('[inline-comments] firestoreDb:', db ? 'OK' : 'MISSING');
-
-    // Subscribe to comments in real-time
+    // Subscribe to comments FIRST (public read, no auth needed)
+    // Auth runs in parallel — don't block comment loading
     console.log('[inline-comments] subscribing to comments for slug:', slug);
+    initAuth().then(() => console.log('[inline-comments] auth ready'))
+              .catch(err => console.warn('[inline-comments] auth init failed:', err));
     try {
         const unsubscribe = await subscribeComments(
             slug,
