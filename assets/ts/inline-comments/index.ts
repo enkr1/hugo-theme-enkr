@@ -4,7 +4,7 @@
  * Flow: show sign-in prompt → user signs in → subscribe to comments → show them.
  * No Firestore queries for anonymous visitors.
  */
-import { initAuth, onAuthStateChange } from './auth';
+import { initAuth, onAuthStateChange } from '../auth';
 import { subscribeComments } from './store';
 import { initUI, updateComments, destroyUI } from './ui';
 import type { Comment } from './types';

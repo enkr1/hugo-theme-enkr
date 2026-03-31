@@ -1,5 +1,7 @@
 /** Inline Comments — Type Definitions */
 
+export type { AuthUser } from '../auth/types';
+
 export interface Author {
     uid: string;
     displayName: string;
@@ -46,11 +48,4 @@ export interface NewComment {
 export interface NewReply {
     text: string;
     mentions: Array<{ uid: string; displayName: string }>;
-}
-
-/** Auth state passed around the UI */
-export interface AuthUser {
-    uid: string;
-    displayName: string;
-    photoURL: string;
 }
