@@ -54,7 +54,7 @@ async function init(): Promise<void> {
                 updateComments(comments);
             },
             (err: Error) => {
-                console.error('[inline-comments] Firestore subscription error:', err);
+                console.error('[inline-comments] Firestore subscription error:', err.message, err);
             },
         );
         console.log('[inline-comments] subscription active');
@@ -69,5 +69,3 @@ async function init(): Promise<void> {
 }
 
 init().catch(err => console.error('[inline-comments] init() failed:', err));
-
-init();
