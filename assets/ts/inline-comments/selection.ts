@@ -77,8 +77,9 @@ function showPopup(rect: DOMRect): void {
     const popupWidth = popup.getBoundingClientRect().width;
     const popupHeight = popup.getBoundingClientRect().height;
 
+    // Position BELOW the selection (avoids AI suggestion popups that appear above)
     const left = rect.left + rect.width / 2 - popupWidth / 2;
-    const top = rect.top - popupHeight - 8;
+    const top = rect.bottom + 8;
 
     popup.style.left = `${Math.max(8, left)}px`;
     popup.style.top = `${Math.max(8, top)}px`;
