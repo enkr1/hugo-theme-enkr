@@ -28,9 +28,9 @@ declare global {
 
 window.__siteAuth = { initAuth, signIn, signOut, onAuthStateChange, getCurrentUser };
 
-// Mount auth UI
-const root = document.getElementById('auth-root');
-if (root) mountAuthUI(root);
+// Mount auth UI into sidebar menu item
+const menuItem = document.getElementById('auth-menu-item');
+if (menuItem) mountAuthUI(menuItem);
 
 // Initialize auth
 initAuth().catch(err => console.error('[auth] init failed:', err));

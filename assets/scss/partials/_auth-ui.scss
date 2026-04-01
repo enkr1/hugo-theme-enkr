@@ -1,82 +1,50 @@
 // themes/stack/assets/scss/partials/_auth-ui.scss
 
-// ─── Auth Icon (Fixed Top-Right) ─────────────────────────────────
+// ─── Auth Sidebar Menu Item ──────────────────────────────────────
 
-.auth-root {
-    position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 12px);
-    right: 12px;
-    z-index: 998;
-}
-
-.auth-icon-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1px solid rgba(var(--gold-rgb, 139, 115, 85), 0.3);
-    background: rgba(var(--gold-rgb, 139, 115, 85), 0.1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+#auth-menu-item {
+    position: relative;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    color: var(--gold, #8B7355);
-    transition: border-color 0.2s, background 0.2s;
 
-    &:hover {
-        border-color: rgba(var(--gold-rgb, 139, 115, 85), 0.5);
-        background: rgba(var(--gold-rgb, 139, 115, 85), 0.18);
+    &.auth-signed-in {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        span {
+            font-size: 0.85em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
 }
 
-.auth-icon-avatar {
-    width: 32px;
-    height: 32px;
+.auth-sidebar-avatar {
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     object-fit: cover;
-}
-
-.auth-icon-initials {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gold, #8B7355);
+    flex-shrink: 0;
 }
 
 // ─── Dropdown ────────────────────────────────────────────────────
 
 .auth-dropdown {
     position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 200px;
+    bottom: calc(100% + 4px);
+    left: 0;
+    min-width: 160px;
     background: var(--card-background, #fff);
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    padding: 8px 0;
+    padding: 4px 0;
     z-index: 101;
 
     [data-scheme="dark"] & {
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
-}
-
-.auth-dropdown-info {
-    padding: 10px 14px;
-}
-
-.auth-dropdown-name {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--card-text-color-main, #333);
-}
-
-.auth-dropdown-divider {
-    border: none;
-    border-top: 1px solid var(--card-separator-color, #e0e0e0);
-    margin: 4px 0;
 }
 
 .auth-dropdown-item {

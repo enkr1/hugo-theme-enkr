@@ -1,55 +1,79 @@
 // themes/stack/assets/ts/auth-ui/index.ts
 
 /**
- * Auth UI — fixed top-right icon with dropdown.
+ * Auth UI — sidebar menu item.
  *
  * States:
- * - Anonymous: person silhouette icon → click triggers signIn()
- * - Signed in: Google avatar → click opens dropdown (name, email, sign out)
+ * - Anonymous: user icon + "Sign in" (matches other menu items)
+ * - Signed in: avatar + display name → click opens dropdown (sign out, future slots)
  */
 import { signIn, signOut, onAuthStateChange } from '../auth';
 import type { AuthUser } from '../auth';
 
-const PERSON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
-
-let rootEl: HTMLElement | null = null;
+let menuItemEl: HTMLElement | null = null;
 let dropdownVisible = false;
 let currentUser: AuthUser | null = null;
 
 function render(): void {
-    if (!rootEl) return;
-    rootEl.innerHTML = '';
+    if (!menuItemEl) return;
 
-    const btn = document.createElement('button');
-    btn.className = 'auth-icon-btn';
-    btn.setAttribute('aria-label', currentUser ? 'Account menu' : 'Sign in');
+    // Clear existing content
+    menuItemEl.innerHTML = '';
+    menuItemEl.className = currentUser ? 'auth-signed-in' : '';
 
     if (currentUser) {
-        // Signed in — show avatar
-        if (currentUser.photoURL) {
-            const img = document.createElement('img');
-            img.src = currentUser.photoURL;
-            img.alt = currentUser.displayName;
-            img.className = 'auth-icon-avatar';
-            img.width = 32;
-            img.height = 32;
-            img.referrerPolicy = 'no-referrer';
-            btn.appendChild(img);
-        } else {
-            // Fallback: initials
-            const initialsEl = document.createElement('span');
-            initialsEl.className = 'auth-icon-initials';
-            initialsEl.textContent = currentUser.displayName.substring(0, 2).toUpperCase();
-            btn.appendChild(initialsEl);
-        }
-        btn.addEventListener('click', toggleDropdown);
-    } else {
-        // Anonymous — show person icon
-        btn.innerHTML = PERSON_SVG;
-        btn.addEventListener('click', () => signIn());
-    }
+        // Signed in — show avatar + name
+        const avatar = document.createElement('img');
+        avatar.src = currentUser.photoURL;
+        avatar.alt = currentUser.displayName;
+        avatar.className = 'auth-sidebar-avatar';
+        avatar.width = 24;
+        avatar.height = 24;
+        avatar.referrerPolicy = 'no-referrer';
+        menuItemEl.appendChild(avatar);
 
-    rootEl.appendChild(btn);
+        const name = document.createElement('span');
+        name.textContent = currentUser.displayName;
+        menuItemEl.appendChild(name);
+
+        menuItemEl.onclick = toggleDropdown;
+    } else {
+        // Anonymous — show user icon + "Sign in" (icon rendered by Hugo template)
+        // Re-add the SVG icon that Hugo originally rendered
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'icon icon-tabler icon-tabler-user');
+        svg.setAttribute('width', '24');
+        svg.setAttribute('height', '24');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('stroke-width', '2');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+
+        const pathBg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathBg.setAttribute('stroke', 'none');
+        pathBg.setAttribute('d', 'M0 0h24v24H0z');
+        svg.appendChild(pathBg);
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '7');
+        circle.setAttribute('r', '4');
+        svg.appendChild(circle);
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2');
+        svg.appendChild(path);
+
+        menuItemEl.appendChild(svg);
+
+        const label = document.createElement('span');
+        label.textContent = 'Sign in';
+        menuItemEl.appendChild(label);
+
+        menuItemEl.onclick = () => signIn();
+    }
 
     // Render dropdown if visible
     if (dropdownVisible && currentUser) {
@@ -58,38 +82,23 @@ function render(): void {
 }
 
 function renderDropdown(): void {
-    if (!rootEl || !currentUser) return;
+    if (!menuItemEl || !currentUser) return;
 
     const dropdown = document.createElement('div');
     dropdown.className = 'auth-dropdown';
-
-    // User info
-    const info = document.createElement('div');
-    info.className = 'auth-dropdown-info';
-
-    const name = document.createElement('div');
-    name.className = 'auth-dropdown-name';
-    name.textContent = currentUser.displayName;
-    info.appendChild(name);
-
-    dropdown.appendChild(info);
-
-    // Divider
-    const divider = document.createElement('hr');
-    divider.className = 'auth-dropdown-divider';
-    dropdown.appendChild(divider);
 
     // Sign out
     const signOutBtn = document.createElement('button');
     signOutBtn.className = 'auth-dropdown-item';
     signOutBtn.textContent = 'Sign out';
-    signOutBtn.addEventListener('click', async () => {
+    signOutBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         dropdownVisible = false;
         await signOut();
     });
     dropdown.appendChild(signOutBtn);
 
-    rootEl.appendChild(dropdown);
+    menuItemEl.appendChild(dropdown);
 }
 
 function toggleDropdown(): void {
@@ -98,7 +107,7 @@ function toggleDropdown(): void {
 }
 
 function handleClickOutside(e: MouseEvent): void {
-    if (dropdownVisible && rootEl && !rootEl.contains(e.target as Node)) {
+    if (dropdownVisible && menuItemEl && !menuItemEl.contains(e.target as Node)) {
         dropdownVisible = false;
         render();
     }
@@ -111,9 +120,9 @@ function handleEscape(e: KeyboardEvent): void {
     }
 }
 
-/** Mount the auth icon into the given container element. */
+/** Mount auth UI into the sidebar menu item. */
 export function mountAuthUI(container: HTMLElement): void {
-    rootEl = container;
+    menuItemEl = container;
 
     onAuthStateChange((user) => {
         currentUser = user;

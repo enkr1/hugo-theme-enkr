@@ -85,23 +85,97 @@ mark.inline-comment-hl {
 
 // ─── Comment Panel ───────────────────────────────────────────────
 
-// Show right sidebar on article pages when comments panel exists.
-// The sidebar is normally hidden via .article-page--toc-left .right-sidebar { display: none }
-// Also widen it — the default 17% is too narrow for a comment panel.
+// ── 3-Column Layout Overrides (when comments panel present) ──
+//
+// Cascade context (what we're fighting):
+//   .floating-layout .right-sidebar { display: none !important }  ← grid.scss:101
+//   .article-page--toc-left .right-sidebar { display: none }      ← grid.scss:77
+//   .floating-layout .container.main-container { max-width: 1320px; padding-left: 60px } ← grid.scss:89-96
+//   .right-sidebar { padding-top/bottom: var(--main-top-padding) } ← sidebar.scss:81-82
+//   main.main { padding-left: 2rem; padding-right: 2rem }         ← grid.scss:141-142
+//
+// Breakpoints: lg=1024px, xl=1280px, 2xl=1536px
+// Toolbar: fixed, left: 1.5rem, width: ~5.2rem (icon 4rem + padding 1.2rem)
+// Required clearance: toolbar-left(1.5rem) + toolbar-width(5.2rem) + gap(1rem) ≈ 7.7rem
+
+// Step 1: Force right sidebar visible (fights !important from floating-layout)
 .article-page--toc-left .right-sidebar:has(#inline-comments-root) {
     display: flex !important;
     flex-direction: column;
     position: sticky;
     top: 0;
     height: 100vh;
-    max-width: 260px !important;
-    min-width: 220px;
     flex-shrink: 0;
+    padding: var(--main-top-padding) 0 0 0 !important; // align top with TOC, zero the rest
+    gap: 0 !important;              // kill widget separation
 }
 
-// Override the grid's right-sidebar-max-width when comments are present
-.article-page--toc-left:has(#inline-comments-root) .container.extended {
-    --right-sidebar-max-width: 25%;
+// Step 2: Per-breakpoint layout tuning
+.article-page--toc-left:has(#inline-comments-root) {
+
+    // ── lg (1024-1279px): tight — hide TOC, 2-column only ──
+    @media (min-width: 1024px) and (max-width: 1279px) {
+        .container.main-container {
+            max-width: 100rem;       // 1000px
+            padding-left: 7.7rem;    // clear floating toolbar
+            padding-right: 0.8rem;
+            gap: 1rem;
+        }
+        .container.extended {
+            --right-sidebar-max-width: 28%;
+        }
+        .toc-left-sidebar {
+            display: none;           // not enough room for 3 columns
+        }
+        main.main {
+            padding-left: 1rem;
+            padding-right: 0.5rem;
+        }
+    }
+
+    // ── xl (1280-1535px): 3 columns, compact ──
+    @media (min-width: 1280px) and (max-width: 1535px) {
+        .container.main-container {
+            max-width: 128rem;       // 1280px — use full breakpoint width
+            padding-left: 7.7rem;
+            padding-right: 0.8rem;
+            gap: 1rem;
+        }
+        .container.extended {
+            --toc-left-sidebar-max-width: 16%;
+            --right-sidebar-max-width: 20%;
+        }
+        .toc-left-sidebar {
+            padding-left: 0 !important;
+            padding-right: 0.8rem !important;
+        }
+        main.main {
+            padding-left: 0.8rem;
+            padding-right: 0.5rem;
+        }
+    }
+
+    // ── 2xl (1536px+): 3 columns, comfortable ──
+    @media (min-width: 1536px) {
+        .container.main-container {
+            max-width: 160rem;       // 1600px — wider than default 1320px
+            padding-left: 7.7rem;
+            padding-right: 1.2rem;
+            gap: 1.5rem;
+        }
+        .container.extended {
+            --toc-left-sidebar-max-width: 17%;
+            --right-sidebar-max-width: 22%;
+        }
+        .toc-left-sidebar {
+            padding-left: 0 !important;
+            padding-right: 1rem !important;
+        }
+        main.main {
+            padding-left: 1rem;
+            padding-right: 0.8rem;
+        }
+    }
 }
 
 #inline-comments-root {
@@ -120,7 +194,6 @@ mark.inline-comment-hl {
 .inline-comments-panel {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--card-separator-color, #e0e0e0);
     background: var(--body-background, #fff);
     display: flex;
     flex-direction: column;
@@ -129,7 +202,7 @@ mark.inline-comment-hl {
 }
 
 .ic-panel-header {
-    padding: 0.4em 0.6em;
+    padding: 0.4em 0.8em;
     border-bottom: 1px solid var(--card-separator-color, #f0f0f0);
     display: flex;
     align-items: center;
@@ -161,7 +234,7 @@ mark.inline-comment-hl {
 .ic-panel-body {
     flex: 1;
     overflow-y: auto;
-    padding: 0.3em 0;
+    padding: 0.3em 0.4em;
 }
 
 // ─── Comment Card ────────────────────────────────────────────────
