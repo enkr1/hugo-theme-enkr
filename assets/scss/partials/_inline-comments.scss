@@ -229,6 +229,8 @@ mark.inline-comment-hl {
     font-weight: 700;
     padding: 0 4px;
     margin-left: 0.2em;
+    vertical-align: middle;
+    transform: translateY(-0.1em);
 }
 
 .ic-panel-body {

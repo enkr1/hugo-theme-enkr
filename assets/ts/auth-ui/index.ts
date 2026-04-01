@@ -3,9 +3,8 @@
 /**
  * Auth UI — sidebar menu item.
  *
- * States:
- * - Anonymous: user icon + "Sign in" (matches other menu items)
- * - Signed in: avatar + display name → click opens dropdown (sign out, future slots)
+ * Renders inside a <li> in the main menu, matching other menu items' structure.
+ * Anonymous: user icon + "Sign in". Signed in: avatar + name + dropdown.
  */
 import { signIn, signOut, onAuthStateChange } from '../auth';
 import type { AuthUser } from '../auth';
@@ -17,9 +16,13 @@ let currentUser: AuthUser | null = null;
 function render(): void {
     if (!menuItemEl) return;
 
-    // Clear existing content
-    menuItemEl.innerHTML = '';
-    menuItemEl.className = currentUser ? 'auth-signed-in' : '';
+    // Get or create the <a> wrapper (matches other menu items' structure)
+    let link = menuItemEl.querySelector('a');
+    if (!link) {
+        link = document.createElement('a');
+        menuItemEl.appendChild(link);
+    }
+    link.innerHTML = '';
 
     if (currentUser) {
         // Signed in — show avatar + name
@@ -30,16 +33,15 @@ function render(): void {
         avatar.width = 24;
         avatar.height = 24;
         avatar.referrerPolicy = 'no-referrer';
-        menuItemEl.appendChild(avatar);
+        link.appendChild(avatar);
 
         const name = document.createElement('span');
         name.textContent = currentUser.displayName;
-        menuItemEl.appendChild(name);
+        link.appendChild(name);
 
-        menuItemEl.onclick = toggleDropdown;
+        link.onclick = (e) => { e.preventDefault(); toggleDropdown(); };
     } else {
-        // Anonymous — show user icon + "Sign in" (icon rendered by Hugo template)
-        // Re-add the SVG icon that Hugo originally rendered
+        // Anonymous — user icon + "Sign in"
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('class', 'icon icon-tabler icon-tabler-user');
         svg.setAttribute('width', '24');
@@ -66,16 +68,19 @@ function render(): void {
         path.setAttribute('d', 'M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2');
         svg.appendChild(path);
 
-        menuItemEl.appendChild(svg);
+        link.appendChild(svg);
 
         const label = document.createElement('span');
         label.textContent = 'Sign in';
-        menuItemEl.appendChild(label);
+        link.appendChild(label);
 
-        menuItemEl.onclick = () => signIn();
+        link.onclick = (e) => { e.preventDefault(); signIn(); };
     }
 
     // Render dropdown if visible
+    const existingDropdown = menuItemEl.querySelector('.auth-dropdown');
+    if (existingDropdown) existingDropdown.remove();
+
     if (dropdownVisible && currentUser) {
         renderDropdown();
     }

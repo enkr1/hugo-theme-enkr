@@ -81,12 +81,18 @@
             </a>
         </li>
         {{ end }}
+        <li id="auth-menu-item">
+            <a>
+                {{ partial "helper/icon" "user" }}
+                <span>Sign in</span>
+            </a>
+        </li>
         <li class="menu-bottom-section">
             <ol class="menu">
                 {{- $currentLanguageCode := .Language.Lang -}}
                 {{ if ( compare.Gt .Site.Home.AllTranslations.Len 1 ) }}
                     {{ with .Site.Home.AllTranslations }}
-                        <li id="i18n-switch">  
+                        <li id="i18n-switch">
                             {{ partial "helper/icon" "language" }}
                             <select name="language" title="language" onchange="window.location.href = this.selectedOptions[0].value">
                                 {{ range . }}
@@ -104,11 +110,6 @@
                         <span>{{ T "darkMode" }}</span>
                     </li>
                 {{ end }}
-
-                <li id="auth-menu-item">
-                    {{ partial "helper/icon" "user" }}
-                    <span>Sign in</span>
-                </li>
             </ol>
         </li>
     </ol>

@@ -6,17 +6,8 @@
     position: relative;
     cursor: pointer;
 
-    &.auth-signed-in {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
-        span {
-            font-size: 0.85em;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+    a {
+        cursor: pointer;
     }
 }
 
@@ -32,9 +23,9 @@
 
 .auth-dropdown {
     position: absolute;
-    bottom: calc(100% + 4px);
-    left: 0;
-    min-width: 160px;
+    left: calc(100% + 8px);
+    bottom: 0;
+    min-width: 140px;
     background: var(--card-background, #fff);
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 8px;
@@ -57,6 +48,7 @@
     font-size: 0.8rem;
     color: var(--card-text-color-secondary, #666);
     cursor: pointer;
+    white-space: nowrap;
 
     &:hover {
         background: rgba(var(--gold-rgb, 139, 115, 85), 0.08);
