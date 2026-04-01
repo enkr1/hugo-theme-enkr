@@ -11,7 +11,6 @@ export type { AuthUser, AuthStateCallback } from './types';
 import {
     initFirebaseAuth,
     signInWithPopup,
-    signInWithGISCredential,
     firebaseSignOut,
     onAuthStateChange as firebaseOnAuthStateChange,
     getCurrentUser as firebaseGetCurrentUser,
@@ -21,10 +20,10 @@ import {
 import {
     initOneTap,
     cancelOneTap,
-    consumeQueuedCredential,
-    setCredentialCallback,
     wasOneTapAttempted,
 } from './one-tap';
+
+let authInitialized = false;
 
 /**
  * Initialize auth on page load.
@@ -33,6 +32,9 @@ import {
  * - Anonymous users: schedule One Tap after page idle (~3s).
  */
 export async function initAuth(): Promise<void> {
+    if (authInitialized) return;
+    authInitialized = true;
+
     if (hasAuthHistory()) {
         // Returning user — restore Firebase session
         await initFirebaseAuth();
@@ -40,11 +42,6 @@ export async function initAuth(): Promise<void> {
     }
 
     // Anonymous user — schedule One Tap
-    // Set up credential callback in case GIS resolves before Firebase Auth
-    setCredentialCallback(async (idToken: string) => {
-        await signInWithGISCredential(idToken);
-    });
-
     const scheduleOneTap = () => {
         setTimeout(async () => {
             const result = await initOneTap();

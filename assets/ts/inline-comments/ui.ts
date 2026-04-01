@@ -6,11 +6,27 @@
  */
 import type { Comment, Reply, AuthUser, NewReply } from './types';
 import { createComment, createReply, toggleLike } from './store';
-import { signIn, signOut, onAuthStateChange, getCurrentUser } from '../auth';
-import { anchorComment, removeHighlight } from './anchoring';
+import { anchorComment } from './anchoring';
 import { initSelection } from './selection';
 import type { CapturedSelection } from './selection';
 import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS } from './utils';
+
+declare global {
+    interface Window {
+        __siteAuth?: {
+            initAuth: () => Promise<void>;
+            signIn: () => Promise<void>;
+            signOut: () => Promise<void>;
+            onAuthStateChange: (cb: (user: { uid: string; displayName: string; photoURL: string } | null) => void) => () => void;
+            getCurrentUser: () => { uid: string; displayName: string; photoURL: string } | null;
+        };
+    }
+}
+
+// Auth accessed via window.__siteAuth (cross-bundle shared state)
+function getAuth() {
+    return window.__siteAuth!;
+}
 
 // ─── State ───────────────────────────────────────────────────────
 let comments: Comment[] = [];
@@ -37,7 +53,7 @@ export function initUI(rootEl: HTMLElement, articleContentEl: HTMLElement): void
     buildPanel(rootEl);
 
     // Listen for auth state changes (store unsubscribe for cleanup)
-    cleanupAuth = onAuthStateChange((user) => {
+    cleanupAuth = getAuth().onAuthStateChange((user) => {
         currentUser = user;
         renderAll();
     });
@@ -254,7 +270,7 @@ function buildCommentEntry(
     likeBtn.title = 'Like';
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (!currentUser) { signIn(); return; }
+        if (!currentUser) { getAuth().signIn(); return; }
         toggleLike(commentId, currentUser.uid, isLiked);
     });
     actions.appendChild(likeBtn);
@@ -668,8 +684,10 @@ async function onSelectionComment(captured: CapturedSelection): Promise<void> {
 
     // Ensure signed in
     if (!currentUser) {
-        const user = await signIn();
-        if (!user) return;
+        await getAuth().signIn();
+        // Auth state updates via onAuthStateChange listener — return and let
+        // the user retry after sign-in completes
+        return;
     }
 
     // Open composer with pre-captured data
@@ -705,7 +723,7 @@ function buildSignInPrompt(): HTMLElement {
     const btn = document.createElement('button');
     btn.className = 'ic-signin-btn';
     btn.textContent = 'Sign in';
-    btn.addEventListener('click', () => signIn());
+    btn.addEventListener('click', () => getAuth().signIn());
     prompt.appendChild(btn);
 
     return prompt;

@@ -4,10 +4,27 @@
  * Flow: show sign-in prompt → user signs in → subscribe to comments → show them.
  * No Firestore queries for anonymous visitors.
  */
-import { initAuth, onAuthStateChange } from '../auth';
 import { subscribeComments } from './store';
 import { initUI, updateComments, destroyUI } from './ui';
 import type { Comment } from './types';
+
+declare global {
+    interface Window {
+        __siteAuth?: {
+            initAuth: () => Promise<void>;
+            signIn: () => Promise<void>;
+            signOut: () => Promise<void>;
+            onAuthStateChange: (cb: (user: { uid: string; displayName: string; photoURL: string } | null) => void) => () => void;
+            getCurrentUser: () => { uid: string; displayName: string; photoURL: string } | null;
+        };
+    }
+}
+
+// Auth is loaded via auth-entry.ts (separate bundle shares state via window)
+function getAuth() {
+    if (!window.__siteAuth) throw new Error('Auth not initialized. Check auth/init.html.');
+    return window.__siteAuth;
+}
 
 function getArticleSlug(): string | null {
     const root = document.getElementById('inline-comments-root');
@@ -26,12 +43,12 @@ async function init(): Promise<void> {
     initUI(rootEl, articleEl);
 
     // Init auth (lazy — only loads SDK if user signed in before)
-    initAuth().catch(() => {});
+    getAuth().initAuth().catch(() => {});
 
     // Subscribe to comments ONLY after user signs in
     let unsubscribe: (() => void) | null = null;
 
-    onAuthStateChange(async (user) => {
+    getAuth().onAuthStateChange(async (user) => {
         if (user && !unsubscribe) {
             // User signed in — start loading comments
             try {

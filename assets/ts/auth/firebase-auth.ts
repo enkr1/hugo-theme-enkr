@@ -14,6 +14,7 @@ let authInstance: unknown = null;
 let cachedAuthFns: Awaited<ReturnType<typeof loadAuthFns>> | null = null;
 let currentUser: AuthUser | null = null;
 const listeners: AuthStateCallback[] = [];
+let firebaseInitialized = false;
 
 // ─── localStorage helpers ────────────────────────────────────────
 
@@ -78,10 +79,11 @@ export async function ensureAuth() {
 // ─── User mapping ────────────────────────────────────────────────
 
 function toAuthUser(firebaseUser: { uid: string; displayName: string | null; photoURL: string | null }): AuthUser {
+    const displayName = firebaseUser.displayName ?? 'Anonymous';
     return {
         uid: firebaseUser.uid,
-        displayName: firebaseUser.displayName ?? 'Anonymous',
-        photoURL: firebaseUser.photoURL ?? '',
+        displayName,
+        photoURL: firebaseUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&size=96`,
     };
 }
 
@@ -97,6 +99,8 @@ function notifyListeners(user: AuthUser | null): void {
  * Avoids loading ~100KB Auth SDK for anonymous readers.
  */
 export async function initFirebaseAuth(): Promise<void> {
+    if (firebaseInitialized) return;
+    firebaseInitialized = true;
     if (!hasAuthHistory()) return;
 
     try {

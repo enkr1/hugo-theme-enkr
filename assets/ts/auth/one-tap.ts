@@ -37,9 +37,7 @@ declare global {
 }
 
 let gisLoaded = false;
-let queuedCredential: string | null = null;
 let oneTapAttempted = false;
-let onCredentialCallback: ((idToken: string) => void) | null = null;
 
 /** Inject the GIS script tag. Resolves when loaded. */
 function loadGIS(): Promise<void> {
@@ -63,30 +61,7 @@ function loadGIS(): Promise<void> {
 
 /** Handle the JWT credential from GIS. */
 async function handleCredential(response: GISCredentialResponse): Promise<void> {
-    const idToken = response.credential;
-
-    // Try to bridge immediately
-    const user = await signInWithGISCredential(idToken);
-    if (!user) {
-        // Firebase Auth SDK might not be ready — queue for later
-        queuedCredential = idToken;
-        onCredentialCallback?.(idToken);
-    }
-}
-
-/**
- * Process any queued credential (called after Firebase Auth SDK loads).
- * Returns the id_token if one was queued, null otherwise.
- */
-export function consumeQueuedCredential(): string | null {
-    const token = queuedCredential;
-    queuedCredential = null;
-    return token;
-}
-
-/** Set a callback for when a credential arrives (used by auth/index.ts). */
-export function setCredentialCallback(cb: (idToken: string) => void): void {
-    onCredentialCallback = cb;
+    await signInWithGISCredential(response.credential);
 }
 
 /** Whether One Tap has already been attempted this page load. */
