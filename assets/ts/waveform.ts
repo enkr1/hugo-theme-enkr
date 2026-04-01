@@ -77,25 +77,16 @@ class WaveformController {
 
 // Initialize on DOM ready
 function initWaveform(): void {
-  console.log('[Waveform] Initializing...');
   const waveformElement = document.getElementById('waveform');
+  if (!waveformElement) return;
 
-  if (!waveformElement) {
-    console.error('[Waveform] Element #waveform not found in DOM');
-    return;
-  }
-
-  console.log('[Waveform] Element found:', waveformElement);
   const controller = new WaveformController();
-  console.log('[Waveform] Controller created, paths found:', controller['paths'].length);
 
   // Small delay to ensure smooth start
   setTimeout(() => {
-    console.log('[Waveform] Activating waves...');
     waveformElement.classList.remove('waveform--loading');
     waveformElement.classList.add('waveform--active');
     controller.start();
-    console.log('[Waveform] Started!');
   }, 100);
 
   // Handle visibility change to pause animation when tab is not visible

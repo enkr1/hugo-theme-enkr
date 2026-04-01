@@ -98,16 +98,10 @@ class VisitorCounter {
             const snapshot = await getDocs(articlesCollection);
 
             let totalVisitors = 0;
-            console.group('[Hugo v2] Firestore visitor sum');
-            console.debug('[DEBUG] totalVisitors - before:', totalVisitors);
-
             snapshot.forEach((doc: any) => {
                 const visitorByDoc = doc.data().count || 0;
                 totalVisitors += visitorByDoc;
             });
-
-            console.debug('[DEBUG] totalVisitors - after:', totalVisitors);
-            console.groupEnd();
 
             return totalVisitors;
         } catch (error) {
@@ -128,12 +122,9 @@ class VisitorCounter {
             const snapshot = await getDoc(articleDoc);
 
             if (snapshot.exists()) {
-                const count = snapshot.data().count || 0;
-                console.debug('[Hugo v2] Article view count:', slug, count);
-                return count;
+                return snapshot.data().count || 0;
             }
 
-            console.debug('[Hugo v2] Article not found in Firestore:', slug);
             return 0;
         } catch (error) {
             console.error('[Hugo v2] Error fetching article count:', error);
@@ -147,13 +138,8 @@ class VisitorCounter {
     private async getTotalCount(): Promise<number> {
         // Check cache first
         const cached = VisitorCountCache.getTotal();
-        if (cached !== null) {
-            console.debug('[Cache] Using cached total count:', cached);
-            return cached;
-        }
+        if (cached !== null) return cached;
 
-        // Cache miss - fetch from Firebase
-        console.debug('[Cache] Total count cache miss, fetching from Firebase');
         const count = await this.fetchTotalViewCount();
 
         // Store in cache
@@ -168,13 +154,8 @@ class VisitorCounter {
     private async getArticleCount(slug: string): Promise<number> {
         // Check cache first
         const cached = VisitorCountCache.getArticle(slug);
-        if (cached !== null) {
-            console.debug('[Cache] Using cached article count:', slug, cached);
-            return cached;
-        }
+        if (cached !== null) return cached;
 
-        // Cache miss - fetch from Firebase
-        console.debug('[Cache] Article count cache miss, fetching from Firebase:', slug);
         const count = await this.fetchArticleViewCount(slug);
 
         // Store in cache
@@ -187,17 +168,10 @@ class VisitorCounter {
      * Initialize and fetch count
      */
     public async init(): Promise<void> {
-        console.group('[Hugo v2] Visitor Count Initialization');
-
         // Show loading state immediately
         this.updateDisplay('...');
 
-        // Check if running in production
-        if (!this.isProduction()) {
-            console.debug('[DEBUG] Skipping Firestore requests in local development');
-            console.groupEnd();
-            return;
-        }
+        if (!this.isProduction()) return;
 
         // Fetch count (total or article-specific)
         try {
@@ -207,16 +181,10 @@ class VisitorCounter {
             // For now, always show total count (article-specific can be added to UI later)
             count = await this.getTotalCount();
 
-            const formattedCount = this.formatCount(count);
-            this.updateDisplay(formattedCount);
-
-            console.debug('[DEBUG] Visitor count updated:', formattedCount);
-        } catch (error) {
-            console.error('[DEBUG] Failed to update visitor count:', error);
+            this.updateDisplay(this.formatCount(count));
+        } catch {
             this.updateDisplay('...');
         }
-
-        console.groupEnd();
     }
 
     /**

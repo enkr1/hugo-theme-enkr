@@ -122,9 +122,6 @@ export class VisitorCountCache {
             // Remove expired entries
             keysToRemove.forEach(key => localStorage.removeItem(key));
 
-            if (keysToRemove.length > 0) {
-                console.debug('[Cache] Cleaned up', keysToRemove.length, 'expired entries');
-            }
 
             // Update last cleanup timestamp
             localStorage.setItem(this.CLEANUP_KEY, Date.now().toString());
@@ -164,7 +161,6 @@ export class VisitorCountCache {
             }
 
             keysToRemove.forEach(key => localStorage.removeItem(key));
-            console.debug('[Cache] Cleared all visitor count cache');
         } catch (error) {
             console.warn('[Cache] Failed to clear cache:', error);
         }
