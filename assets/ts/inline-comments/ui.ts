@@ -30,6 +30,7 @@ function getAuth() {
 
 // ─── State ───────────────────────────────────────────────────────
 let comments: Comment[] = [];
+let commentsLoaded = false;
 let focusedCommentId: string | null = null;
 let currentUser: AuthUser | null = null;
 let composerData: { quotedText: string; anchor: { prefix: string; suffix: string } } | null = null;
@@ -65,6 +66,7 @@ export function initUI(rootEl: HTMLElement, articleContentEl: HTMLElement): void
 /** Update the comment list (called from Firestore onSnapshot). */
 export function updateComments(newComments: Comment[]): void {
     comments = newComments;
+    commentsLoaded = true;
 
     // Anchor only new comments (skip already-anchored)
     if (articleEl) {
@@ -140,6 +142,9 @@ function renderAll(): void {
 
     // Clear and re-render comments
     commentsListEl.textContent = '';
+
+    // Before Firestore data arrives, show nothing (no flash of empty/sign-in states)
+    if (!commentsLoaded) return;
 
     if (comments.length === 0 && !composerData) {
         commentsListEl.appendChild(buildEmptyState());

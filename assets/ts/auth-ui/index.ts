@@ -1,10 +1,11 @@
 // themes/stack/assets/ts/auth-ui/index.ts
 
 /**
- * Auth UI — sidebar menu item.
+ * Auth UI — renders sign-in / profile into the auth menu item.
  *
- * Renders inside a <li> in the main menu, matching other menu items' structure.
- * Anonymous: user icon + "Sign in". Signed in: avatar + name + dropdown.
+ * Supports two contexts:
+ * - Floating toolbar: icon-only <div class="toolbar-icon">, tooltip via aria-label
+ * - Traditional sidebar: <li> with <a><svg/><span></span></a>
  */
 import { signIn, signOut, onAuthStateChange } from '../auth';
 import type { AuthUser } from '../auth';
@@ -12,11 +13,43 @@ import type { AuthUser } from '../auth';
 let menuItemEl: HTMLElement | null = null;
 let dropdownVisible = false;
 let currentUser: AuthUser | null = null;
+let isToolbarContext = false;
 
-function render(): void {
+const USER_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg>`;
+
+// ─── Toolbar Render (icon-only, no text) ────────────────────────
+
+function renderToolbar(): void {
+    if (!menuItemEl) return;
+    menuItemEl.innerHTML = '';
+
+    if (currentUser) {
+        const avatar = document.createElement('img');
+        avatar.src = currentUser.photoURL;
+        avatar.alt = currentUser.displayName;
+        avatar.className = 'auth-toolbar-avatar';
+        avatar.width = 20;
+        avatar.height = 20;
+        avatar.referrerPolicy = 'no-referrer';
+        avatar.onerror = () => { menuItemEl!.innerHTML = USER_ICON_SVG; };
+        menuItemEl.appendChild(avatar);
+
+        menuItemEl.setAttribute('aria-label', currentUser.displayName);
+        menuItemEl.onclick = (e) => { e.preventDefault(); e.stopPropagation(); toggleDropdown(); };
+    } else {
+        menuItemEl.innerHTML = USER_ICON_SVG;
+        menuItemEl.setAttribute('aria-label', 'Sign in');
+        menuItemEl.onclick = (e) => { e.preventDefault(); e.stopPropagation(); signIn(); };
+    }
+
+    if (dropdownVisible && currentUser) renderDropdown();
+}
+
+// ─── Sidebar Render (legacy <li> with <a>) ──────────────────────
+
+function renderSidebar(): void {
     if (!menuItemEl) return;
 
-    // Get or create the <a> wrapper (matches other menu items' structure)
     let link = menuItemEl.querySelector('a');
     if (!link) {
         link = document.createElement('a');
@@ -25,7 +58,6 @@ function render(): void {
     link.innerHTML = '';
 
     if (currentUser) {
-        // Signed in — show avatar + name
         const avatar = document.createElement('img');
         avatar.src = currentUser.photoURL;
         avatar.alt = currentUser.displayName;
@@ -35,41 +67,9 @@ function render(): void {
         avatar.referrerPolicy = 'no-referrer';
         link.appendChild(avatar);
 
-        const name = document.createElement('span');
-        name.textContent = currentUser.displayName;
-        link.appendChild(name);
-
         link.onclick = (e) => { e.preventDefault(); toggleDropdown(); };
     } else {
-        // Anonymous — user icon + "Sign in"
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('class', 'icon icon-tabler icon-tabler-user');
-        svg.setAttribute('width', '24');
-        svg.setAttribute('height', '24');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('stroke-width', '2');
-        svg.setAttribute('stroke', 'currentColor');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke-linecap', 'round');
-        svg.setAttribute('stroke-linejoin', 'round');
-
-        const pathBg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        pathBg.setAttribute('stroke', 'none');
-        pathBg.setAttribute('d', 'M0 0h24v24H0z');
-        svg.appendChild(pathBg);
-
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', '12');
-        circle.setAttribute('cy', '7');
-        circle.setAttribute('r', '4');
-        svg.appendChild(circle);
-
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2');
-        svg.appendChild(path);
-
-        link.appendChild(svg);
-
+        link.innerHTML = USER_ICON_SVG;
         const label = document.createElement('span');
         label.textContent = 'Sign in';
         link.appendChild(label);
@@ -77,13 +77,17 @@ function render(): void {
         link.onclick = (e) => { e.preventDefault(); signIn(); };
     }
 
-    // Render dropdown if visible
     const existingDropdown = menuItemEl.querySelector('.auth-dropdown');
     if (existingDropdown) existingDropdown.remove();
 
-    if (dropdownVisible && currentUser) {
-        renderDropdown();
-    }
+    if (dropdownVisible && currentUser) renderDropdown();
+}
+
+// ─── Shared ─────────────────────────────────────────────────────
+
+function render(): void {
+    if (isToolbarContext) renderToolbar();
+    else renderSidebar();
 }
 
 function renderDropdown(): void {
@@ -92,7 +96,6 @@ function renderDropdown(): void {
     const dropdown = document.createElement('div');
     dropdown.className = 'auth-dropdown';
 
-    // Sign out
     const signOutBtn = document.createElement('button');
     signOutBtn.className = 'auth-dropdown-item';
     signOutBtn.textContent = 'Sign out';
@@ -125,9 +128,10 @@ function handleEscape(e: KeyboardEvent): void {
     }
 }
 
-/** Mount auth UI into the sidebar menu item. */
+/** Mount auth UI into the menu item container. */
 export function mountAuthUI(container: HTMLElement): void {
     menuItemEl = container;
+    isToolbarContext = container.classList.contains('toolbar-icon');
 
     onAuthStateChange((user) => {
         currentUser = user;
