@@ -64,18 +64,17 @@ function createPopup(): HTMLElement {
     return el;
 }
 
-/** Show the popup above the current selection */
+/** Show the popup below the current selection */
 function showPopup(rect: DOMRect): void {
     if (!popup) popup = createPopup();
 
+    // Measure dimensions while invisible (no flash)
     popup.style.position = 'fixed';
+    popup.style.visibility = 'hidden';
     popup.style.display = 'flex';
-    popup.style.left = '-9999px';
-    popup.style.top = '-9999px';
     popup.style.zIndex = '1000';
 
     const popupWidth = popup.getBoundingClientRect().width;
-    const popupHeight = popup.getBoundingClientRect().height;
 
     // Position BELOW the selection (avoids AI suggestion popups that appear above)
     const left = rect.left + rect.width / 2 - popupWidth / 2;
@@ -83,6 +82,7 @@ function showPopup(rect: DOMRect): void {
 
     popup.style.left = `${Math.max(8, left)}px`;
     popup.style.top = `${Math.max(8, top)}px`;
+    popup.style.visibility = 'visible';
 }
 
 function hidePopup(): void {
