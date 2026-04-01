@@ -75,9 +75,18 @@ export function updateComments(newComments: Comment[]): void {
                 anchoredIds.add(comment.id);
             }
         }
-        // Attach click handlers to highlights
         attachHighlightClickHandlers();
     }
+
+    // Sort by article position (mark element's DOM offset), unanchored comments last
+    comments.sort((a, b) => {
+        const markA = document.querySelector(`mark.${HIGHLIGHT_CLASS}[data-comment-id="${a.id}"]`) as HTMLElement | null;
+        const markB = document.querySelector(`mark.${HIGHLIGHT_CLASS}[data-comment-id="${b.id}"]`) as HTMLElement | null;
+        if (!markA && !markB) return 0;
+        if (!markA) return 1;
+        if (!markB) return -1;
+        return markA.offsetTop - markB.offsetTop;
+    });
 
     renderAll();
 }

@@ -115,10 +115,8 @@ export async function subscribeComments(
  * Returns the new comment with optimistic ID.
  */
 export async function createComment(data: NewComment, user: AuthUser): Promise<string> {
-    console.log('[inline-comments] createComment called:', { slug: data.articleSlug, text: data.text, user: user.displayName });
     const fs = await getFirestoreFns();
     const db = getDb();
-    console.log('[inline-comments] Firestore db:', db ? 'OK' : 'MISSING');
 
     const docRef = await fs.addDoc(fs.collection(db, 'comments'), {
         articleSlug: data.articleSlug,
