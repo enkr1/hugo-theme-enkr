@@ -12,6 +12,7 @@ import type { Anchor } from './types';
 export interface CapturedSelection {
     quotedText: string;
     anchor: Anchor;
+    selectionTop: number; // viewport-relative Y for positioning composer beside selection
 }
 
 type SelectionCallback = (captured: CapturedSelection) => void;
@@ -107,6 +108,7 @@ function captureFromSelection(articleEl: HTMLElement): CapturedSelection | null 
     return {
         quotedText,
         anchor: { prefix, suffix },
+        selectionTop: 0, // placeholder — set by handleMouseUp after capture
     };
 }
 
@@ -152,6 +154,7 @@ export function initSelection(
             }
 
             const rect = range.getBoundingClientRect();
+            pendingCapture.selectionTop = rect.top;
             showPopup(rect);
         }, 10);
     }

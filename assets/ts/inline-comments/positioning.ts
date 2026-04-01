@@ -23,6 +23,12 @@ let observers: ResizeObserver | null = null;
 let lerpTarget = 0;
 let lerpCurrent = 0;
 let isLerping = false;
+let composerTargetTop: number | null = null;
+
+/** Set the viewport Y-position where the composer should appear */
+export function setComposerTargetTop(top: number | null): void {
+    composerTargetTop = top;
+}
 
 /**
  * Initialize positioning system.
@@ -153,11 +159,18 @@ function positionComposer(): void {
     const composer = panelBody.querySelector<HTMLElement>('.ic-composer');
     if (!composer || composer.style.display === 'none') return;
 
-    // Composer goes at the top (above all cards)
+    const panelRect = panelBody.getBoundingClientRect();
+
+    // Convert selection's viewport Y to panel-relative (same math as cards)
+    let targetTop = composerTargetTop !== null
+        ? composerTargetTop - panelRect.top + panelBody.scrollTop
+        : 0;
+    targetTop = Math.max(0, targetTop);
+
     composer.style.position = 'absolute';
     composer.style.left = '0';
     composer.style.right = '0';
-    composer.style.top = '0';
+    composer.style.top = `${targetTop}px`;
     composer.style.zIndex = '10';
     composer.style.transition = TRANSITION;
 }

@@ -104,8 +104,8 @@ $toolbar-gap: 0.5rem;         // breathing room between icons
 .toolbar-separator {
     width: 20px;
     height: 1px;
-    background: var(--glass-border);
-    margin: 0;
+    background: var(--card-separator-color, rgba(0, 0, 0, 0.1));
+    margin: 2px 0;
 }
 
 // ── Accessibility ───────────────────────────

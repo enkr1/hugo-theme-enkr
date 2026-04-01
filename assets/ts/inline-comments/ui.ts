@@ -10,6 +10,7 @@ import { anchorComment } from './anchoring';
 import { initSelection } from './selection';
 import type { CapturedSelection } from './selection';
 import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS } from './utils';
+import { initPositioning, repositionCards, setComposerTargetTop } from './positioning';
 
 declare global {
     interface Window {
@@ -33,7 +34,7 @@ let comments: Comment[] = [];
 let commentsLoaded = false;
 let focusedCommentId: string | null = null;
 let currentUser: AuthUser | null = null;
-let composerData: { quotedText: string; anchor: { prefix: string; suffix: string } } | null = null;
+let composerData: { quotedText: string; anchor: { prefix: string; suffix: string }; selectionTop: number } | null = null;
 
 // ─── DOM References ──────────────────────────────────────────────
 let panelEl: HTMLElement | null = null;
@@ -43,6 +44,7 @@ let commentsListEl: HTMLElement | null = null;
 let badgeEl: HTMLElement | null = null;
 let articleEl: HTMLElement | null = null;
 let cleanupSelection: (() => void) | null = null;
+let cleanupPositioning: (() => void) | null = null;
 let cleanupAuth: (() => void) | null = null;
 const anchoredIds = new Set<string>();
 
@@ -58,6 +60,11 @@ export function initUI(rootEl: HTMLElement, articleContentEl: HTMLElement): void
         currentUser = user;
         renderAll();
     });
+
+    // Init scroll-synced positioning (cards track highlight Y-offsets)
+    if (panelBodyEl) {
+        cleanupPositioning = initPositioning(panelBodyEl, articleContentEl);
+    }
 
     // Init text selection popup
     cleanupSelection = initSelection(articleContentEl, onSelectionComment);
@@ -96,6 +103,7 @@ export function updateComments(newComments: Comment[]): void {
 /** Cleanup all UI resources */
 export function destroyUI(): void {
     cleanupSelection?.();
+    cleanupPositioning?.();
     cleanupAuth?.();
     panelEl?.remove();
     panelEl = null;
@@ -164,6 +172,8 @@ function renderAll(): void {
         composerEl.style.display = composerData ? 'block' : 'none';
     }
 
+    // Reposition cards + composer to match highlight Y-offsets
+    repositionCards();
 }
 
 // ─── Comment Card ────────────────────────────────────────────────
@@ -336,10 +346,23 @@ function buildReplyEntry(reply: Reply): HTMLElement {
     return entry;
 }
 
-function buildAvatar(author: { uid: string; displayName: string }): HTMLElement {
+function buildAvatar(author: { uid: string; displayName: string; photoURL?: string }): HTMLElement {
     const avatar = el('div', 'ic-avatar');
-    avatar.style.background = avatarGradient(author.uid);
-    avatar.textContent = initials(author.displayName);
+    if (author.photoURL) {
+        const img = document.createElement('img');
+        img.src = author.photoURL;
+        img.alt = author.displayName;
+        img.className = 'ic-avatar-img';
+        img.addEventListener('error', () => {
+            img.remove();
+            avatar.style.background = avatarGradient(author.uid);
+            avatar.textContent = initials(author.displayName);
+        });
+        avatar.appendChild(img);
+    } else {
+        avatar.style.background = avatarGradient(author.uid);
+        avatar.textContent = initials(author.displayName);
+    }
     return avatar;
 }
 
@@ -686,6 +709,7 @@ function renderComposer(): void {
 
 function cancelCompose(): void {
     composerData = null;
+    setComposerTargetTop(null);
     if (composerEl) composerEl.style.display = 'none';
     renderAll();
 }
@@ -704,11 +728,13 @@ async function onSelectionComment(captured: CapturedSelection): Promise<void> {
         return;
     }
 
-    // Open composer with pre-captured data
+    // Open composer with pre-captured data, positioned at selection Y
     composerData = captured;
+    setComposerTargetTop(captured.selectionTop);
     if (composerEl) {
         composerEl.style.display = 'block';
         renderComposer();
+        repositionCards();
     }
 }
 
