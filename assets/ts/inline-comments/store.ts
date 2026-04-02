@@ -26,6 +26,7 @@ async function loadFirestoreFns() {
         increment: mod.increment,
         arrayUnion: mod.arrayUnion,
         arrayRemove: mod.arrayRemove,
+        deleteField: mod.deleteField,
     };
 }
 
