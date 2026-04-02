@@ -5,6 +5,7 @@
  */
 import { subscribeComments } from './store';
 import { initUI, updateComments, destroyUI } from './ui';
+import { getCachedComments, setCachedComments } from './utils';
 import type { Comment } from './types';
 
 declare global {
@@ -41,21 +42,29 @@ async function init(): Promise<void> {
     // Build UI (panel, selection detection)
     initUI(rootEl, articleEl);
 
+    // Show cached comments instantly (stale-while-revalidate)
+    const cached = getCachedComments(slug);
+    if (cached) {
+        updateComments(cached as Comment[]);
+    }
+
     // Init auth (lazy — only loads SDK if user signed in before)
     getAuth().initAuth().catch(() => {});
 
-    // Subscribe to comments immediately — guests can read
+    // Subscribe to comments — Firestore updates replace cached data
     let unsubscribe: (() => void) | null = null;
     try {
         unsubscribe = await subscribeComments(
             slug,
-            (comments: Comment[]) => updateComments(comments),
+            (comments: Comment[]) => {
+                updateComments(comments);
+                setCachedComments(slug, comments as unknown[]);
+            },
             (err: Error) => console.error('[inline-comments] subscription error:', err.message),
         );
     } catch (err) {
         console.error('[inline-comments] subscribe failed:', err);
-        // Still dismiss spinner on error
-        updateComments([]);
+        if (!cached) updateComments([]);
     }
 
     window.addEventListener('beforeunload', () => {

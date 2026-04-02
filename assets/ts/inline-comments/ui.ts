@@ -80,6 +80,62 @@ let cleanupPositioning: (() => void) | null = null;
 let cleanupAuth: (() => void) | null = null;
 const anchoredIds = new Set<string>();
 
+// ─── Optimistic Mutations (instant UI, background write) ────────
+
+function optimisticToggleLike(commentId: string, uid: string, displayName: string, wasLiked: boolean): void {
+    const c = comments.find(x => x.id === commentId);
+    if (!c) return;
+    if (wasLiked) {
+        c.likes--;
+        c.likedBy = c.likedBy.filter(id => id !== uid);
+        delete c.likedByNames[uid];
+    } else {
+        c.likes++;
+        c.likedBy.push(uid);
+        c.likedByNames[uid] = displayName;
+    }
+    renderAll();
+}
+
+function optimisticToggleReplyLike(commentId: string, replyId: string, uid: string, displayName: string, wasLiked: boolean): void {
+    const c = comments.find(x => x.id === commentId);
+    const r = c?.replies.find(x => x.id === replyId);
+    if (!r) return;
+    if (wasLiked) {
+        r.likes--;
+        r.likedBy = r.likedBy.filter(id => id !== uid);
+        delete r.likedByNames[uid];
+    } else {
+        r.likes++;
+        r.likedBy.push(uid);
+        r.likedByNames[uid] = displayName;
+    }
+    renderAll();
+}
+
+function optimisticAddReply(commentId: string, reply: Reply): void {
+    const c = comments.find(x => x.id === commentId);
+    if (!c) return;
+    c.replies.push(reply);
+    c.replyCount++;
+    renderAll();
+}
+
+function optimisticRemoveComment(commentId: string): void {
+    removeHighlight(commentId);
+    anchoredIds.delete(commentId);
+    comments = comments.filter(c => c.id !== commentId);
+    renderAll();
+}
+
+function optimisticRemoveReply(commentId: string, replyId: string): void {
+    const c = comments.find(x => x.id === commentId);
+    if (!c) return;
+    c.replies = c.replies.filter(r => r.id !== replyId);
+    c.replyCount = Math.max(0, c.replyCount - 1);
+    renderAll();
+}
+
 // ─── Public API ──────────────────────────────────────────────────
 
 /** Initialize the UI. Call once after DOM is ready. */
@@ -306,7 +362,10 @@ function buildCommentEntry(
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!currentUser) { getAuth().signIn(); return; }
-        toggleLike(commentId, currentUser.uid, currentUser.displayName, isLiked);
+        optimisticToggleLike(commentId, currentUser.uid, currentUser.displayName, isLiked);
+        toggleLike(commentId, currentUser.uid, currentUser.displayName, isLiked).catch(() => {
+            optimisticToggleLike(commentId, currentUser!.uid, currentUser!.displayName, !isLiked);
+        });
     });
     actions.appendChild(likeBtn);
 
@@ -331,12 +390,13 @@ function buildCommentEntry(
         deleteBtn.className = 'ic-action-btn ic-action-btn--danger';
         deleteBtn.appendChild(svgIcon(16, ICON.trash));
         deleteBtn.title = 'Delete';
-        deleteBtn.addEventListener('click', async (e) => {
+        deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (!confirm('Delete this comment and all its replies?')) return;
-            try { await deleteComment(commentId); } catch (err) {
+            optimisticRemoveComment(commentId);
+            deleteComment(commentId).catch(err => {
                 console.error('[inline-comments] Delete failed:', err);
-            }
+            });
         });
         actions.appendChild(deleteBtn);
     }
@@ -411,7 +471,10 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!currentUser) { getAuth().signIn(); return; }
-        toggleReplyLike(commentId, reply.id, currentUser.uid, currentUser.displayName, isLiked);
+        optimisticToggleReplyLike(commentId, reply.id, currentUser.uid, currentUser.displayName, isLiked);
+        toggleReplyLike(commentId, reply.id, currentUser.uid, currentUser.displayName, isLiked).catch(() => {
+            optimisticToggleReplyLike(commentId, reply.id, currentUser!.uid, currentUser!.displayName, !isLiked);
+        });
     });
     actions.appendChild(likeBtn);
 
@@ -435,12 +498,13 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
         deleteBtn.className = 'ic-action-btn ic-action-btn--danger';
         deleteBtn.appendChild(svgIcon(16, ICON.trash));
         deleteBtn.title = 'Delete reply';
-        deleteBtn.addEventListener('click', async (e) => {
+        deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (!confirm('Delete this reply?')) return;
-            try { await deleteReply(commentId, reply.id); } catch (err) {
+            optimisticRemoveReply(commentId, reply.id);
+            deleteReply(commentId, reply.id).catch(err => {
                 console.error('[inline-comments] Delete reply failed:', err);
-            }
+            });
         });
         actions.appendChild(deleteBtn);
     }
@@ -631,16 +695,27 @@ async function submitReply(commentId: string, input: HTMLInputElement): Promise<
     }
 
     input.value = '';
-    input.disabled = true;
 
-    try {
-        await createReply(commentId, { text: replyText, mentions }, currentUser);
-    } catch (err) {
+    // Optimistic: show reply immediately
+    const tempReply: Reply = {
+        id: '__pending__',
+        author: { uid: currentUser.uid, displayName: currentUser.displayName, photoURL: currentUser.photoURL },
+        text: replyText,
+        mentions,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        likes: 0,
+        likedBy: [],
+        likedByNames: {},
+    };
+    optimisticAddReply(commentId, tempReply);
+
+    // Background write — onSnapshot will replace the temp reply with real data
+    createReply(commentId, { text: replyText, mentions }, currentUser).catch(err => {
         console.error('[inline-comments] Reply failed:', err);
-        input.value = replyText; // restore on failure
-    } finally {
-        input.disabled = false;
-    }
+        optimisticRemoveReply(commentId, '__pending__');
+        input.value = replyText;
+    });
 }
 
 // ─── @Mention Dropdown ───────────────────────────────────────────

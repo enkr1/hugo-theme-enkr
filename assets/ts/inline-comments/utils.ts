@@ -98,3 +98,41 @@ export function rateLimit(key: string, intervalMs: number): boolean {
     rateLimits.set(key, Date.now());
     return true;
 }
+
+// ─── Comments Cache (sessionStorage, stale-while-revalidate) ────
+const CACHE_PREFIX = 'ic-cache-';
+
+/** Serialize Firestore Timestamps to epoch ms for JSON storage */
+function serializeTimestamp(ts: unknown): number {
+    if (!ts) return 0;
+    if (typeof (ts as { toDate?: () => Date }).toDate === 'function') {
+        return (ts as { toDate: () => Date }).toDate().getTime();
+    }
+    return typeof ts === 'number' ? ts : new Date(ts as string).getTime();
+}
+
+export function getCachedComments(slug: string): unknown[] | null {
+    try {
+        const raw = sessionStorage.getItem(CACHE_PREFIX + slug);
+        if (!raw) return null;
+        return JSON.parse(raw) as unknown[];
+    } catch { return null; }
+}
+
+export function setCachedComments(slug: string, comments: unknown[]): void {
+    try {
+        // Don't cache if any reply has a pending ID
+        const hasPending = (comments as Array<{ replies: Array<{ id: string }> }>)
+            .some(c => c.replies?.some(r => r.id === '__pending__'));
+        if (hasPending) return;
+
+        // Serialize timestamps for JSON round-trip
+        const serialized = JSON.parse(JSON.stringify(comments, (_key, val) => {
+            if (val && typeof val === 'object' && typeof val.toDate === 'function') {
+                return serializeTimestamp(val);
+            }
+            return val;
+        }));
+        sessionStorage.setItem(CACHE_PREFIX + slug, JSON.stringify(serialized));
+    } catch { /* quota exceeded or unavailable */ }
+}
