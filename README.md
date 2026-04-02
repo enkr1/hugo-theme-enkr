@@ -1,49 +1,87 @@
 # hugo-theme-enkr
 
-A personalized fork of [Hugo Theme Stack](https://github.com/CaiJimmy/hugo-theme-stack) with a Ba Zi (八字) energy-inspired design system.
+My personal blog engine. A heavily customized fork of [Hugo Theme Stack](https://github.com/CaiJimmy/hugo-theme-stack) — rebuilt with inline commenting, real-time auth, floating navigation, and a design system I've been refining since 2023.
 
-**Live:** [blog.enkr1.com](https://blog.enkr1.com)
+**Live at** [blog.enkr1.com](https://blog.enkr1.com)
 
-## What's Different
+---
 
-This fork replaces Stack's default styling with a refined color system based on Chinese five-element theory:
+## What I Built
 
-| Element | Color | Usage |
-|---------|-------|-------|
-| 内蕴金 (Metal) | `#C9A882` Gold | Accents, hovers, CTAs |
-| 智慧海 (Water) | `#1E4B8C` Navy | Links, code, tags |
-| 流年曦 (Fire) | `#F59E0B` Amber | Dynamic interactions |
+### Inline Comments
 
-### Key Customizations
+Select any text on an article. A popup appears. Leave a comment anchored to that exact passage — Lark Docs style. Comments scroll-sync with their anchor text in a dedicated side panel.
 
-- **Typography**: Cormorant Garamond display + Inter body fonts
-- **Cards**: Animated gold border trace on hover
-- **Tags**: Transparent `#hashtag` style (no pill backgrounds)
-- **Categories**: Collapsible tree widget in sidebar
-- **Mobile**: Bottom navigation bar with frosted glass
-- **Dark mode**: Full support with inverted palette
+- Google One Tap sign-in (Firebase Auth)
+- Firestore real-time persistence
+- Edit/delete your own comments and replies
+- Responsive 3-column layout: sidebar + article + comments
+
+### Floating Toolbar
+
+Replaced the traditional sidebar menu with an icon-based floating toolbar on desktop. Clean, minimal, always accessible. Mobile gets a frosted-glass bottom nav instead.
+
+### Search
+
+Two interfaces, one index:
+- **Cmd+K** — quick search modal from anywhere
+- **/search/** — full page with keyword highlighting and `?highlight=` deep linking
+
+### Content Features
+
+- **Sticky posts** — pin to homepage with `sticky: N` in frontmatter
+- **Backlinks** — automatic bidirectional linking between posts
+- **Nested categories** — array frontmatter like `["A", "B", "C"]` auto-generates category trees
+- **Scrollspy TOC** — highlights your current section as you read
+- **Anchor flash** — heading flashes when you click a TOC link
+- **Change badges** — recently modified posts get visual indicators
+- **Reading progress** — scroll position bar at page top
+
+### Analytics & Engagement
+
+- **Per-article view counts** — Firestore-backed with session caching and cookie dedup
+- **GA4 custom events** — reading depth milestones, active reading time, search tracking
+- **Email subscriptions** — collected via Google Sheets + Apps Script
+- **9+ comment providers** — Disqus, Giscus, Utterances, Waline, and more
+
+### Media
+
+- PhotoSwipe gallery with lightbox
+- Dynamic color extraction from featured images (Vibrant.js)
+- Animated SVG waveforms
+- Responsive embeds: YouTube, Bilibili, Tencent, GitLab
+
+### Design
+
+Custom design tokens. Cormorant Garamond headings, Inter body, JetBrains Mono code. Light/dark/auto with system preference sync. Glassmorphism where it counts.
+
+---
 
 ## Structure
 
 ```
-assets/scss/
-├── _mixins.scss      # Shared style mixins
-├── variables.scss    # Ba Zi color tokens + theme variables
-└── partials/
-    ├── article.scss  # Post styling, tags, categories
-    ├── widgets.scss  # Sidebar widgets, tag cloud
-    └── ...
+assets/
+├── ts/
+│   ├── auth/              # Firebase Auth + Google One Tap
+│   ├── auth-ui/           # Auth rendering (toolbar + sidebar)
+│   ├── inline-comments/   # Anchored commenting system
+│   ├── search.tsx         # Full-text search
+│   ├── visitor-count.ts   # Firestore view tracking
+│   └── waveform.ts        # SVG wave animations
+├── scss/
+│   ├── variables.scss     # Design tokens
+│   └── partials/          # Component styles
+scripts/
+├── generate-categories.js # Nested category tree generator
+└── generate-changes.js    # Change badge data from git
 ```
 
-## Usage
+## Requirements
 
-This theme is designed for my personal blog. Feel free to fork, but note:
-
-1. Colors and typography are opinionated for my aesthetic
-2. Some features assume specific content structure (journals, nested categories)
-3. The `custom.scss` in the parent Hugo project contains additional overrides
+- Hugo extended v0.123.0+
+- Firebase project (auth, comments, view counts)
+- GA4 property (optional)
 
 ## Credits
 
-- Original theme: [Hugo Theme Stack](https://github.com/CaiJimmy/hugo-theme-stack) by Jimmy Cai
-- Licensed under GNU General Public License v3.0
+Built on [Hugo Theme Stack](https://github.com/CaiJimmy/hugo-theme-stack) by Jimmy Cai. Licensed under GPL-3.0.
