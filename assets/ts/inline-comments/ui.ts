@@ -35,6 +35,7 @@ let commentsLoaded = false;
 let focusedCommentId: string | null = null;
 let currentUser: AuthUser | null = null;
 let composerData: { quotedText: string; anchor: { prefix: string; suffix: string }; selectionTop: number } | null = null;
+let pendingReply: { commentId: string; text: string } | null = null;
 
 // ─── DOM References ──────────────────────────────────────────────
 let panelEl: HTMLElement | null = null;
@@ -486,6 +487,13 @@ function buildReplyBox(comment: Comment): HTMLElement {
     input.placeholder = 'Reply';
     input.dataset.replyFor = comment.id;
 
+    // Restore pending reply text after sign-in re-render
+    if (pendingReply?.commentId === comment.id) {
+        input.value = pendingReply.text;
+        pendingReply = null;
+        setTimeout(() => input.focus(), 50);
+    }
+
     let mentionState: { active: boolean; atIdx: number; participants: Array<{ uid: string; displayName: string }> } = {
         active: false, atIdx: -1, participants: [],
     };
@@ -531,7 +539,11 @@ function buildReplyBox(comment: Comment): HTMLElement {
 async function submitReply(commentId: string, input: HTMLInputElement): Promise<void> {
     const replyText = input.value.trim();
     if (!replyText) return;
-    if (!currentUser) { getAuth().signIn(); return; }
+    if (!currentUser) {
+        pendingReply = { commentId, text: replyText };
+        getAuth().signIn();
+        return;
+    }
     if (!rateLimit('reply', 10000)) return;
 
     // Parse mentions from text
