@@ -259,6 +259,7 @@ function buildCommentEntry(
     commentId: string,
     likes: number,
     likedBy: string[],
+    likedByNames: Record<string, string>,
 ): HTMLElement {
     const entry = el('div', 'ic-entry');
 
@@ -268,7 +269,7 @@ function buildCommentEntry(
     // Content
     const content = el('div', 'ic-entry-content');
 
-    // Meta: name + timestamp
+    // Meta row: name + timestamp + actions (Lark-style)
     const meta = el('div', 'ic-entry-meta');
     const name = el('span', 'ic-author-name');
     name.textContent = author.displayName;
@@ -276,29 +277,21 @@ function buildCommentEntry(
     const time = el('span', 'ic-timestamp');
     time.textContent = timeAgo(createdAt);
     meta.appendChild(time);
-    content.appendChild(meta);
 
-    // Text
-    const textEl = el('div', 'ic-entry-text');
-    textEl.textContent = bodyText;
-    content.appendChild(textEl);
-
-    entry.appendChild(content);
-
-    // Hover actions
+    // Hover actions — inline in meta row
     const actions = el('div', 'ic-entry-actions');
+
+    const isLiked = currentUser ? likedBy.includes(currentUser.uid) : false;
 
     // Like button
     const likeBtn = document.createElement('button');
-    likeBtn.className = 'ic-action-btn';
-    const isLiked = currentUser ? likedBy.includes(currentUser.uid) : false;
-    likeBtn.textContent = isLiked ? `\uD83D\uDC4D ${likes}` : '\uD83D\uDC4D';
-    if (likes > 0 && !isLiked) likeBtn.textContent = `\uD83D\uDC4D ${likes}`;
+    likeBtn.className = 'ic-action-btn' + (isLiked ? ' ic-action-btn--active' : '');
+    likeBtn.textContent = '\uD83D\uDC4D';
     likeBtn.title = 'Like';
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!currentUser) { getAuth().signIn(); return; }
-        toggleLike(commentId, currentUser.uid, isLiked);
+        toggleLike(commentId, currentUser.uid, currentUser.displayName, isLiked);
     });
     actions.appendChild(likeBtn);
 
@@ -310,7 +303,6 @@ function buildCommentEntry(
     replyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         focusComment(commentId);
-        // Focus the reply input
         setTimeout(() => {
             const input = document.querySelector(`[data-reply-for="${commentId}"]`) as HTMLInputElement | null;
             input?.focus();
@@ -334,7 +326,43 @@ function buildCommentEntry(
         actions.appendChild(deleteBtn);
     }
 
-    entry.appendChild(actions);
+    meta.appendChild(actions);
+    content.appendChild(meta);
+
+    // Text
+    const textEl = el('div', 'ic-entry-text');
+    textEl.textContent = bodyText;
+    content.appendChild(textEl);
+
+    // Likers list (Lark-style: 👍 Name1, Name2, ...)
+    if (likes > 0) {
+        const likerNames = Object.values(likedByNames);
+        if (likerNames.length > 0) {
+            const likersEl = el('div', 'ic-likers');
+            const MAX_VISIBLE = 10;
+            const visible = likerNames.slice(0, MAX_VISIBLE);
+            const overflow = likerNames.length - MAX_VISIBLE;
+
+            const thumbEl = el('span', 'ic-likers-thumb');
+            thumbEl.textContent = '\uD83D\uDC4D';
+            likersEl.appendChild(thumbEl);
+
+            const namesEl = el('span', 'ic-likers-names');
+            namesEl.textContent = visible.join(', ');
+            likersEl.appendChild(namesEl);
+
+            if (overflow > 0) {
+                const moreEl = el('span', 'ic-likers-more');
+                moreEl.textContent = ` +${overflow}`;
+                moreEl.title = likerNames.slice(MAX_VISIBLE).join(', ');
+                likersEl.appendChild(moreEl);
+            }
+
+            content.appendChild(likersEl);
+        }
+    }
+
+    entry.appendChild(content);
     return entry;
 }
 

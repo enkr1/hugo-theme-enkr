@@ -76,6 +76,7 @@ export async function subscribeComments(
                     updatedAt: data.updatedAt,
                     likes: (data.likes as number) ?? 0,
                     likedBy: (data.likedBy as string[]) ?? [],
+                    likedByNames: (data.likedByNames as Record<string, string>) ?? {},
                     replyCount: (data.replyCount as number) ?? 0,
                     replies: [],
                 };
@@ -134,6 +135,7 @@ export async function createComment(data: NewComment, user: AuthUser): Promise<s
         updatedAt: fs.serverTimestamp(),
         likes: 0,
         likedBy: [],
+        likedByNames: {},
         replyCount: 0,
     });
 
@@ -167,7 +169,7 @@ export async function createReply(commentId: string, data: NewReply, user: AuthU
 }
 
 /** Toggle like on a comment. Uses atomic operations to avoid race conditions. */
-export async function toggleLike(commentId: string, uid: string, currentlyLiked: boolean): Promise<void> {
+export async function toggleLike(commentId: string, uid: string, displayName: string, currentlyLiked: boolean): Promise<void> {
     const fs = await getFirestoreFns();
     const db = getDb();
     const commentRef = fs.doc(db, 'comments', commentId);
@@ -176,11 +178,13 @@ export async function toggleLike(commentId: string, uid: string, currentlyLiked:
         await fs.updateDoc(commentRef, {
             likes: fs.increment(-1),
             likedBy: fs.arrayRemove(uid),
+            [`likedByNames.${uid}`]: fs.deleteField(),
         });
     } else {
         await fs.updateDoc(commentRef, {
             likes: fs.increment(1),
             likedBy: fs.arrayUnion(uid),
+            [`likedByNames.${uid}`]: displayName,
         });
     }
 }

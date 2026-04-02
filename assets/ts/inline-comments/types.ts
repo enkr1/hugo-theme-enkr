@@ -25,6 +25,7 @@ export interface Comment {
     updatedAt: unknown;                  // Firestore Timestamp
     likes: number;
     likedBy: string[];
+    likedByNames: Record<string, string>;  // { uid: displayName }
     replyCount: number;
     replies: Reply[];                    // populated client-side from subcollection
 }

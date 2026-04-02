@@ -370,7 +370,7 @@ mark.inline-comment-hl {
 
 .ic-entry-meta {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.3em;
     margin-bottom: 0;
 }
@@ -393,48 +393,41 @@ mark.inline-comment-hl {
     word-wrap: break-word;
 }
 
-// Hover actions (like + reply)
+// Hover actions — inline in meta row (Lark-style)
 .ic-entry-actions {
     display: flex;
-    position: absolute;
-    right: 0.5em;
-    top: 0.3em;
+    margin-left: auto;
     gap: 0.1em;
-    background: var(--card-background, #fff);
-    border: 1px solid var(--card-separator-color, #e0e0e0);
-    border-radius: 6px;
-    padding: 0.1em;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     opacity: 0;
-    transform: translateY(2px);
     pointer-events: none;
-    transition:
-        opacity 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
-        transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transition: opacity 0.15s ease;
 
     .ic-entry:hover & {
         opacity: 1;
-        transform: translateY(0);
         pointer-events: auto;
     }
 }
 
 .ic-action-btn {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
     background: transparent;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
     color: var(--card-text-color-secondary, #8f959e);
-    font-size: 0.8em;
-    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    font-size: 0.7em;
+    transition: background 0.15s ease, color 0.15s ease;
 
     &:hover {
         background: rgba(var(--gold-rgb, 139, 115, 85), 0.1);
+        color: var(--gold, #8B7355);
+    }
+
+    &--active {
         color: var(--gold, #8B7355);
     }
 
@@ -446,6 +439,30 @@ mark.inline-comment-hl {
     &:active {
         transform: scale(0.92);
     }
+}
+
+// Likers list (Lark-style: 👍 Name1, Name2)
+.ic-likers {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    font-size: 0.68em;
+    color: var(--card-text-color-secondary, #8f959e);
+    margin-top: 0.2em;
+}
+
+.ic-likers-thumb {
+    font-size: 0.9em;
+}
+
+.ic-likers-names {
+    color: var(--card-text-color-main, #1f1f1f);
+    font-weight: 500;
+}
+
+.ic-likers-more {
+    color: var(--card-text-color-secondary, #8f959e);
+    cursor: default;
 }
 
 // ─── @Mention Pill ───────────────────────────────────────────────
