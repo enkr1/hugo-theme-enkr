@@ -300,38 +300,6 @@ mark.inline-comment-hl {
     min-width: 0;
 }
 
-.ic-card-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.15em;
-    flex-shrink: 0;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-
-    .ic-card:hover &,
-    .ic-card--focused & {
-        opacity: 1;
-    }
-}
-
-.ic-ctrl-btn {
-    width: 26px;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    border: none;
-    background: transparent;
-    color: var(--card-text-color-secondary, #8f959e);
-    cursor: pointer;
-    transition: all 0.1s;
-
-    &:hover {
-        background: var(--card-separator-color, #f0f0f0);
-        color: var(--card-text-color-main, #1f1f1f);
-    }
-}
 
 // ─── Comment/Reply Entry ─────────────────────────────────────────
 
@@ -497,9 +465,9 @@ mark.inline-comment-hl {
 .ic-reply-box {
     display: flex;
     align-items: center;
-    padding: 0.2em 0.5em 0.25em;
+    padding: 0.5em;
     border-top: 1px solid var(--card-separator-color, #f0f0f0);
-    gap: 0.3em;
+    gap: 0.4em;
     position: relative;
 }
 
@@ -507,7 +475,7 @@ mark.inline-comment-hl {
     flex: 1;
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 8px;
-    padding: 0.25em 0.4em;
+    padding: 0.4em 0.5em;
     font-size: 0.72em;
     font-family: var(--base-font-family);
     outline: none;
@@ -527,21 +495,28 @@ mark.inline-comment-hl {
 }
 
 .ic-send-btn {
-    width: 22px;
-    height: 22px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
-    background: transparent;
-    border-radius: 4px;
+    background: var(--card-separator-color, #f0f0f0);
+    border-radius: 6px;
     cursor: pointer;
     color: var(--card-text-color-secondary, #8f959e);
     flex-shrink: 0;
+    padding: 0;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    svg {
+        width: 18px;
+        height: 18px;
+    }
 
     &:hover {
-        background: var(--card-separator-color, #f0f0f0);
-        color: var(--card-text-color-main, #1f1f1f);
+        background: var(--gold, #8B7355);
+        color: #fff;
     }
 }
 

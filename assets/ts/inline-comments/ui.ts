@@ -184,6 +184,11 @@ function buildPanel(rootEl: HTMLElement): void {
 function renderAll(): void {
     if (!commentsListEl || !badgeEl) return;
 
+    // Preserve active reply input across re-render
+    const activeInput = commentsListEl.querySelector('.ic-reply-input:focus') as HTMLInputElement | null;
+    const activeReplyFor = activeInput?.dataset.replyFor ?? null;
+    const activeReplyValue = activeInput?.value ?? '';
+
     // Update badge
     badgeEl.textContent = String(comments.length);
 
@@ -207,6 +212,15 @@ function renderAll(): void {
     // Show/hide composer
     if (composerEl) {
         composerEl.style.display = composerData ? 'block' : 'none';
+    }
+
+    // Restore reply input focus + value after re-render
+    if (activeReplyFor) {
+        const restored = commentsListEl.querySelector(`[data-reply-for="${activeReplyFor}"]`) as HTMLInputElement | null;
+        if (restored) {
+            restored.value = activeReplyValue;
+            restored.focus();
+        }
     }
 
     // Reposition cards + composer to match highlight Y-offsets
@@ -248,38 +262,7 @@ function buildCardHeader(comment: Comment): HTMLElement {
     quotedBar.appendChild(quotedText);
     header.appendChild(quotedBar);
 
-    // Controls (visible on hover)
-    const controls = el('div', 'ic-card-controls');
-
-    const navUp = buildCtrlBtn('Previous', 'M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z');
-    navUp.addEventListener('click', (e) => { e.stopPropagation(); navigateComment(-1); });
-    controls.appendChild(navUp);
-
-    const navDown = buildCtrlBtn('Next', 'M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z');
-    navDown.addEventListener('click', (e) => { e.stopPropagation(); navigateComment(1); });
-    controls.appendChild(navDown);
-
-    const linkBtn = buildCtrlBtn('Copy link', 'M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z');
-    controls.appendChild(linkBtn);
-
-    header.appendChild(controls);
     return header;
-}
-
-function buildCtrlBtn(title: string, svgPath: string): HTMLButtonElement {
-    const btn = document.createElement('button');
-    btn.className = 'ic-ctrl-btn';
-    btn.title = title;
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', '16');
-    svg.setAttribute('height', '16');
-    svg.setAttribute('fill', 'currentColor');
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', svgPath);
-    svg.appendChild(path);
-    btn.appendChild(svg);
-    return btn;
 }
 
 // ─── Comment / Reply Entry ───────────────────────────────────────
@@ -891,15 +874,6 @@ function focusComment(commentId: string): void {
         m.classList.add('active');
         m.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
-}
-
-function navigateComment(direction: number): void {
-    if (comments.length === 0) return;
-    const currentIdx = comments.findIndex(c => c.id === focusedCommentId);
-    let nextIdx = currentIdx + direction;
-    if (nextIdx < 0) nextIdx = comments.length - 1;
-    if (nextIdx >= comments.length) nextIdx = 0;
-    focusComment(comments[nextIdx]!.id);
 }
 
 function attachHighlightClickHandlers(): void {
