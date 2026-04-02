@@ -172,11 +172,6 @@ function renderAll(): void {
         commentsListEl.appendChild(buildCommentCard(comment));
     }
 
-    // Sign-in prompt for anonymous users
-    if (!currentUser) {
-        commentsListEl.appendChild(buildSignInPrompt());
-    }
-
     // Show/hide composer
     if (composerEl) {
         composerEl.style.display = composerData ? 'block' : 'none';
@@ -205,10 +200,8 @@ function buildCommentCard(comment: Comment): HTMLElement {
         card.appendChild(buildReplyEntry(reply, comment.id));
     }
 
-    // Reply box (only for signed-in users)
-    if (currentUser) {
-        card.appendChild(buildReplyBox(comment));
-    }
+    // Reply box (always shown — triggers sign-in for guests on interaction)
+    card.appendChild(buildReplyBox(comment));
 
     return card;
 }
@@ -509,7 +502,8 @@ function buildReplyBox(comment: Comment): HTMLElement {
 
 async function submitReply(commentId: string, input: HTMLInputElement): Promise<void> {
     const replyText = input.value.trim();
-    if (!replyText || !currentUser) return;
+    if (!replyText) return;
+    if (!currentUser) { getAuth().signIn(); return; }
     if (!rateLimit('reply', 10000)) return;
 
     // Parse mentions from text
@@ -806,21 +800,6 @@ function buildEmptyState(): HTMLElement {
     sub.textContent = 'Select text to start a conversation';
     empty.appendChild(sub);
     return empty;
-}
-
-function buildSignInPrompt(): HTMLElement {
-    const prompt = el('div', 'ic-signin-prompt');
-    const msg = el('p', 'ic-signin-text');
-    msg.textContent = 'Sign in to comment';
-    prompt.appendChild(msg);
-
-    const btn = document.createElement('button');
-    btn.className = 'ic-signin-btn';
-    btn.textContent = 'Sign in';
-    btn.addEventListener('click', () => getAuth().signIn());
-    prompt.appendChild(btn);
-
-    return prompt;
 }
 
 // ─── Navigation & Focus ──────────────────────────────────────────
