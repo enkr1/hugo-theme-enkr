@@ -379,7 +379,10 @@ function buildCommentEntry(
         focusComment(commentId);
         setTimeout(() => {
             const input = document.querySelector(`[data-reply-for="${commentId}"]`) as HTMLInputElement | null;
-            input?.focus();
+            if (input) {
+                if (!input.value) input.value = `@${author.displayName} `;
+                input.focus();
+            }
         }, 50);
     });
     actions.appendChild(replyBtn);
@@ -487,7 +490,10 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
         e.stopPropagation();
         setTimeout(() => {
             const input = document.querySelector(`[data-reply-for="${commentId}"]`) as HTMLInputElement | null;
-            input?.focus();
+            if (input) {
+                if (!input.value) input.value = `@${reply.author.displayName} `;
+                input.focus();
+            }
         }, 50);
     });
     actions.appendChild(replyBtn);
