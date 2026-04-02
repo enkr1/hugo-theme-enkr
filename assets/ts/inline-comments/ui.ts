@@ -12,6 +12,37 @@ import type { CapturedSelection } from './selection';
 import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS } from './utils';
 import { initPositioning, repositionCards, setComposerTargetTop } from './positioning';
 
+// ─── SVG Icon Factory (Tabler-style, no innerHTML) ──────────────
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function svgIcon(size: number, paths: string[], fill = false): SVGSVGElement {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('width', String(size));
+    svg.setAttribute('height', String(size));
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('fill', fill ? 'currentColor' : 'none');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    for (const d of paths) {
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', d);
+        if (fill) path.setAttribute('stroke', 'none');
+        svg.appendChild(path);
+    }
+    return svg;
+}
+
+// Tabler icon paths
+const ICON = {
+    thumbUp:    ['M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3'],
+    thumbFill:  ['M3 12h1a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-1a2 2 0 0 1 -2 -2v-4a2 2 0 0 1 2 -2z', 'M7.59 10.59l.01 -.01a4.91 4.91 0 0 0 3.4 -4.58v-1a2 2 0 1 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3v-6'],
+    message:    ['M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4', 'M8 9l8 0', 'M8 13l6 0'],
+    trash:      ['M4 7l16 0', 'M10 11l0 6', 'M14 11l0 6', 'M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12', 'M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3'],
+    chatEmpty:  ['M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1'],
+};
+
 declare global {
     interface Window {
         __siteAuth?: {
@@ -287,7 +318,7 @@ function buildCommentEntry(
     // Like button
     const likeBtn = document.createElement('button');
     likeBtn.className = 'ic-action-btn' + (isLiked ? ' ic-action-btn--active' : '');
-    likeBtn.textContent = '\uD83D\uDC4D';
+    likeBtn.appendChild(isLiked ? svgIcon(16, ICON.thumbFill, true) : svgIcon(16, ICON.thumbUp));
     likeBtn.title = 'Like';
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -299,7 +330,7 @@ function buildCommentEntry(
     // Reply button
     const replyBtn = document.createElement('button');
     replyBtn.className = 'ic-action-btn';
-    replyBtn.textContent = '\uD83D\uDCAC';
+    replyBtn.appendChild(svgIcon(16, ICON.message));
     replyBtn.title = 'Reply';
     replyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -315,7 +346,7 @@ function buildCommentEntry(
     if (currentUser && currentUser.uid === author.uid) {
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'ic-action-btn ic-action-btn--danger';
-        deleteBtn.textContent = '\uD83D\uDDD1\uFE0F';
+        deleteBtn.appendChild(svgIcon(16, ICON.trash));
         deleteBtn.title = 'Delete';
         deleteBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -345,7 +376,7 @@ function buildCommentEntry(
             const overflow = likerNames.length - MAX_VISIBLE;
 
             const thumbEl = el('span', 'ic-likers-thumb');
-            thumbEl.textContent = '\uD83D\uDC4D';
+            thumbEl.appendChild(svgIcon(14, ICON.thumbFill, true));
             likersEl.appendChild(thumbEl);
 
             const namesEl = el('span', 'ic-likers-names');
@@ -383,21 +414,13 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
     const time = el('span', 'ic-timestamp');
     time.textContent = timeAgo(reply.createdAt);
     meta.appendChild(time);
-    content.appendChild(meta);
 
-    // Text with @mention rendering
-    const textEl = el('div', 'ic-entry-text');
-    renderTextWithMentions(textEl, reply.text, reply.mentions);
-    content.appendChild(textEl);
-
-    entry.appendChild(content);
-
-    // Delete button (own replies only)
+    // Delete button inline in meta row (own replies only)
     if (currentUser && currentUser.uid === reply.author.uid) {
         const actions = el('div', 'ic-entry-actions');
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'ic-action-btn ic-action-btn--danger';
-        deleteBtn.textContent = '\uD83D\uDDD1\uFE0F';
+        deleteBtn.appendChild(svgIcon(16, ICON.trash));
         deleteBtn.title = 'Delete reply';
         deleteBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -407,9 +430,17 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
             }
         });
         actions.appendChild(deleteBtn);
-        entry.appendChild(actions);
+        meta.appendChild(actions);
     }
 
+    content.appendChild(meta);
+
+    // Text with @mention rendering
+    const textEl = el('div', 'ic-entry-text');
+    renderTextWithMentions(textEl, reply.text, reply.mentions);
+    content.appendChild(textEl);
+
+    entry.appendChild(content);
     return entry;
 }
 
@@ -831,7 +862,7 @@ function buildLoadingState(): HTMLElement {
 function buildEmptyState(): HTMLElement {
     const empty = el('div', 'ic-empty');
     const icon = el('div', 'ic-empty-icon');
-    icon.textContent = '\uD83D\uDCAC';
+    icon.appendChild(svgIcon(32, ICON.chatEmpty));
     empty.appendChild(icon);
     const msg = el('p', 'ic-empty-text');
     msg.textContent = 'No comments yet';

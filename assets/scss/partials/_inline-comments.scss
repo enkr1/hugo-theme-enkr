@@ -419,8 +419,13 @@ mark.inline-comment-hl {
     border-radius: 4px;
     cursor: pointer;
     color: var(--card-text-color-secondary, #8f959e);
-    font-size: 0.7em;
+    padding: 0;
     transition: background 0.15s ease, color 0.15s ease;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
 
     &:hover {
         background: rgba(var(--gold-rgb, 139, 115, 85), 0.1);
@@ -452,7 +457,13 @@ mark.inline-comment-hl {
 }
 
 .ic-likers-thumb {
-    font-size: 0.9em;
+    display: flex;
+    color: var(--gold, #8B7355);
+
+    svg {
+        width: 14px;
+        height: 14px;
+    }
 }
 
 .ic-likers-names {
@@ -693,9 +704,9 @@ mark.inline-comment-hl {
 }
 
 .ic-empty-icon {
-    font-size: 2em;
     margin-bottom: 0.4em;
     opacity: 0.2;
+    color: var(--card-text-color-secondary, #8f959e);
 }
 
 .ic-empty-text {
