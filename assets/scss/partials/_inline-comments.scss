@@ -62,19 +62,6 @@ mark.inline-comment-hl {
         color: var(--gold, #8B7355);
     }
 
-    &::after {
-        content: '';
-        position: absolute;
-        top: -5px;
-        left: 50%;
-        transform: translateX(-50%) rotate(45deg);
-        width: 8px;
-        height: 8px;
-        background: var(--glass-bg, rgba(255, 255, 255, 0.72));
-        box-shadow: -1px -1px 0 0 var(--glass-border, rgba(255, 255, 255, 0.35));
-        -webkit-backdrop-filter: blur(24px);
-        backdrop-filter: blur(24px);
-    }
 
     &:hover {
         background: var(--glass-bg-hover, rgba(201, 168, 130, 0.18));
