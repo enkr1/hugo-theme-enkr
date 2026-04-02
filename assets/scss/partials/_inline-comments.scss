@@ -448,12 +448,15 @@ mark.inline-comment-hl {
 
 // Likers list (Lark-style: 👍 Name1, Name2)
 .ic-likers {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.25em;
+    gap: 0.3em;
     font-size: 0.68em;
     color: var(--card-text-color-secondary, #8f959e);
-    margin-top: 0.2em;
+    margin-top: 0.35em;
+    background: var(--card-separator-color, rgba(0, 0, 0, 0.05));
+    padding: 0.2em 0.6em 0.2em 0.4em;
+    border-radius: 999px;
 }
 
 .ic-likers-thumb {
