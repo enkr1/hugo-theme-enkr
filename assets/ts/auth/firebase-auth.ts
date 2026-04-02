@@ -40,27 +40,24 @@ function clearAuthHistory(): void {
     try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch { /* noop */ }
 }
 
-// ─── Firebase App ────────────────────────────────────────────────
-
-function getApp(): unknown {
-    const app = (window as unknown as Record<string, unknown>).firebaseApp;
-    if (!app) throw new Error('Firebase app not initialized. Check head/custom.html.');
-    return app;
-}
-
 // ─── SDK Lazy Loading ────────────────────────────────────────────
 
 async function loadAuthFns() {
-    const mod = await import(`${FIREBASE_CDN}/firebase-auth.js`);
+    // Import both from CDN so they share the same internal app registry
+    const [authMod, appMod] = await Promise.all([
+        import(`${FIREBASE_CDN}/firebase-auth.js`),
+        import(`${FIREBASE_CDN}/firebase-app.js`),
+    ]);
     return {
-        getAuth: mod.getAuth,
-        signInWithPopup: mod.signInWithPopup,
-        signInWithRedirect: mod.signInWithRedirect,
-        signInWithCredential: mod.signInWithCredential,
-        getRedirectResult: mod.getRedirectResult,
-        GoogleAuthProvider: mod.GoogleAuthProvider,
-        signOut: mod.signOut,
-        onAuthStateChanged: mod.onAuthStateChanged,
+        getAuth: authMod.getAuth,
+        getApp: appMod.getApp,
+        signInWithPopup: authMod.signInWithPopup,
+        signInWithRedirect: authMod.signInWithRedirect,
+        signInWithCredential: authMod.signInWithCredential,
+        getRedirectResult: authMod.getRedirectResult,
+        GoogleAuthProvider: authMod.GoogleAuthProvider,
+        signOut: authMod.signOut,
+        onAuthStateChanged: authMod.onAuthStateChanged,
     };
 }
 
@@ -71,8 +68,9 @@ async function getAuthFns() {
 
 export async function ensureAuth() {
     if (authInstance) return authInstance;
-    const auth = await getAuthFns();
-    authInstance = auth.getAuth(getApp());
+    const fns = await getAuthFns();
+    // Use CDN's getApp() — same registry as head/custom.html's initializeApp()
+    authInstance = fns.getAuth(fns.getApp());
     return authInstance;
 }
 

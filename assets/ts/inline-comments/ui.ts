@@ -193,7 +193,7 @@ function buildCommentCard(comment: Comment): HTMLElement {
     card.appendChild(buildCardHeader(comment));
 
     // Master comment entry
-    card.appendChild(buildCommentEntry(comment.author, comment.text, comment.createdAt, comment.id, comment.likes, comment.likedBy));
+    card.appendChild(buildCommentEntry(comment.author, comment.text, comment.createdAt, comment.id, comment.likes, comment.likedBy, comment.likedByNames));
 
     // Replies
     for (const reply of comment.replies) {
