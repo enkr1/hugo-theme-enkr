@@ -151,8 +151,11 @@ function renderAll(): void {
     // Clear and re-render comments
     commentsListEl.textContent = '';
 
-    // Before Firestore data arrives, show nothing (no flash of empty/sign-in states)
-    if (!commentsLoaded) return;
+    // Before Firestore data arrives, show spinner
+    if (!commentsLoaded) {
+        commentsListEl.appendChild(buildLoadingState());
+        return;
+    }
 
     if (comments.length === 0 && !composerData) {
         commentsListEl.appendChild(buildEmptyState());
@@ -773,7 +776,16 @@ async function onSelectionComment(captured: CapturedSelection): Promise<void> {
     }
 }
 
-// ─── Empty & Sign-In States ──────────────────────────────────────
+// ─── Loading, Empty & Sign-In States ────────────────────────────
+
+function buildLoadingState(): HTMLElement {
+    const wrap = el('div', 'ic-loading');
+    wrap.appendChild(el('div', 'ic-spinner'));
+    const msg = el('p', 'ic-loading-text');
+    msg.textContent = 'Loading\u2026';
+    wrap.appendChild(msg);
+    return wrap;
+}
 
 function buildEmptyState(): HTMLElement {
     const empty = el('div', 'ic-empty');

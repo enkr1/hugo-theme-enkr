@@ -652,6 +652,34 @@ mark.inline-comment-hl {
     }
 }
 
+// ─── Loading State ───────────────────────────────────────────────
+
+.ic-loading {
+    text-align: center;
+    padding: 3em 1em;
+    color: var(--card-text-color-secondary, #8f959e);
+}
+
+.ic-spinner {
+    width: 20px;
+    height: 20px;
+    margin: 0 auto 0.8em;
+    border: 2px solid var(--card-text-color-secondary, #8f959e);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: ic-spin 0.6s linear infinite;
+    opacity: 0.5;
+}
+
+.ic-loading-text {
+    font-size: 0.8em;
+    opacity: 0.6;
+}
+
+@keyframes ic-spin {
+    to { transform: rotate(360deg); }
+}
+
 // ─── Empty State ─────────────────────────────────────────────────
 
 .ic-empty {
