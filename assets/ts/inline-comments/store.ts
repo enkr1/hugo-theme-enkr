@@ -96,6 +96,9 @@ export async function subscribeComments(
                         mentions: (rd.mentions as Reply['mentions']) ?? [],
                         createdAt: rd.createdAt,
                         updatedAt: rd.updatedAt,
+                        likes: (rd.likes as number) ?? 0,
+                        likedBy: (rd.likedBy as string[]) ?? [],
+                        likedByNames: (rd.likedByNames as Record<string, string>) ?? {},
                     };
                 });
 
@@ -214,4 +217,25 @@ export async function deleteReply(commentId: string, replyId: string): Promise<v
     await fs.updateDoc(fs.doc(db, 'comments', commentId), {
         replyCount: fs.increment(-1),
     });
+}
+
+/** Toggle like on a reply. */
+export async function toggleReplyLike(commentId: string, replyId: string, uid: string, displayName: string, currentlyLiked: boolean): Promise<void> {
+    const fs = await getFirestoreFns();
+    const db = getDb();
+    const replyRef = fs.doc(db, 'comments', commentId, 'replies', replyId);
+
+    if (currentlyLiked) {
+        await fs.updateDoc(replyRef, {
+            likes: fs.increment(-1),
+            likedBy: fs.arrayRemove(uid),
+            [`likedByNames.${uid}`]: fs.deleteField(),
+        });
+    } else {
+        await fs.updateDoc(replyRef, {
+            likes: fs.increment(1),
+            likedBy: fs.arrayUnion(uid),
+            [`likedByNames.${uid}`]: displayName,
+        });
+    }
 }

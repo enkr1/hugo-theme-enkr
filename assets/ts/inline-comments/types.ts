@@ -37,6 +37,9 @@ export interface Reply {
     mentions: Array<{ uid: string; displayName: string }>;
     createdAt: unknown;
     updatedAt: unknown;
+    likes: number;
+    likedBy: string[];
+    likedByNames: Record<string, string>;
 }
 
 export interface NewComment {

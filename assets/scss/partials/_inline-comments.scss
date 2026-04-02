@@ -267,7 +267,7 @@ mark.inline-comment-hl {
 .ic-card-header {
     display: flex;
     align-items: center;
-    padding: 0.35em 0.5em 0.25em;
+    padding: 0.6em 0.7em 0.3em;
     gap: 0.3em;
 }
 
@@ -291,9 +291,8 @@ mark.inline-comment-hl {
 }
 
 .ic-quoted-text {
-    font-size: 0.72em;
+    font-size: 0.85em;
     color: var(--card-text-color-secondary, #8f959e);
-    opacity: 0.6;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -306,7 +305,7 @@ mark.inline-comment-hl {
 .ic-entry {
     display: flex;
     gap: 0.4em;
-    padding: 0.2em 0.5em 0.3em;
+    padding: 0.3em 0.7em;
     position: relative;
 }
 
@@ -344,19 +343,19 @@ mark.inline-comment-hl {
 }
 
 .ic-author-name {
-    font-size: 0.75em;
+    font-size: 0.85em;
     font-weight: 600;
     color: var(--card-text-color-main, #1f1f1f);
 }
 
 .ic-timestamp {
-    font-size: 0.62em;
+    font-size: 0.72em;
     color: var(--card-text-color-secondary, #8f959e);
 }
 
 .ic-entry-text {
-    font-size: 0.78em;
-    line-height: 1.4;
+    font-size: 0.9em;
+    line-height: 1.5;
     color: var(--card-text-color-main, #1f1f1f);
     word-wrap: break-word;
 }
@@ -476,7 +475,7 @@ mark.inline-comment-hl {
     border: 1px solid var(--card-separator-color, #e0e0e0);
     border-radius: 8px;
     padding: 0.4em 0.5em;
-    font-size: 0.72em;
+    font-size: 0.85em;
     font-family: var(--base-font-family);
     outline: none;
     color: var(--card-text-color-main, #1f1f1f);

@@ -5,7 +5,7 @@
  * Matches the interactive mockup at docs/mockups/inline-comments-live.html.
  */
 import type { Comment, Reply, AuthUser, NewReply } from './types';
-import { createComment, createReply, toggleLike, deleteComment, deleteReply } from './store';
+import { createComment, createReply, toggleLike, toggleReplyLike, deleteComment, deleteReply } from './store';
 import { anchorComment, removeHighlight } from './anchoring';
 import { initSelection } from './selection';
 import type { CapturedSelection } from './selection';
@@ -398,9 +398,39 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
     time.textContent = timeAgo(reply.createdAt);
     meta.appendChild(time);
 
-    // Delete button inline in meta row (own replies only)
+    // Actions inline in meta row (like, reply, delete)
+    const actions = el('div', 'ic-entry-actions');
+
+    const isLiked = currentUser ? reply.likedBy.includes(currentUser.uid) : false;
+
+    // Like
+    const likeBtn = document.createElement('button');
+    likeBtn.className = 'ic-action-btn' + (isLiked ? ' ic-action-btn--active' : '');
+    likeBtn.appendChild(isLiked ? svgIcon(16, ICON.thumbFill, true) : svgIcon(16, ICON.thumbUp));
+    likeBtn.title = 'Like';
+    likeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!currentUser) { getAuth().signIn(); return; }
+        toggleReplyLike(commentId, reply.id, currentUser.uid, currentUser.displayName, isLiked);
+    });
+    actions.appendChild(likeBtn);
+
+    // Reply (focuses the reply input)
+    const replyBtn = document.createElement('button');
+    replyBtn.className = 'ic-action-btn';
+    replyBtn.appendChild(svgIcon(16, ICON.message));
+    replyBtn.title = 'Reply';
+    replyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setTimeout(() => {
+            const input = document.querySelector(`[data-reply-for="${commentId}"]`) as HTMLInputElement | null;
+            input?.focus();
+        }, 50);
+    });
+    actions.appendChild(replyBtn);
+
+    // Delete (own replies only)
     if (currentUser && currentUser.uid === reply.author.uid) {
-        const actions = el('div', 'ic-entry-actions');
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'ic-action-btn ic-action-btn--danger';
         deleteBtn.appendChild(svgIcon(16, ICON.trash));
@@ -413,15 +443,43 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
             }
         });
         actions.appendChild(deleteBtn);
-        meta.appendChild(actions);
     }
 
+    meta.appendChild(actions);
     content.appendChild(meta);
 
     // Text with @mention rendering
     const textEl = el('div', 'ic-entry-text');
     renderTextWithMentions(textEl, reply.text, reply.mentions);
     content.appendChild(textEl);
+
+    // Likers pill (same as comment)
+    if (reply.likes > 0) {
+        const likerNames = Object.values(reply.likedByNames);
+        if (likerNames.length > 0) {
+            const likersEl = el('div', 'ic-likers');
+            const MAX_VISIBLE = 10;
+            const visible = likerNames.slice(0, MAX_VISIBLE);
+            const overflow = likerNames.length - MAX_VISIBLE;
+
+            const thumbEl = el('span', 'ic-likers-thumb');
+            thumbEl.appendChild(svgIcon(14, ICON.thumbFill, true));
+            likersEl.appendChild(thumbEl);
+
+            const namesEl = el('span', 'ic-likers-names');
+            namesEl.textContent = visible.join(', ');
+            likersEl.appendChild(namesEl);
+
+            if (overflow > 0) {
+                const moreEl = el('span', 'ic-likers-more');
+                moreEl.textContent = ` +${overflow}`;
+                moreEl.title = likerNames.slice(MAX_VISIBLE).join(', ');
+                likersEl.appendChild(moreEl);
+            }
+
+            content.appendChild(likersEl);
+        }
+    }
 
     entry.appendChild(content);
     return entry;
