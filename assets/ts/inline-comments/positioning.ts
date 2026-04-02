@@ -24,6 +24,8 @@ let lerpTarget = 0;
 let lerpCurrent = 0;
 let isLerping = false;
 let composerTargetTop: number | null = null;
+let isScrolling = false;
+let scrollEndTimer: number | null = null;
 
 /** Set the viewport Y-position where the composer should appear */
 export function setComposerTargetTop(top: number | null): void {
@@ -39,8 +41,8 @@ export function initPositioning(panel: HTMLElement, article: HTMLElement): () =>
     panelBody = panel;
     articleArea = article;
 
-    // Set up scroll listener on article
-    article.addEventListener('scroll', onArticleScroll);
+    // Listen on window scroll (page scrolls, not .article-content)
+    window.addEventListener('scroll', onArticleScroll, { passive: true });
 
     // Debounced resize handler
     window.addEventListener('resize', onResize);
@@ -61,7 +63,7 @@ export function initPositioning(panel: HTMLElement, article: HTMLElement): () =>
 
     // Cleanup
     return () => {
-        article.removeEventListener('scroll', onArticleScroll);
+        window.removeEventListener('scroll', onArticleScroll);
         window.removeEventListener('resize', onResize);
         if (rafId !== null) cancelAnimationFrame(rafId);
         if (resizeTimer !== null) clearTimeout(resizeTimer);
@@ -130,11 +132,11 @@ function positionCards(): void {
 
         targetTop = Math.max(0, targetTop);
 
-        // Apply position with transition
+        // Apply position — snap during scroll, animate on discrete events
         card.style.position = 'absolute';
         card.style.left = '0';
         card.style.right = '0';
-        card.style.transition = TRANSITION;
+        card.style.transition = isScrolling ? 'none' : TRANSITION;
         card.style.top = `${targetTop}px`;
 
         positions.push({
@@ -172,7 +174,7 @@ function positionComposer(): void {
     composer.style.right = '0';
     composer.style.top = `${targetTop}px`;
     composer.style.zIndex = '10';
-    composer.style.transition = TRANSITION;
+    composer.style.transition = isScrolling ? 'none' : TRANSITION;
 }
 
 // ─── Highlight Cache ─────────────────────────────────────────────
@@ -210,6 +212,13 @@ function getHighlightTop(commentId: string): number {
 function onArticleScroll(): void {
     // Invalidate cache on scroll (viewport-relative positions change)
     cacheValid = false;
+    isScrolling = true;
+
+    // Restore transitions after scroll settles
+    if (scrollEndTimer !== null) clearTimeout(scrollEndTimer);
+    scrollEndTimer = window.setTimeout(() => {
+        isScrolling = false;
+    }, 150) as unknown as number;
 
     if (rafId !== null) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(() => {
@@ -230,8 +239,9 @@ function syncPanelScroll(): void {
         // Scroll so focused card is roughly centered
         lerpTarget = Math.max(0, cardTop - panelHeight / 3);
     } else {
-        // No focused card: sync proportionally
-        const scrollRatio = articleArea.scrollTop / (articleArea.scrollHeight - articleArea.clientHeight || 1);
+        // No focused card: sync proportionally with page scroll
+        const docEl = document.documentElement;
+        const scrollRatio = window.scrollY / (docEl.scrollHeight - docEl.clientHeight || 1);
         const panelMaxScroll = panelBody.scrollHeight - panelBody.clientHeight;
         lerpTarget = scrollRatio * panelMaxScroll;
     }
