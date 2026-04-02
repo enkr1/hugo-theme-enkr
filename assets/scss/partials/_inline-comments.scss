@@ -56,7 +56,7 @@ mark.inline-comment-hl {
     cursor: pointer;
     user-select: none;
     font-family: var(--font-body);
-    transition: all 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 
     svg {
         color: var(--gold, #8B7355);

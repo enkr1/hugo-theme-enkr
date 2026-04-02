@@ -6,7 +6,7 @@
  */
 import type { Comment, Reply, AuthUser, NewReply } from './types';
 import { createComment, createReply, toggleLike, deleteComment, deleteReply } from './store';
-import { anchorComment } from './anchoring';
+import { anchorComment, removeHighlight } from './anchoring';
 import { initSelection } from './selection';
 import type { CapturedSelection } from './selection';
 import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS } from './utils';
@@ -75,8 +75,15 @@ export function updateComments(newComments: Comment[]): void {
     comments = newComments;
     commentsLoaded = true;
 
-    // Anchor only new comments (skip already-anchored)
+    // Remove highlights for deleted comments, anchor new ones
     if (articleEl) {
+        const currentIds = new Set(comments.map(c => c.id));
+        for (const id of anchoredIds) {
+            if (!currentIds.has(id)) {
+                removeHighlight(id);
+                anchoredIds.delete(id);
+            }
+        }
         for (const comment of comments) {
             if (anchoredIds.has(comment.id)) continue;
             const found = anchorComment(articleEl, comment);
