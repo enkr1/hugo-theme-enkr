@@ -1,8 +1,7 @@
 /**
  * Inline Comments — Entry Point
  *
- * Flow: show sign-in prompt → user signs in → subscribe to comments → show them.
- * No Firestore queries for anonymous visitors.
+ * Flow: subscribe to comments immediately (guests can read) → prompt sign-in only for writes.
  */
 import { subscribeComments } from './store';
 import { initUI, updateComments, destroyUI } from './ui';
@@ -39,29 +38,25 @@ async function init(): Promise<void> {
     const articleEl = document.querySelector('.article-content') as HTMLElement | null;
     if (!rootEl || !articleEl) return;
 
-    // Build UI (panel with sign-in prompt, selection detection)
+    // Build UI (panel, selection detection)
     initUI(rootEl, articleEl);
 
     // Init auth (lazy — only loads SDK if user signed in before)
     getAuth().initAuth().catch(() => {});
 
-    // Subscribe to comments ONLY after user signs in
+    // Subscribe to comments immediately — guests can read
     let unsubscribe: (() => void) | null = null;
-
-    getAuth().onAuthStateChange(async (user) => {
-        if (user && !unsubscribe) {
-            // User signed in — start loading comments
-            try {
-                unsubscribe = await subscribeComments(
-                    slug,
-                    (comments: Comment[]) => updateComments(comments),
-                    (err: Error) => console.error('[inline-comments] subscription error:', err.message),
-                );
-            } catch (err) {
-                console.error('[inline-comments] subscribe failed:', err);
-            }
-        }
-    });
+    try {
+        unsubscribe = await subscribeComments(
+            slug,
+            (comments: Comment[]) => updateComments(comments),
+            (err: Error) => console.error('[inline-comments] subscription error:', err.message),
+        );
+    } catch (err) {
+        console.error('[inline-comments] subscribe failed:', err);
+        // Still dismiss spinner on error
+        updateComments([]);
+    }
 
     window.addEventListener('beforeunload', () => {
         unsubscribe?.();
