@@ -20,6 +20,7 @@ async function loadFirestoreFns() {
         onSnapshot: mod.onSnapshot,
         addDoc: mod.addDoc,
         updateDoc: mod.updateDoc,
+        deleteDoc: mod.deleteDoc,
         getDocs: mod.getDocs,
         serverTimestamp: mod.serverTimestamp,
         increment: mod.increment,
@@ -182,4 +183,30 @@ export async function toggleLike(commentId: string, uid: string, currentlyLiked:
             likedBy: fs.arrayUnion(uid),
         });
     }
+}
+
+/** Delete a comment and all its replies. Only the author can delete. */
+export async function deleteComment(commentId: string): Promise<void> {
+    const fs = await getFirestoreFns();
+    const db = getDb();
+
+    // Delete all replies first (subcollection)
+    const repliesSnap = await fs.getDocs(fs.collection(db, 'comments', commentId, 'replies'));
+    await Promise.all(repliesSnap.docs.map((r: { ref: unknown }) => fs.deleteDoc(r.ref)));
+
+    // Delete the comment
+    await fs.deleteDoc(fs.doc(db, 'comments', commentId));
+}
+
+/** Delete a reply from a comment thread. Only the reply author can delete. */
+export async function deleteReply(commentId: string, replyId: string): Promise<void> {
+    const fs = await getFirestoreFns();
+    const db = getDb();
+
+    await fs.deleteDoc(fs.doc(db, 'comments', commentId, 'replies', replyId));
+
+    // Decrement replyCount on parent
+    await fs.updateDoc(fs.doc(db, 'comments', commentId), {
+        replyCount: fs.increment(-1),
+    });
 }

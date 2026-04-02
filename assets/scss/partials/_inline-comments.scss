@@ -451,6 +451,11 @@ mark.inline-comment-hl {
         color: var(--gold, #8B7355);
     }
 
+    &--danger:hover {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
     &:active {
         transform: scale(0.92);
     }

@@ -5,7 +5,7 @@
  * Matches the interactive mockup at docs/mockups/inline-comments-live.html.
  */
 import type { Comment, Reply, AuthUser, NewReply } from './types';
-import { createComment, createReply, toggleLike } from './store';
+import { createComment, createReply, toggleLike, deleteComment, deleteReply } from './store';
 import { anchorComment } from './anchoring';
 import { initSelection } from './selection';
 import type { CapturedSelection } from './selection';
@@ -192,7 +192,7 @@ function buildCommentCard(comment: Comment): HTMLElement {
 
     // Replies
     for (const reply of comment.replies) {
-        card.appendChild(buildReplyEntry(reply));
+        card.appendChild(buildReplyEntry(reply, comment.id));
     }
 
     // Reply box (only for signed-in users)
@@ -315,11 +315,27 @@ function buildCommentEntry(
     });
     actions.appendChild(replyBtn);
 
+    // Delete button (own comments only)
+    if (currentUser && currentUser.uid === author.uid) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'ic-action-btn ic-action-btn--danger';
+        deleteBtn.textContent = '\uD83D\uDDD1\uFE0F';
+        deleteBtn.title = 'Delete';
+        deleteBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!confirm('Delete this comment and all its replies?')) return;
+            try { await deleteComment(commentId); } catch (err) {
+                console.error('[inline-comments] Delete failed:', err);
+            }
+        });
+        actions.appendChild(deleteBtn);
+    }
+
     entry.appendChild(actions);
     return entry;
 }
 
-function buildReplyEntry(reply: Reply): HTMLElement {
+function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
     const entry = el('div', 'ic-entry ic-reply');
 
     // Avatar
@@ -343,6 +359,25 @@ function buildReplyEntry(reply: Reply): HTMLElement {
     content.appendChild(textEl);
 
     entry.appendChild(content);
+
+    // Delete button (own replies only)
+    if (currentUser && currentUser.uid === reply.author.uid) {
+        const actions = el('div', 'ic-entry-actions');
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'ic-action-btn ic-action-btn--danger';
+        deleteBtn.textContent = '\uD83D\uDDD1\uFE0F';
+        deleteBtn.title = 'Delete reply';
+        deleteBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!confirm('Delete this reply?')) return;
+            try { await deleteReply(commentId, reply.id); } catch (err) {
+                console.error('[inline-comments] Delete reply failed:', err);
+            }
+        });
+        actions.appendChild(deleteBtn);
+        entry.appendChild(actions);
+    }
+
     return entry;
 }
 
