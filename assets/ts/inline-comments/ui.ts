@@ -156,6 +156,20 @@ export function initUI(rootEl: HTMLElement, articleContentEl: HTMLElement): void
 
     // Init text selection popup
     cleanupSelection = initSelection(articleContentEl, onSelectionComment);
+
+    // Click on article body (not a highlight) unfocuses all comments
+    articleContentEl.addEventListener('click', (e) => {
+        if (!(e.target as HTMLElement).closest(`mark.${HIGHLIGHT_CLASS}`)) {
+            unfocusAll();
+        }
+    });
+
+    // Click on empty panel space unfocuses
+    panelBodyEl?.addEventListener('click', (e) => {
+        if (!(e.target as HTMLElement).closest('.ic-card, .ic-composer')) {
+            unfocusAll();
+        }
+    });
 }
 
 /** Update the comment list (called from Firestore onSnapshot). */
@@ -695,21 +709,27 @@ function buildReplyBox(comment: Comment): HTMLElement {
     field.appendChild(input);
     box.appendChild(field);
 
-    // Send button
+    // Footer: Cancel + Reply buttons
+    const footer = el('div', 'ic-reply-footer');
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'ic-btn ic-btn--ghost';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', () => {
+        input.value = '';
+        chipEl.style.display = 'none';
+        input.dataset.replyTo = '';
+        input.placeholder = 'Reply';
+    });
+    footer.appendChild(cancelBtn);
+
     const sendBtn = document.createElement('button');
-    sendBtn.className = 'ic-send-btn';
-    sendBtn.title = 'Send';
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', '18');
-    svg.setAttribute('height', '18');
-    svg.setAttribute('fill', 'currentColor');
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', 'M2.01 21L23 12 2.01 3 2 10l15 2-15 2z');
-    svg.appendChild(path);
-    sendBtn.appendChild(svg);
+    sendBtn.className = 'ic-btn ic-btn--primary';
+    sendBtn.textContent = 'Reply';
     sendBtn.addEventListener('click', () => submitReply(comment.id, input));
-    box.appendChild(sendBtn);
+    footer.appendChild(sendBtn);
+
+    box.appendChild(footer);
 
     return box;
 }
@@ -946,7 +966,7 @@ function renderComposer(): void {
 
     const submitBtn = document.createElement('button');
     submitBtn.className = 'ic-btn ic-btn--primary';
-    submitBtn.textContent = 'Comment';
+    submitBtn.textContent = 'Post';
     submitBtn.disabled = true;
 
     textarea.addEventListener('input', () => {
@@ -1064,6 +1084,13 @@ function focusComment(commentId: string): void {
         m.classList.add('active');
         m.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
+}
+
+function unfocusAll(): void {
+    if (!focusedCommentId) return;
+    focusedCommentId = null;
+    panelBodyEl?.querySelector(`.${CARD_FOCUSED_CLASS}`)?.classList.remove(CARD_FOCUSED_CLASS);
+    document.querySelectorAll(`mark.${HIGHLIGHT_CLASS}.active`).forEach(m => m.classList.remove('active'));
 }
 
 function attachHighlightClickHandlers(): void {

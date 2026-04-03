@@ -9,7 +9,7 @@
     --comment-highlight-bg: rgba(139, 115, 85, 0.12);
     --comment-highlight-bg-active: rgba(139, 115, 85, 0.22);
     --comment-highlight-border: var(--gold, #8B7355);
-    --comment-accent-blue: #4a90d9;
+    --comment-accent-blue: var(--water, #1E4B8C);
 }
 
 [data-scheme="dark"] {
@@ -246,11 +246,12 @@ mark.inline-comment-hl {
     border-top: 3px solid transparent;
     border-radius: 12px;
     overflow: hidden;
-    margin: 1rem;
+    margin: 2rem;
     transition:
         box-shadow 0.25s cubic-bezier(0.25, 0.1, 0.25, 1),
         transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1),
-        border-color 0.25s ease;
+        border-color 0.25s ease,
+        opacity 0.25s ease;
 
     &:hover {
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -260,6 +261,11 @@ mark.inline-comment-hl {
     &--focused {
         border-top-color: var(--comment-active-border);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    // Dim unfocused cards when any card is focused
+    .ic-comments-list:has(.ic-card--focused) &:not(.ic-card--focused) {
+        opacity: 0.7;
     }
 }
 
@@ -468,6 +474,13 @@ mark.inline-comment-hl {
     padding: 0.5em;
     border-top: 1px solid var(--card-separator-color, #f0f0f0);
     gap: 0.4em;
+}
+
+.ic-reply-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.3em;
+    width: 100%;
     position: relative;
 }
 
@@ -532,32 +545,6 @@ mark.inline-comment-hl {
 
     &::placeholder {
         color: var(--card-text-color-secondary, #8f959e);
-    }
-}
-
-.ic-send-btn {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: var(--card-separator-color, #f0f0f0);
-    border-radius: 6px;
-    cursor: pointer;
-    color: var(--card-text-color-secondary, #8f959e);
-    flex-shrink: 0;
-    padding: 0;
-    transition: background 0.15s ease, color 0.15s ease;
-
-    svg {
-        width: 18px;
-        height: 18px;
-    }
-
-    &:hover {
-        background: var(--gold, #8B7355);
-        color: #fff;
     }
 }
 
