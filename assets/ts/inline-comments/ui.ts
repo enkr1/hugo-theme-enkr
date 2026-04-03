@@ -377,13 +377,7 @@ function buildCommentEntry(
     replyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         focusComment(commentId);
-        setTimeout(() => {
-            const input = document.querySelector(`[data-reply-for="${commentId}"]`) as HTMLInputElement | null;
-            if (input) {
-                if (!input.value) input.value = `@${author.displayName} `;
-                input.focus();
-            }
-        }, 50);
+        setTimeout(() => showReplyChip(commentId, author.displayName), 50);
     });
     actions.appendChild(replyBtn);
 
@@ -488,13 +482,7 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
     replyBtn.title = 'Reply';
     replyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        setTimeout(() => {
-            const input = document.querySelector(`[data-reply-for="${commentId}"]`) as HTMLInputElement | null;
-            if (input) {
-                if (!input.value) input.value = `@${reply.author.displayName} `;
-                input.focus();
-            }
-        }, 50);
+        setTimeout(() => showReplyChip(commentId, reply.author.displayName), 50);
     });
     actions.appendChild(replyBtn);
 
@@ -612,6 +600,35 @@ function renderTextWithMentions(
     }
 }
 
+/** Show a reply-to chip inside the reply input field */
+function showReplyChip(commentId: string, targetName: string): void {
+    const input = document.querySelector(`[data-comment-id="${commentId}"].ic-reply-input`) as HTMLInputElement | null;
+    if (!input) return;
+    const chipEl = input.parentElement?.querySelector('.ic-reply-chip') as HTMLElement | null;
+    if (!chipEl) return;
+
+    // Build chip content
+    chipEl.textContent = '';
+    const nameSpan = document.createTextNode(`@${targetName}`);
+    chipEl.appendChild(nameSpan);
+
+    const dismiss = el('button', 'ic-reply-chip-x');
+    dismiss.textContent = '\u00d7';
+    dismiss.addEventListener('click', (e) => {
+        e.stopPropagation();
+        chipEl.style.display = 'none';
+        input.dataset.replyTo = '';
+        input.placeholder = 'Reply';
+        input.focus();
+    });
+    chipEl.appendChild(dismiss);
+
+    chipEl.style.display = 'inline-flex';
+    input.dataset.replyTo = targetName;
+    input.placeholder = '';
+    input.focus();
+}
+
 // ─── Reply Box ───────────────────────────────────────────────────
 
 function buildReplyBox(comment: Comment): HTMLElement {
@@ -623,11 +640,21 @@ function buildReplyBox(comment: Comment): HTMLElement {
     dropdown.dataset.commentId = comment.id;
     box.appendChild(dropdown);
 
+    // Input field wrapper (looks like input, contains chip + actual input)
+    const field = el('div', 'ic-reply-field');
+    field.addEventListener('click', () => input.focus());
+
+    // Reply-to chip (hidden by default)
+    const chipEl = el('span', 'ic-reply-chip');
+    chipEl.style.display = 'none';
+    field.appendChild(chipEl);
+
     // Input
     const input = document.createElement('input');
     input.className = 'ic-reply-input';
     input.placeholder = 'Reply';
     input.dataset.replyFor = comment.id;
+    input.dataset.commentId = comment.id;
 
     // Restore pending reply text after sign-in re-render
     if (pendingReply?.commentId === comment.id) {
@@ -645,6 +672,14 @@ function buildReplyBox(comment: Comment): HTMLElement {
     });
 
     input.addEventListener('keydown', (e) => {
+        // Backspace on empty input dismisses the reply-to chip
+        if (e.key === 'Backspace' && !input.value && input.dataset.replyTo) {
+            e.preventDefault();
+            chipEl.style.display = 'none';
+            input.dataset.replyTo = '';
+            input.placeholder = 'Reply';
+            return;
+        }
         if (mentionState.active && dropdown.style.display !== 'none') {
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === 'Escape') {
                 handleMentionKeydown(e, input, dropdown, comment, mentionState);
@@ -657,7 +692,8 @@ function buildReplyBox(comment: Comment): HTMLElement {
         }
     });
 
-    box.appendChild(input);
+    field.appendChild(input);
+    box.appendChild(field);
 
     // Send button
     const sendBtn = document.createElement('button');
@@ -679,8 +715,17 @@ function buildReplyBox(comment: Comment): HTMLElement {
 }
 
 async function submitReply(commentId: string, input: HTMLInputElement): Promise<void> {
-    const replyText = input.value.trim();
-    if (!replyText) return;
+    // Prepend @mention from chip if present
+    const replyTo = input.dataset.replyTo;
+    const rawText = input.value.trim();
+    const replyText = replyTo ? `@${replyTo} ${rawText}` : rawText;
+    if (!rawText) return;
+
+    // Clear chip
+    const chipEl = input.parentElement?.querySelector('.ic-reply-chip') as HTMLElement | null;
+    if (chipEl) chipEl.style.display = 'none';
+    input.dataset.replyTo = '';
+    input.placeholder = 'Reply';
     if (!currentUser) {
         pendingReply = { commentId, text: replyText };
         getAuth().signIn();
@@ -688,12 +733,18 @@ async function submitReply(commentId: string, input: HTMLInputElement): Promise<
     }
     if (!rateLimit('reply', 10000)) return;
 
-    // Parse mentions from text
+    // Parse mentions from text (include all thread participants + comment author)
     const mentions: NewReply['mentions'] = [];
     const comment = comments.find(c => c.id === commentId);
     if (comment) {
-        const participants = getThreadParticipants(comment);
-        for (const p of participants) {
+        // Build full list including self (for reply-to chip mentions)
+        const allAuthors: Array<{ uid: string; displayName: string }> = [comment.author];
+        for (const r of comment.replies) {
+            if (!allAuthors.some(a => a.uid === r.author.uid)) {
+                allAuthors.push(r.author);
+            }
+        }
+        for (const p of allAuthors) {
             if (replyText.includes(`@${p.displayName}`)) {
                 mentions.push({ uid: p.uid, displayName: p.displayName });
             }
