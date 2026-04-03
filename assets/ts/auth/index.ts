@@ -7,6 +7,7 @@
  * Consumers import from here, never from sub-modules.
  */
 export type { AuthUser, AuthStateCallback } from './types';
+export { renderGoogleButton, isGISReady } from './one-tap';
 
 import {
     initFirebaseAuth,
@@ -21,6 +22,8 @@ import {
     initOneTap,
     cancelOneTap,
     wasOneTapAttempted,
+    renderGoogleButton,
+    isGISReady,
 } from './one-tap';
 
 let authInitialized = false;
@@ -61,11 +64,12 @@ export async function initAuth(): Promise<void> {
 }
 
 /**
- * Sign in — called when user clicks the auth icon.
+ * Sign in — called when user clicks the auth icon or inline-comments triggers sign-in.
  *
- * Tries One Tap first (if not attempted), falls back to popup.
+ * Priority: One Tap → GIS renderButton (handled by dropdown) → Firebase popup (emergency).
  */
 export async function signIn(): Promise<void> {
+    // Try One Tap first if not yet attempted
     if (!wasOneTapAttempted()) {
         const result = await initOneTap();
         if (result === 'prompted') {
@@ -74,7 +78,13 @@ export async function signIn(): Promise<void> {
         }
     }
 
-    // One Tap unavailable or already attempted — use popup
+    // If GIS is loaded, the rendered button in the dropdown handles sign-in.
+    // Nothing to do programmatically — the button is already there.
+    if (isGISReady()) {
+        return;
+    }
+
+    // Emergency: GIS completely failed to load — fall back to Firebase popup
     await signInWithPopup();
 }
 
