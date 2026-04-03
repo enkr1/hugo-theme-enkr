@@ -1,0 +1,52 @@
+.tag-cloud-map {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.tag-pill {
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 20px;
+    background: transparent;
+    transition: all var(--transition-base);
+
+    &:hover {
+        background: var(--gold);
+        color: var(--accent-color-text);
+        border-color: var(--gold);
+    }
+
+    &--lg {
+        font-size: 1.3em;
+        font-weight: 600;
+        padding: 9px 20px;
+        border: 2px solid var(--gold);
+        color: var(--gold);
+    }
+
+    &--md {
+        font-size: 1em;
+        padding: 6px 14px;
+        border: 1.5px solid color-mix(in srgb, var(--gold) 50%, transparent);
+        color: color-mix(in srgb, var(--gold) 70%, transparent);
+    }
+
+    &--sm {
+        font-size: 0.78em;
+        padding: 4px 10px;
+        border: 1px solid color-mix(in srgb, var(--gold) 15%, transparent);
+        color: color-mix(in srgb, var(--gold) 45%, transparent);
+    }
+}
+
+.tag-pill__count {
+    opacity: 0.45;
+    font-size: 0.7em;
+    font-weight: 400;
+    margin-left: 0.3em;
+}
