@@ -13,12 +13,14 @@
     text-decoration: none;
     border-radius: 20px;
     background: transparent;
-    transition: all var(--transition-base);
+    transition: background var(--transition-base), color var(--transition-base), border-color var(--transition-base);
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
         background: var(--gold);
         color: var(--accent-color-text);
         border-color: var(--gold);
+        outline: none;
     }
 
     &--lg {
@@ -32,15 +34,15 @@
     &--md {
         font-size: 1em;
         padding: 6px 14px;
-        border: 1.5px solid color-mix(in srgb, var(--gold) 50%, transparent);
-        color: color-mix(in srgb, var(--gold) 70%, transparent);
+        border: 1.5px solid rgba(201, 168, 130, 0.5);
+        color: rgba(201, 168, 130, 0.7);
     }
 
     &--sm {
         font-size: 0.78em;
         padding: 4px 10px;
-        border: 1px solid color-mix(in srgb, var(--gold) 15%, transparent);
-        color: color-mix(in srgb, var(--gold) 45%, transparent);
+        border: 1px solid rgba(201, 168, 130, 0.15);
+        color: rgba(201, 168, 130, 0.45);
     }
 }
 
