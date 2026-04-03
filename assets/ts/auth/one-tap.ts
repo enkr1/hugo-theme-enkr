@@ -30,6 +30,11 @@ declare global {
                     prompt: (callback?: (notification: GISPromptNotification) => void) => void;
                     cancel: () => void;
                     revoke: (hint: string, callback: () => void) => void;
+                    renderButton: (
+                        parent: HTMLElement,
+                        options: Record<string, unknown>,
+                        clickHandler?: () => void
+                    ) => void;
                 };
             };
         };
@@ -38,6 +43,11 @@ declare global {
 
 let gisLoaded = false;
 let oneTapAttempted = false;
+let gisInitialized = false;
+
+export function isGISReady(): boolean {
+    return gisLoaded && gisInitialized;
+}
 
 /** Inject the GIS script tag. Resolves when loaded. */
 function loadGIS(): Promise<void> {
@@ -98,6 +108,7 @@ export async function initOneTap(): Promise<'prompted' | 'skipped' | 'dismissed'
             use_fedcm_for_prompt: true,
             cancel_on_tap_outside: true,
         });
+        gisInitialized = true;
 
         window.google!.accounts.id.prompt((notification: GISPromptNotification) => {
             const moment = notification.getMomentType();
@@ -119,4 +130,21 @@ export function cancelOneTap(): void {
     if (gisLoaded && window.google?.accounts?.id) {
         window.google.accounts.id.cancel();
     }
+}
+
+/**
+ * Render a Google-branded sign-in button into the given container.
+ * Must be called after initOneTap() has resolved (GIS must be initialized).
+ * Returns false if GIS is not ready.
+ */
+export function renderGoogleButton(container: HTMLElement): boolean {
+    if (!isGISReady() || !window.google?.accounts?.id) return false;
+
+    window.google.accounts.id.renderButton(container, {
+        theme: 'outline',
+        size: 'large',
+        type: 'standard',
+        shape: 'rectangular',
+    });
+    return true;
 }
