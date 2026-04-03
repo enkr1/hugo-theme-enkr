@@ -7,7 +7,7 @@
  * - Floating toolbar: icon-only <div class="toolbar-icon">, tooltip via aria-label
  * - Traditional sidebar: <li> with <a><svg/><span></span></a>
  */
-import { signIn, signOut, onAuthStateChange } from '../auth';
+import { signIn, signOut, onAuthStateChange, initAuth, renderGoogleButton, isGISReady } from '../auth';
 import type { AuthUser } from '../auth';
 
 let menuItemEl: HTMLElement | null = null;
@@ -39,10 +39,11 @@ function renderToolbar(): void {
     } else {
         menuItemEl.innerHTML = USER_ICON_SVG;
         menuItemEl.setAttribute('aria-label', 'Sign in');
-        menuItemEl.onclick = (e) => { e.preventDefault(); e.stopPropagation(); signIn(); };
+        menuItemEl.onclick = (e) => { e.preventDefault(); e.stopPropagation(); toggleDropdown(); };
     }
 
     if (dropdownVisible && currentUser) renderDropdown();
+    if (dropdownVisible && !currentUser) renderAnonymousDropdown();
 }
 
 // ─── Sidebar Render (legacy <li> with <a>) ──────────────────────
@@ -74,13 +75,14 @@ function renderSidebar(): void {
         label.textContent = 'Sign in';
         link.appendChild(label);
 
-        link.onclick = (e) => { e.preventDefault(); signIn(); };
+        link.onclick = (e) => { e.preventDefault(); toggleDropdown(); };
     }
 
     const existingDropdown = menuItemEl.querySelector('.auth-dropdown');
     if (existingDropdown) existingDropdown.remove();
 
     if (dropdownVisible && currentUser) renderDropdown();
+    if (dropdownVisible && !currentUser) renderAnonymousDropdown();
 }
 
 // ─── Shared ─────────────────────────────────────────────────────
@@ -107,6 +109,59 @@ function renderDropdown(): void {
     dropdown.appendChild(signOutBtn);
 
     menuItemEl.appendChild(dropdown);
+}
+
+function renderAnonymousDropdown(): void {
+    if (!menuItemEl) return;
+
+    // Remove any existing dropdown
+    const existing = menuItemEl.querySelector('.auth-dropdown');
+    if (existing) existing.remove();
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'auth-dropdown auth-dropdown--anonymous';
+
+    const container = document.createElement('div');
+    container.className = 'auth-google-btn-container';
+    dropdown.appendChild(container);
+
+    menuItemEl.appendChild(dropdown);
+
+    // Try to render Google button immediately
+    if (renderGoogleButton(container)) return;
+
+    // GIS not ready — show spinner, eagerly trigger load
+    container.innerHTML = '<div class="auth-spinner"></div>';
+
+    // Eagerly trigger GIS load if not yet attempted
+    initAuth().then(() => {
+        // Retry after GIS loads
+        const retryInterval = setInterval(() => {
+            if (isGISReady()) {
+                clearInterval(retryInterval);
+                container.innerHTML = '';
+                renderGoogleButton(container);
+            }
+        }, 200);
+
+        // 5s timeout — show fallback text link
+        setTimeout(() => {
+            clearInterval(retryInterval);
+            if (!isGISReady()) {
+                container.innerHTML = '';
+                const fallback = document.createElement('button');
+                fallback.className = 'auth-dropdown-item';
+                fallback.textContent = 'Sign in with Google';
+                fallback.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    dropdownVisible = false;
+                    render();
+                    await signIn();
+                });
+                container.appendChild(fallback);
+            }
+        }, 5000);
+    });
 }
 
 function toggleDropdown(): void {
