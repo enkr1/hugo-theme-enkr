@@ -1068,7 +1068,7 @@ function buildEmptyState(): HTMLElement {
 
 // ─── Navigation & Focus ──────────────────────────────────────────
 
-function focusComment(commentId: string): void {
+export function focusComment(commentId: string): void {
     focusedCommentId = commentId;
 
     // Toggle card focus class (no full rebuild)

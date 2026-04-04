@@ -4,7 +4,7 @@
  * Flow: subscribe to comments immediately (guests can read) → prompt sign-in only for writes.
  */
 import { subscribeComments } from './store';
-import { initUI, updateComments, destroyUI } from './ui';
+import { initUI, updateComments, destroyUI, focusComment } from './ui';
 import { getCachedComments, setCachedComments } from './utils';
 import type { Comment } from './types';
 
@@ -59,6 +59,11 @@ async function init(): Promise<void> {
             (comments: Comment[]) => {
                 updateComments(comments);
                 setCachedComments(slug, comments as unknown[]);
+                // Deep-link: scroll to comment if ?comment=ID is in URL
+                const targetId = new URLSearchParams(window.location.search).get('comment');
+                if (targetId && comments.some(c => c.id === targetId)) {
+                    setTimeout(() => focusComment(targetId), 300);
+                }
             },
             (err: Error) => console.error('[inline-comments] subscription error:', err.message),
         );
