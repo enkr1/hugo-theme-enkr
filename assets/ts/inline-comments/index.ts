@@ -5,7 +5,7 @@
  */
 import { subscribeComments } from './store';
 import { initUI, updateComments, destroyUI, focusComment } from './ui';
-import { getCachedComments, setCachedComments } from './utils';
+import { getCachedComments, setCachedComments, HIGHLIGHT_CLASS } from './utils';
 import type { Comment } from './types';
 
 declare global {
@@ -59,17 +59,28 @@ async function init(): Promise<void> {
             (comments: Comment[]) => {
                 updateComments(comments);
                 setCachedComments(slug, comments as unknown[]);
-                // Deep-link: scroll to comment if ?comment=ID is in URL
-                const targetId = new URLSearchParams(window.location.search).get('comment');
-                if (targetId && comments.some(c => c.id === targetId)) {
-                    setTimeout(() => focusComment(targetId), 300);
-                }
             },
             (err: Error) => console.error('[inline-comments] subscription error:', err.message),
         );
     } catch (err) {
         console.error('[inline-comments] subscribe failed:', err);
         if (!cached) updateComments([]);
+    }
+
+    // Deep-link: poll for mark element then scroll to it
+    const deepLinkId = new URLSearchParams(window.location.search).get('comment');
+    if (deepLinkId) {
+        let attempts = 0;
+        const tryFocus = () => {
+            const mark = document.querySelector(`mark.${HIGHLIGHT_CLASS}[data-comment-id="${deepLinkId}"]`);
+            if (mark) {
+                focusComment(deepLinkId);
+                history.replaceState(null, '', window.location.pathname);
+            } else if (++attempts < 25) {
+                setTimeout(tryFocus, 200);
+            }
+        };
+        setTimeout(tryFocus, 500);
     }
 
     window.addEventListener('beforeunload', () => {
