@@ -1,0 +1,73 @@
+// Visitor Map Widget
+// Dot map showing visitor geography in the sidebar
+
+.visitor-map {
+    padding: var(--spacing-sm);
+
+    .widget-title {
+        margin-bottom: var(--spacing-sm);
+    }
+
+    &__container {
+        position: relative;
+    }
+
+    &__svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: var(--radius-widget);
+        background: var(--card-background);
+    }
+
+    &__land path {
+        transition: fill var(--transition-base);
+    }
+
+    &__dot {
+        fill: var(--accent-color, #8B7355);
+        cursor: pointer;
+        transition: r var(--transition-fast), opacity var(--transition-fast);
+
+        &:hover {
+            opacity: 1 !important;
+            filter: brightness(1.2);
+        }
+    }
+
+    &__tooltip {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: var(--card-background);
+        border: 1px solid var(--body-text-color);
+        border-radius: var(--radius-tag);
+        padding: 2px 6px;
+        font-size: var(--font-size-xs);
+        font-family: var(--font-mono);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition-fast);
+        white-space: nowrap;
+
+        &.visible {
+            opacity: 1;
+        }
+    }
+
+    &__summary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4em;
+        margin-top: var(--spacing-xs);
+        font-size: var(--font-size-sm);
+        color: var(--card-text-color-secondary, var(--body-text-color));
+        opacity: 0.7;
+    }
+
+    &__count {
+        font-weight: var(--font-weight-semibold);
+        font-family: var(--font-mono);
+    }
+}
