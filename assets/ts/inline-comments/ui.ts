@@ -978,27 +978,23 @@ function renderComposer(): void {
         if (!commentText || !composerData || !currentUser) return;
         if (!rateLimit('comment', 10000)) return;
 
-        submitBtn.disabled = true;
-        textarea.disabled = true;
+        const slug = document.getElementById('inline-comments-root')?.dataset.articleSlug;
+        if (!slug) return;
+
+        const payload = {
+            articleSlug: slug,
+            quotedText: composerData.quotedText,
+            text: commentText,
+            anchor: composerData.anchor,
+        };
+
+        // Optimistic: hide composer immediately before network call
+        cancelCompose();
 
         try {
-            const slug = document.getElementById('inline-comments-root')?.dataset.articleSlug;
-            if (!slug) throw new Error('No article slug');
-
-            await createComment(
-                {
-                    articleSlug: slug,
-                    quotedText: composerData.quotedText,
-                    text: commentText,
-                    anchor: composerData.anchor,
-                },
-                currentUser,
-            );
-            cancelCompose();
+            await createComment(payload, currentUser);
         } catch (err) {
             console.error('[inline-comments] Create comment failed:', err);
-            submitBtn.disabled = false;
-            textarea.disabled = false;
         }
     });
 
