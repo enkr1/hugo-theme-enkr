@@ -69,7 +69,7 @@ async function init(): Promise<void> {
 
     // Deep-link: poll for mark element then scroll to it
     const deepLinkId = new URLSearchParams(window.location.search).get('comment');
-    if (deepLinkId) {
+    if (deepLinkId && /^[a-zA-Z0-9]{20,28}$/.test(deepLinkId)) {
         let attempts = 0;
         const tryFocus = () => {
             const mark = document.querySelector(`mark.${HIGHLIGHT_CLASS}[data-comment-id="${deepLinkId}"]`);

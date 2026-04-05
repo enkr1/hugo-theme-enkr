@@ -376,6 +376,7 @@ function buildCommentEntry(
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!currentUser) { getAuth().signIn(); return; }
+        if (!rateLimit('like-' + commentId, 500)) return;
         optimisticToggleLike(commentId, currentUser.uid, currentUser.displayName, isLiked);
         toggleLike(commentId, currentUser.uid, currentUser.displayName, isLiked).catch(() => {
             optimisticToggleLike(commentId, currentUser!.uid, currentUser!.displayName, !isLiked);
@@ -482,6 +483,7 @@ function buildReplyEntry(reply: Reply, commentId: string): HTMLElement {
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!currentUser) { getAuth().signIn(); return; }
+        if (!rateLimit('like-' + commentId + '-' + reply.id, 500)) return;
         optimisticToggleReplyLike(commentId, reply.id, currentUser.uid, currentUser.displayName, isLiked);
         toggleReplyLike(commentId, reply.id, currentUser.uid, currentUser.displayName, isLiked).catch(() => {
             optimisticToggleReplyLike(commentId, reply.id, currentUser!.uid, currentUser!.displayName, !isLiked);
