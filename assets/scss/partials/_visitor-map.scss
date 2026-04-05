@@ -1,73 +1,121 @@
-// Visitor Map Widget
-// Dot map showing visitor geography in the sidebar
+// Visitors Page — Cobe 3D Globe + Country List
 
-.visitor-map {
-    padding: var(--spacing-sm);
-
-    .widget-title {
-        margin-bottom: var(--spacing-sm);
+.visitors-page {
+    .main {
+        max-width: 720px;
+        margin: 0 auto;
     }
+}
 
-    &__container {
-        position: relative;
+.visitors-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+
+    h1 {
+        font-family: var(--font-display);
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--spacing-xs);
     }
+}
 
-    &__svg {
+.globe-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-xl);
+
+    canvas {
+        max-width: 500px;
         width: 100%;
-        height: auto;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        cursor: grab;
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+}
+
+.geo-stats {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+
+    &__total {
         display: block;
-        border-radius: var(--radius-widget);
-        background: var(--card-background);
+        font-family: var(--font-display);
+        font-size: 4.8rem;
+        font-weight: var(--font-weight-bold);
+        line-height: 1;
+        letter-spacing: -0.02em;
     }
 
-    &__land path {
-        transition: fill var(--transition-base);
+    &__label {
+        display: block;
+        font-size: var(--font-size-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        opacity: 0.5;
+        margin-top: var(--spacing-sm);
     }
 
-    &__dot {
-        fill: var(--accent-color, #8B7355);
-        cursor: pointer;
-        transition: r var(--transition-fast), opacity var(--transition-fast);
+}
 
-        &:hover {
-            opacity: 1 !important;
-            filter: brightness(1.2);
-        }
-    }
+.country-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: country-rank;
+    margin: 0;
+    border-top: 1px solid var(--card-separator-color);
 
-    &__tooltip {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        background: var(--card-background);
-        border: 1px solid var(--body-text-color);
-        border-radius: var(--radius-tag);
-        padding: 2px 6px;
-        font-size: var(--font-size-xs);
-        font-family: var(--font-mono);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity var(--transition-fast);
-        white-space: nowrap;
-
-        &.visible {
-            opacity: 1;
-        }
-    }
-
-    &__summary {
+    &__item {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 0.4em;
-        margin-top: var(--spacing-xs);
-        font-size: var(--font-size-sm);
-        color: var(--card-text-color-secondary, var(--body-text-color));
-        opacity: 0.7;
+        gap: var(--spacing-sm);
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--card-separator-color);
+        transition: background var(--transition-fast);
+        counter-increment: country-rank;
+
+        &::before {
+            content: counter(country-rank);
+            font-family: var(--font-mono);
+            font-size: var(--font-size-sm);
+            opacity: 0.4;
+            min-width: 2ch;
+            text-align: right;
+        }
+
+        &:hover {
+            background: rgba(201, 168, 130, 0.06);
+        }
+    }
+
+    &__flag {
+        font-size: 1.6em;
+        line-height: 1;
+        width: 2em;
+        text-align: center;
+    }
+
+    &__name {
+        flex: 1;
+        font-size: var(--font-size-base);
     }
 
     &__count {
-        font-weight: var(--font-weight-semibold);
         font-family: var(--font-mono);
+        font-size: var(--font-size-sm);
+        opacity: 0.6;
+    }
+}
+
+@media (max-width: 767px) {
+    .globe-container canvas {
+        max-width: 300px;
+    }
+
+    .geo-stats__total {
+        font-size: 3.6rem;
     }
 }

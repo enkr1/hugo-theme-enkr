@@ -1,194 +1,300 @@
 /**
- * Visitor Map Renderer
- * Fetches country visitor counts from Firestore and renders dots on the SVG world map.
+ * Visitor Globe — Cobe 3D Globe
+ * Renders an interactive 3D globe on /visitors/ with markers at visitor locations.
+ * Data fetched from Firestore: visitor_geo/summary (counts) + visitor_geo/coords (lat/lng).
  */
 
-/** Country center coordinates in equirectangular projection (x = lon+180, y = 90-lat) */
-const COORDS: Record<string, [number, number]> = {
-    // North America
-    US: [263, 52], CA: [260, 30], MX: [258, 67],
-    // Central America & Caribbean
-    GT: [269, 75], CR: [276, 80], PA: [280, 81], CU: [281, 68], JM: [283, 72],
-    // South America
-    BR: [307, 100], AR: [296, 126], CL: [289, 124], CO: [286, 86], PE: [284, 100],
-    VE: [293, 82], EC: [281, 88], UY: [304, 125], PY: [302, 117], BO: [295, 108],
-    // Europe
-    GB: [179, 38], DE: [190, 39], FR: [182, 43], ES: [176, 50], IT: [192, 47],
-    NL: [185, 38], BE: [184, 39], SE: [195, 28], NO: [190, 28], FI: [205, 26],
-    PL: [199, 38], CH: [188, 43], AT: [194, 43], PT: [171, 50], IE: [172, 37],
-    DK: [190, 34], CZ: [195, 40], RO: [205, 44], HU: [199, 43], GR: [204, 52],
-    UA: [210, 39], RU: [220, 30],
-    // Middle East
-    TR: [215, 51], SA: [225, 65], AE: [234, 65], IL: [215, 58], IR: [232, 57],
-    IQ: [224, 57], JO: [216, 58],
-    // Africa
-    ZA: [206, 120], NG: [188, 80], EG: [211, 63], KE: [218, 89], MA: [174, 58],
-    GH: [180, 82], TZ: [215, 96], ET: [219, 82], DZ: [183, 62], TN: [189, 56],
-    // South Asia
-    IN: [259, 70], PK: [249, 60], BD: [270, 66], LK: [261, 83], NP: [264, 62],
-    // East Asia
-    CN: [284, 55], JP: [320, 54], KR: [307, 53], TW: [301, 66], HK: [294, 68],
-    MN: [284, 43],
-    // Southeast Asia
-    SG: [284, 89], MY: [281, 86], TH: [281, 75], VN: [286, 74], ID: [297, 92],
-    PH: [301, 77], MM: [276, 70], KH: [285, 78],
-    // Oceania
-    AU: [313, 118], NZ: [355, 138],
-};
+// --- Types ---
 
-// --- Cache ---
-const MAP_CACHE_KEY = 'visitor-geo-map';
-const MAP_CACHE_TTL = 20 * 60 * 1000; // 20 minutes
+declare global {
+    interface Window {
+        firestoreDb?: unknown;
+    }
+}
 
-interface MapCache {
-    data: Record<string, number>;
+interface GeoData {
+    summary: Record<string, number>;
+    coords: Record<string, { lat: number; lng: number }>;
+}
+
+interface CacheEntry {
+    data: GeoData;
     ts: number;
 }
 
-function getCachedMap(): Record<string, number> | null {
+interface CobeState {
+    phi: number;
+    theta: number;
+    width: number;
+    height: number;
+}
+
+// --- Cache ---
+
+const CACHE_KEY = 'visitor-geo-globe';
+const CACHE_TTL = 20 * 60 * 1000; // 20 minutes
+
+function getCached(): GeoData | null {
     try {
-        const raw = localStorage.getItem(MAP_CACHE_KEY);
+        const raw = localStorage.getItem(CACHE_KEY);
         if (!raw) return null;
-        const entry: MapCache = JSON.parse(raw);
-        if (Date.now() - entry.ts > MAP_CACHE_TTL) {
-            localStorage.removeItem(MAP_CACHE_KEY);
+        const entry: CacheEntry = JSON.parse(raw);
+        if (Date.now() - entry.ts > CACHE_TTL) {
+            localStorage.removeItem(CACHE_KEY);
             return null;
         }
         return entry.data;
-    } catch { return null; }
+    } catch {
+        return null;
+    }
 }
 
-function setCachedMap(data: Record<string, number>): void {
+function setCache(data: GeoData): void {
     try {
-        localStorage.setItem(MAP_CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
     } catch { /* ignore */ }
 }
 
-// --- Rendering ---
+// --- Helpers ---
 
-/**
- * Map a visitor count to a dot radius (log scale, clamped)
- */
-function countToRadius(count: number, maxCount: number): number {
-    if (count <= 0) return 0;
-    const minR = 2;
-    const maxR = 7;
+function countToSize(count: number, maxCount: number): number {
+    const minSize = 0.03;
+    const maxSize = 0.15;
     const logScale = Math.log(count + 1) / Math.log(maxCount + 1);
-    return minR + logScale * (maxR - minR);
+    return minSize + logScale * (maxSize - minSize);
 }
 
-/**
- * Map a visitor count to an opacity (higher count = more opaque)
- */
-function countToOpacity(count: number, maxCount: number): number {
-    const min = 0.4;
-    const max = 1.0;
-    const logScale = Math.log(count + 1) / Math.log(maxCount + 1);
-    return min + logScale * (max - min);
+function countryToFlag(cc: string): string {
+    if (!/^[A-Z]{2}$/.test(cc)) return '';
+    return [...cc].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('');
 }
 
-/**
- * Render dots on the SVG map
- */
-function renderDots(data: Record<string, number>): void {
-    const dotsGroup = document.getElementById('geo-dots');
-    const summaryCount = document.getElementById('geo-country-count');
-    if (!dotsGroup) return;
+function validCountryCode(cc: string): boolean {
+    return /^[A-Z]{2}$/.test(cc);
+}
 
-    // Clear existing dots
-    dotsGroup.innerHTML = '';
+// --- Data fetching ---
 
-    const entries = Object.entries(data).filter(([cc]) => COORDS[cc]);
-    if (entries.length === 0) return;
-
-    const maxCount = Math.max(...entries.map(([, c]) => c));
-
-    const svgNS = 'http://www.w3.org/2000/svg';
-    for (const [cc, count] of entries) {
-        const coord = COORDS[cc];
-        if (!coord) continue;
-
-        const circle = document.createElementNS(svgNS, 'circle');
-        circle.setAttribute('cx', String(coord[0]));
-        circle.setAttribute('cy', String(coord[1]));
-        circle.setAttribute('r', String(countToRadius(count, maxCount)));
-        circle.setAttribute('opacity', String(countToOpacity(count, maxCount)));
-        circle.setAttribute('data-country', cc);
-        circle.setAttribute('data-count', String(count));
-        circle.classList.add('visitor-map__dot');
-        dotsGroup.appendChild(circle);
+async function waitForFirestore(): Promise<unknown> {
+    let attempts = 0;
+    while (!window.firestoreDb && attempts < 20) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
     }
-
-    // Update summary
-    if (summaryCount) {
-        summaryCount.textContent = String(entries.length);
-    }
-
-    // Tooltip on hover
-    setupTooltips();
+    return window.firestoreDb;
 }
 
-/**
- * Add hover tooltips to dots
- */
-function setupTooltips(): void {
-    const tooltip = document.getElementById('geo-tooltip');
-    if (!tooltip) return;
-
-    const dots = document.querySelectorAll('.visitor-map__dot');
-    dots.forEach(dot => {
-        dot.addEventListener('mouseenter', (e) => {
-            const el = e.target as SVGCircleElement;
-            const cc = el.getAttribute('data-country') || '';
-            const count = el.getAttribute('data-count') || '0';
-            tooltip.textContent = `${cc}: ${Number(count).toLocaleString()}`;
-            tooltip.classList.add('visible');
-        });
-        dot.addEventListener('mouseleave', () => {
-            tooltip.classList.remove('visible');
-        });
-    });
+function getDevData(): GeoData {
+    return {
+        summary: { SG: 45, US: 120, CN: 30, IN: 15, GB: 8, DE: 5, JP: 12, AU: 3, BR: 7, KR: 10 },
+        coords: {
+            SG: { lat: 1.35, lng: 103.82 }, US: { lat: 37.09, lng: -95.71 },
+            CN: { lat: 35.86, lng: 104.19 }, IN: { lat: 20.59, lng: 78.96 },
+            GB: { lat: 55.37, lng: -3.43 }, DE: { lat: 51.16, lng: 10.45 },
+            JP: { lat: 36.20, lng: 138.25 }, AU: { lat: -25.27, lng: 133.77 },
+            BR: { lat: -14.23, lng: -51.92 }, KR: { lat: 35.90, lng: 127.76 },
+        },
+    };
 }
 
-// --- Init ---
-
-async function init(): Promise<void> {
-    const container = document.getElementById('visitor-map');
-    if (!container) return;
-
-    // Only run in production
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') return;
-
-    // Check cache first
-    const cached = getCachedMap();
-    if (cached) {
-        renderDots(cached);
-        return;
-    }
-
-    // Fetch from Firestore
+async function fetchGeoData(): Promise<GeoData | null> {
     try {
         const { doc, getDoc } = await import(
             'https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js'
         );
 
-        // Wait for Firestore to be available
-        let attempts = 0;
-        while (!window.firestoreDb && attempts < 20) {
-            await new Promise(r => setTimeout(r, 100));
-            attempts++;
+        const db = await waitForFirestore();
+        if (!db) return null;
+
+        const [summarySnap, coordsSnap] = await Promise.all([
+            getDoc(doc(db, 'visitor_geo', 'summary')),
+            getDoc(doc(db, 'visitor_geo', 'coords')),
+        ]);
+
+        const rawSummary = summarySnap.exists() ? (summarySnap.data() as Record<string, unknown>) : {};
+        const rawCoords = coordsSnap.exists() ? (coordsSnap.data() as Record<string, unknown>) : {};
+
+        // Sanitize: only accept valid country codes with numeric counts
+        const summary: Record<string, number> = {};
+        for (const [key, val] of Object.entries(rawSummary)) {
+            if (validCountryCode(key) && typeof val === 'number' && val > 0) {
+                summary[key] = val;
+            }
         }
-        if (!window.firestoreDb) return;
 
-        const snapshot = await getDoc(doc(window.firestoreDb, 'visitor_geo', 'summary'));
-        if (!snapshot.exists()) return;
+        // Sanitize: only accept valid coords
+        const coords: Record<string, { lat: number; lng: number }> = {};
+        for (const [key, val] of Object.entries(rawCoords)) {
+            if (validCountryCode(key) && val && typeof val === 'object') {
+                const v = val as Record<string, unknown>;
+                if (typeof v.lat === 'number' && typeof v.lng === 'number') {
+                    coords[key] = { lat: v.lat, lng: v.lng };
+                }
+            }
+        }
 
-        const data = snapshot.data() as Record<string, number>;
-        setCachedMap(data);
-        renderDots(data);
+        if (Object.keys(summary).length === 0) return null;
+
+        return { summary, coords };
     } catch {
-        // Firestore read failed — map stays empty
+        return null;
     }
+}
+
+// --- Globe interaction state (lives outside renderGlobe to survive destroy/recreate) ---
+
+let phi = 0;
+let theta = 0.3;
+let pointerDown = false;
+
+function setupDragOnce(canvas: HTMLCanvasElement): void {
+    let pointerX = 0;
+    let pointerY = 0;
+
+    canvas.addEventListener('pointerdown', (e) => {
+        pointerDown = true;
+        pointerX = e.clientX;
+        pointerY = e.clientY;
+        canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointerup', (e) => {
+        pointerDown = false;
+        canvas.releasePointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointerout', () => { pointerDown = false; });
+    canvas.addEventListener('pointermove', (e) => {
+        if (!pointerDown) return;
+        const dx = e.clientX - pointerX;
+        const dy = e.clientY - pointerY;
+        pointerX = e.clientX;
+        pointerY = e.clientY;
+        phi += dx * 0.005;
+        theta = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, theta + dy * 0.005));
+    });
+}
+
+// --- Globe rendering ---
+
+async function renderGlobe(canvas: HTMLCanvasElement, data: GeoData): Promise<() => void> {
+    const { default: createGlobe } = await import('https://esm.sh/cobe@0.6.3');
+
+    const entries = Object.entries(data.summary).filter(([cc]) => data.coords[cc]);
+    const maxCount = entries.length > 0 ? Math.max(...entries.map(([, c]) => c)) : 1;
+
+    const markers = entries.map(([cc, count]) => ({
+        location: [data.coords[cc]!.lat, data.coords[cc]!.lng] as [number, number],
+        size: countToSize(count, maxCount),
+    }));
+
+    const width = canvas.offsetWidth * 2;
+
+    const destroy = createGlobe(canvas, {
+        devicePixelRatio: 2,
+        width,
+        height: width,
+        phi: 0,
+        theta,
+        dark: 0,
+        diffuse: 2,
+        mapSamples: 16000,
+        mapBrightness: 1.5,
+        baseColor: [0.545, 0.451, 0.333],   // #8B7355 内蕴金 (Metal/Earth gold)
+        markerColor: [0.94, 0.90, 0.83],    // #F0E6D3 Warm Ivory
+        glowColor: [0.545, 0.451, 0.333],   // gold glow
+        markers,
+        onRender: (state: CobeState) => {
+            state.phi = phi;
+            state.theta = theta;
+            if (!pointerDown) phi += 0.003;
+        },
+    });
+
+    return destroy;
+}
+
+// --- Country list + stats ---
+
+const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+
+function renderCountryList(data: GeoData): void {
+    const listEl = document.getElementById('country-list');
+    const countEl = document.getElementById('geo-country-count');
+    const totalEl = document.getElementById('geo-total-views');
+    if (!listEl) return;
+
+    const entries = Object.entries(data.summary)
+        .filter(([cc]) => validCountryCode(cc))
+        .sort(([, a], [, b]) => b - a);
+
+    const totalViews = entries.reduce((sum, [, c]) => sum + c, 0);
+
+    // Stats
+    if (countEl) countEl.textContent = String(entries.length);
+    if (totalEl) totalEl.textContent = totalViews.toLocaleString();
+
+    // Country list — ordered list (no innerHTML)
+    listEl.textContent = '';
+    for (const [cc, count] of entries) {
+        const item = document.createElement('li');
+        item.className = 'country-list__item';
+
+        const flagSpan = document.createElement('span');
+        flagSpan.className = 'country-list__flag';
+        flagSpan.textContent = countryToFlag(cc);
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'country-list__name';
+        try {
+            nameSpan.textContent = displayNames.of(cc) || cc;
+        } catch {
+            nameSpan.textContent = cc;
+        }
+
+        const countSpan = document.createElement('span');
+        countSpan.className = 'country-list__count';
+        countSpan.textContent = count.toLocaleString();
+
+        item.appendChild(flagSpan);
+        item.appendChild(nameSpan);
+        item.appendChild(countSpan);
+        listEl.appendChild(item);
+    }
+}
+
+// --- Init ---
+
+async function init(): Promise<void> {
+    const canvas = document.getElementById('cobe-globe') as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    let data: GeoData | null = null;
+
+    if (isDev) {
+        data = getDevData();
+    } else {
+        data = getCached();
+        if (!data) {
+            data = await fetchGeoData();
+            if (data) setCache(data);
+        }
+    }
+
+    if (!data) return;
+
+    renderCountryList(data);
+    setupDragOnce(canvas);
+    let destroy = await renderGlobe(canvas, data);
+
+    // Pause animation when tab is hidden, resume when visible
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            destroy();
+        } else {
+            renderGlobe(canvas, data!).then(d => { destroy = d; });
+        }
+    });
 }
 
 if (document.readyState === 'loading') {

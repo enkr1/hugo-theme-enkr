@@ -16,10 +16,7 @@
     <script type="module" src="{{ $visitorCountScript.RelPermalink }}"></script>
 {{- end -}}
 
-{{- with resources.Get "ts/visitor-map.ts" -}}
-    {{- $visitorMapScript := . | js.Build $opts | fingerprint -}}
-    <script type="module" src="{{ $visitorMapScript.RelPermalink }}"></script>
-{{- end -}}
+{{/* visitor-map.ts loaded only on /visitors/ page — see layouts/page/visitors.html */}}
 
 {{- with resources.Get "ts/auth-entry.ts" -}}
     {{- $authScript := . | js.Build (dict "minify" hugo.IsProduction "target" "es2020") | fingerprint -}}
