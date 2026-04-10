@@ -99,6 +99,21 @@ export function rateLimit(key: string, intervalMs: number): boolean {
     return true;
 }
 
+// ─── Panel Minimized State (localStorage, persists across sessions) ──
+const MINIMIZED_KEY = 'ic-panel-minimized';
+
+export function getMinimizedState(): boolean {
+    try {
+        return localStorage.getItem(MINIMIZED_KEY) === 'true';
+    } catch { return false; }
+}
+
+export function setMinimizedState(val: boolean): void {
+    try {
+        localStorage.setItem(MINIMIZED_KEY, String(val));
+    } catch { /* unavailable */ }
+}
+
 // ─── Comments Cache (sessionStorage, stale-while-revalidate) ────
 const CACHE_PREFIX = 'ic-cache-';
 

@@ -9,7 +9,7 @@ import { createComment, createReply, toggleLike, toggleReplyLike, deleteComment,
 import { anchorComment, removeHighlight } from './anchoring';
 import { initSelection } from './selection';
 import type { CapturedSelection } from './selection';
-import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS } from './utils';
+import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS, getMinimizedState, setMinimizedState } from './utils';
 import { initPositioning, repositionCards, setComposerTargetTop } from './positioning';
 
 // ─── SVG Icon Factory (Tabler-style, no innerHTML) ──────────────
@@ -67,6 +67,7 @@ let focusedCommentId: string | null = null;
 let currentUser: AuthUser | null = null;
 let composerData: { quotedText: string; anchor: { prefix: string; suffix: string }; selectionTop: number } | null = null;
 let pendingReply: { commentId: string; text: string } | null = null;
+let minimized = false;
 
 // ─── DOM References ──────────────────────────────────────────────
 let panelEl: HTMLElement | null = null;
@@ -78,6 +79,9 @@ let articleEl: HTMLElement | null = null;
 let cleanupSelection: (() => void) | null = null;
 let cleanupPositioning: (() => void) | null = null;
 let cleanupAuth: (() => void) | null = null;
+let pillEl: HTMLElement | null = null;
+let pillCountEl: HTMLElement | null = null;
+let rootElRef: HTMLElement | null = null;
 const anchoredIds = new Set<string>();
 
 // ─── Optimistic Mutations (instant UI, background write) ────────
@@ -215,7 +219,11 @@ export function destroyUI(): void {
     cleanupPositioning?.();
     cleanupAuth?.();
     panelEl?.remove();
+    pillEl?.remove();
     panelEl = null;
+    pillEl = null;
+    pillCountEl = null;
+    rootElRef = null;
     anchoredIds.clear();
 }
 
@@ -232,6 +240,10 @@ function buildPanel(rootEl: HTMLElement): void {
     badgeEl.textContent = '0';
     title.appendChild(badgeEl);
     header.appendChild(title);
+    const minimizeBtn = el('button', 'ic-panel-minimize', { 'aria-label': 'Minimize comments', 'title': 'Minimize' });
+    minimizeBtn.textContent = '\u2212';
+    minimizeBtn.addEventListener('click', () => toggleMinimize());
+    header.appendChild(minimizeBtn);
     panelEl.appendChild(header);
 
     // Body (scrollable, position: relative for absolute card positioning)
@@ -247,6 +259,37 @@ function buildPanel(rootEl: HTMLElement): void {
 
     panelEl.appendChild(panelBodyEl);
     rootEl.appendChild(panelEl);
+
+    // Floating pill (visible when panel is minimized)
+    pillEl = el('button', 'ic-floating-pill', { 'aria-label': 'Show comments' });
+    const pillIcon = el('span', 'ic-pill-icon');
+    pillIcon.textContent = '\uD83D\uDCAC';
+    pillEl.appendChild(pillIcon);
+    const pillText = el('span', 'ic-pill-text');
+    pillText.textContent = 'Comments';
+    pillEl.appendChild(pillText);
+    pillCountEl = el('span', 'ic-pill-count');
+    pillCountEl.textContent = '0';
+    pillEl.appendChild(pillCountEl);
+    pillEl.addEventListener('click', () => toggleMinimize());
+    document.body.appendChild(pillEl);
+
+    // Restore minimized state from localStorage
+    rootElRef = rootEl;
+    minimized = getMinimizedState();
+    if (minimized) applyMinimizedState(true);
+}
+
+function toggleMinimize(): void {
+    minimized = !minimized;
+    setMinimizedState(minimized);
+    applyMinimizedState(minimized);
+}
+
+function applyMinimizedState(isMinimized: boolean): void {
+    if (!rootElRef || !pillEl) return;
+    rootElRef.classList.toggle('ic-minimized', isMinimized);
+    pillEl.classList.toggle('ic-pill--visible', isMinimized);
 }
 
 // ─── Rendering ───────────────────────────────────────────────────
@@ -259,8 +302,9 @@ function renderAll(): void {
     const activeReplyFor = activeInput?.dataset.replyFor ?? null;
     const activeReplyValue = activeInput?.value ?? '';
 
-    // Update badge
+    // Update badge + floating pill count
     badgeEl.textContent = String(comments.length);
+    if (pillCountEl) pillCountEl.textContent = String(comments.length);
 
     // Clear and re-render comments
     commentsListEl.textContent = '';
@@ -1067,6 +1111,12 @@ function buildEmptyState(): HTMLElement {
 // ─── Navigation & Focus ──────────────────────────────────────────
 
 export function focusComment(commentId: string): void {
+    // Auto-expand panel if minimized
+    if (minimized) {
+        minimized = false;
+        setMinimizedState(false);
+        applyMinimizedState(false);
+    }
     focusedCommentId = commentId;
 
     // Toggle card focus class (no full rebuild)

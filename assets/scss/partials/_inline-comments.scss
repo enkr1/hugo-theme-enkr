@@ -763,6 +763,103 @@ mark.inline-comment-hl {
     }
 }
 
+// ─── Panel Minimize (Pattern B — full hide + floating pill) ─────
+
+.ic-panel-minimize {
+    background: none;
+    border: none;
+    padding: 4px 10px;
+    color: var(--card-text-color-secondary, #666);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    border-radius: 4px;
+    font-family: inherit;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.06);
+        color: var(--card-text-color-main, #333);
+    }
+}
+
+// Collapse sidebar when panel is minimized
+.article-page--toc-left .right-sidebar:has(#inline-comments-root.ic-minimized) {
+    display: none !important;
+}
+
+// Floating pill (bottom-right, gold Ba Zi accent)
+.ic-floating-pill {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--gold, #8B7355);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-family: var(--font-body, inherit);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(139, 115, 85, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: scale(0.85) translateY(1rem);
+    pointer-events: none;
+    transition: opacity 0.25s ease,
+                transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1),
+                background 0.15s ease;
+    z-index: 100;
+
+    &.ic-pill--visible {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        pointer-events: auto;
+    }
+
+    &:hover {
+        background: #76614a;
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    @media (max-width: 1023px) {
+        display: none !important;
+    }
+}
+
+.ic-pill-icon {
+    font-size: 1rem;
+}
+
+.ic-pill-count {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+}
+
+// ─── Print Mode ─────────────────────────────────────────────────
+
+@media print {
+    .inline-comment-popup,
+    .ic-floating-pill,
+    .right-sidebar:has(#inline-comments-root) {
+        display: none !important;
+    }
+
+    mark.inline-comment-hl {
+        background: none;
+        border-bottom: none;
+    }
+}
+
 // ─── Reduced Motion ─────────────────────────────────────────────
 
 @media (prefers-reduced-motion: reduce) {
