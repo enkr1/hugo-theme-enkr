@@ -850,7 +850,7 @@ mark.inline-comment-hl {
 @media print {
     .inline-comment-popup,
     .ic-floating-pill,
-    .right-sidebar:has(#inline-comments-root) {
+    .article-page--toc-left .right-sidebar:has(#inline-comments-root) {
         display: none !important;
     }
 
