@@ -788,24 +788,24 @@ mark.inline-comment-hl {
     display: none !important;
 }
 
-// Floating pill (bottom-right, gold Ba Zi accent)
+// Floating pill (bottom-right, above .scroll-to-top which is at bottom:2rem + 48px)
 .ic-floating-pill {
     position: fixed;
-    bottom: 2rem;
+    bottom: 8rem;   // clears scroll-to-top button (2rem + 48px + gap)
     right: 2rem;
-    padding: 0.75rem 1.25rem;
+    padding: 1rem 1.6rem;
     background: var(--gold, #8B7355);
     color: #fff;
     border: none;
     border-radius: 999px;
     font-family: var(--font-body, inherit);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm, 1.4rem);
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 20px rgba(139, 115, 85, 0.3);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.8rem;
     opacity: 0;
     transform: scale(0.85) translateY(1rem);
     pointer-events: none;
@@ -835,14 +835,14 @@ mark.inline-comment-hl {
 }
 
 .ic-pill-icon {
-    font-size: 1rem;
+    font-size: var(--font-size-base, 1.6rem);
 }
 
 .ic-pill-count {
     background: rgba(255, 255, 255, 0.25);
-    padding: 0.1rem 0.5rem;
+    padding: 0.2rem 0.6rem;
     border-radius: 10px;
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs, 1.2rem);
 }
 
 // ─── Print Mode ─────────────────────────────────────────────────
