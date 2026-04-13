@@ -90,6 +90,23 @@ export function text(content: string): Text {
     return document.createTextNode(content);
 }
 
+const URL_RE = /https?:\/\/[^\s<>)"']+/g;
+
+/** Append text to a container, auto-linking URLs as <a> elements */
+export function appendLinkedText(container: HTMLElement, str: string): void {
+    let lastIndex = 0;
+    for (const match of str.matchAll(URL_RE)) {
+        const url = match[0]!;
+        const idx = match.index!;
+        if (idx > lastIndex) container.appendChild(text(str.substring(lastIndex, idx)));
+        const a = el('a', 'ic-autolink', { href: url, target: '_blank', rel: 'noopener noreferrer' });
+        a.textContent = url;
+        container.appendChild(a);
+        lastIndex = idx + url.length;
+    }
+    if (lastIndex < str.length) container.appendChild(text(str.substring(lastIndex)));
+}
+
 /** Rate limit: returns true if action is allowed */
 const rateLimits = new Map<string, number>();
 export function rateLimit(key: string, intervalMs: number): boolean {

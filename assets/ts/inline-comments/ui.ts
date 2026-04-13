@@ -9,7 +9,7 @@ import { createComment, createReply, toggleLike, toggleReplyLike, deleteComment,
 import { anchorComment, removeHighlight } from './anchoring';
 import { initSelection } from './selection';
 import type { CapturedSelection } from './selection';
-import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS, getMinimizedState, setMinimizedState } from './utils';
+import { el, text, timeAgo, truncate, avatarGradient, initials, rateLimit, appendLinkedText, HIGHLIGHT_CLASS, CARD_FOCUSED_CLASS, getMinimizedState, setMinimizedState } from './utils';
 import { initPositioning, repositionCards, setComposerTargetTop } from './positioning';
 
 // ─── SVG Icon Factory (Tabler-style, no innerHTML) ──────────────
@@ -460,9 +460,9 @@ function buildCommentEntry(
     meta.appendChild(actions);
     content.appendChild(meta);
 
-    // Text
+    // Text (auto-links URLs)
     const textEl = el('div', 'ic-entry-text');
-    textEl.textContent = bodyText;
+    appendLinkedText(textEl, bodyText);
     content.appendChild(textEl);
 
     // Likers list (Lark-style: 👍 Name1, Name2, ...)
@@ -631,7 +631,7 @@ function renderTextWithMentions(
     mentions: Array<{ uid: string; displayName: string }>,
 ): void {
     if (!mentions.length) {
-        container.textContent = bodyText;
+        appendLinkedText(container, bodyText);
         return;
     }
 
@@ -641,9 +641,9 @@ function renderTextWithMentions(
         const idx = remaining.indexOf(pattern);
         if (idx === -1) continue;
 
-        // Text before mention
+        // Text before mention (with auto-linked URLs)
         if (idx > 0) {
-            container.appendChild(text(remaining.substring(0, idx)));
+            appendLinkedText(container, remaining.substring(0, idx));
         }
 
         // Mention pill
@@ -654,9 +654,9 @@ function renderTextWithMentions(
         remaining = remaining.substring(idx + pattern.length);
     }
 
-    // Remaining text after last mention
+    // Remaining text after last mention (with auto-linked URLs)
     if (remaining) {
-        container.appendChild(text(remaining));
+        appendLinkedText(container, remaining);
     }
 }
 
@@ -1064,6 +1064,13 @@ function cancelCompose(): void {
 async function onSelectionComment(captured: CapturedSelection): Promise<void> {
     // Selection data was pre-captured when the popup appeared (not on click)
     // so it's always valid even if the browser selection was cleared
+
+    // Auto-expand panel if minimized
+    if (minimized) {
+        minimized = false;
+        setMinimizedState(false);
+        applyMinimizedState(false);
+    }
 
     // Ensure signed in
     if (!currentUser) {

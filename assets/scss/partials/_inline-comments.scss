@@ -364,6 +364,15 @@ mark.inline-comment-hl {
     line-height: 1.5;
     color: var(--card-text-color-main, #1f1f1f);
     word-wrap: break-word;
+
+    .ic-autolink {
+        color: var(--water, #1e4b8c);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        word-break: break-all;
+
+        &:hover { opacity: 0.8; }
+    }
 }
 
 // Hover actions — inline in meta row (Lark-style)
@@ -845,11 +854,236 @@ mark.inline-comment-hl {
     font-size: var(--font-size-xs, 1.2rem);
 }
 
+// ─── Mobile FAB (Comment count button) ──────────────────────────
+
+.ic-mobile-fab {
+    position: fixed;
+    bottom: 8rem;          // above scroll-to-top (2rem + 48px + gap)
+    right: 2rem;
+    z-index: 999;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--gold, #8B7355);
+    color: #fff;
+    border: none;
+    display: none;         // hidden on desktop
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(139, 115, 85, 0.3);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+
+    @media (max-width: 1023px) {
+        display: flex;
+    }
+
+    // Bottom-nav clearance
+    @media (max-width: 768px) {
+        bottom: calc(72px + 1.25rem + 48px + 12px); // above scroll-to-top above bottom-nav
+        right: 1.25rem;
+    }
+    @media (max-width: 640px) {
+        bottom: calc(64px + 1.25rem + 44px + 12px);
+        right: 1.25rem;
+        width: 44px;
+        height: 44px;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.ic-mobile-fab-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    background: var(--comment-accent-blue, #2563EB);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--body-background, #fff);
+}
+
+// ─── Mobile Bottom Sheet ────────────────────────────────────────
+
+.ic-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease;
+    display: none;         // hidden on desktop
+
+    @media (max-width: 1023px) {
+        display: block;
+    }
+
+    &.active {
+        pointer-events: auto;
+        opacity: 1;
+
+        .ic-mobile-sheet {
+            transform: translateY(0);
+        }
+    }
+}
+
+.ic-mobile-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.ic-mobile-sheet {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 75vh;
+    background: var(--card-background);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ic-mobile-sheet-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--card-separator-color, #e0e0e0);
+    background: linear-gradient(135deg,
+        rgba(139, 115, 85, 0.08) 0%,
+        rgba(139, 115, 85, 0.04) 100%
+    );
+    flex-shrink: 0;
+
+    // Drag handle
+    &::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 4px;
+        background: var(--card-separator-color, #ccc);
+        border-radius: 2px;
+    }
+}
+
+.ic-mobile-sheet-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--gold, #8B7355);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ic-mobile-sheet-close {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--card-separator-color, #e0e0e0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 150ms ease, background 150ms ease, border-color 150ms ease;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--body-text-color);
+        transition: stroke 150ms ease;
+    }
+
+    &:active {
+        transform: translateY(-50%) scale(0.95);
+        border-color: var(--gold);
+
+        svg {
+            stroke: var(--gold);
+        }
+    }
+}
+
+.ic-mobile-sheet-body {
+    padding: 1rem 1.5rem 2rem;
+    overflow-y: auto;
+    flex-grow: 1;
+    -webkit-overflow-scrolling: touch;
+
+    // Override desktop absolute positioning for cards inside sheet
+    .ic-card {
+        position: static !important;
+        top: auto !important;
+        margin: 0.8rem 0;
+    }
+
+    .ic-composer {
+        position: static !important;
+        top: auto !important;
+        margin-bottom: 1rem;
+    }
+
+    // Always show entry actions (no hover gate on mobile)
+    .ic-entry-actions {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.ic-mobile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    color: var(--gold, #8B7355);
+    font-size: 1.3rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    margin-bottom: 0.8rem;
+
+    &:active {
+        opacity: 0.7;
+    }
+}
+
 // ─── Print Mode ─────────────────────────────────────────────────
 
 @media print {
     .inline-comment-popup,
     .ic-floating-pill,
+    .ic-mobile-fab,
+    .ic-mobile-overlay,
     .article-page--toc-left .right-sidebar:has(#inline-comments-root) {
         display: none !important;
     }
@@ -871,6 +1105,8 @@ mark.inline-comment-hl {
     .ic-composer-textarea,
     .ic-signin-btn,
     .inline-comment-popup,
+    .ic-mobile-sheet,
+    .ic-mobile-overlay,
     mark.inline-comment-hl {
         transition: none;
     }
