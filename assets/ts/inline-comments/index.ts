@@ -2,6 +2,7 @@
  * Inline Comments — Entry Point
  *
  * Flow: subscribe to comments immediately (guests can read) → prompt sign-in only for writes.
+ * Supports desktop sidebar panel + mobile bottom sheet.
  */
 import { subscribeComments } from './store';
 import { initUI, updateComments, destroyUI, focusComment } from './ui';

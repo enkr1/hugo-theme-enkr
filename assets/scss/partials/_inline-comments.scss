@@ -344,6 +344,7 @@ mark.inline-comment-hl {
 .ic-entry-meta {
     display: flex;
     align-items: center;
+    flex-wrap: nowrap;
     gap: 0.3em;
     margin-bottom: 0;
 }
@@ -352,11 +353,17 @@ mark.inline-comment-hl {
     font-size: 0.85em;
     font-weight: 600;
     color: var(--card-text-color-main, #1f1f1f);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 .ic-timestamp {
     font-size: 0.72em;
     color: var(--card-text-color-secondary, #8f959e);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .ic-entry-text {
@@ -380,6 +387,7 @@ mark.inline-comment-hl {
     display: flex;
     margin-left: auto;
     gap: 0.1em;
+    flex-shrink: 0;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s ease;

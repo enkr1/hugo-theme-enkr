@@ -49,6 +49,22 @@ function createPopup(): HTMLElement {
         e.stopPropagation();
     });
 
+    // Prevent touch from dismissing popup or losing selection
+    el.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false } as AddEventListenerOptions);
+
+    el.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        hidePopup();
+        if (pendingCapture && onAddComment) {
+            onAddComment(pendingCapture);
+        }
+        pendingCapture = null;
+    }, { passive: false } as AddEventListenerOptions);
+
     el.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -65,7 +81,7 @@ function createPopup(): HTMLElement {
     return el;
 }
 
-/** Show the popup below the current selection */
+/** Show the popup near the current selection */
 function showPopup(rect: DOMRect): void {
     if (!popup) popup = createPopup();
 
@@ -75,11 +91,14 @@ function showPopup(rect: DOMRect): void {
     popup.style.display = 'flex';
     popup.style.zIndex = '1000';
 
-    const popupWidth = popup.getBoundingClientRect().width;
+    const popupRect = popup.getBoundingClientRect();
+    const left = rect.left + rect.width / 2 - popupRect.width / 2;
 
-    // Position BELOW the selection (avoids AI suggestion popups that appear above)
-    const left = rect.left + rect.width / 2 - popupWidth / 2;
-    const top = rect.bottom + 8;
+    // On mobile, position ABOVE selection to avoid OS selection handles
+    const isMobile = window.innerWidth <= 1023;
+    const top = isMobile
+        ? rect.top - popupRect.height - 8
+        : rect.bottom + 8;
 
     popup.style.left = `${Math.max(8, left)}px`;
     popup.style.top = `${Math.max(8, top)}px`;
@@ -166,12 +185,57 @@ export function initSelection(
         pendingCapture = null;
     }
 
+    // Touch: detect selection after long-press on mobile
+    function handleTouchEnd(): void {
+        // Same logic as handleMouseUp — delay to let selection settle
+        setTimeout(() => {
+            const sel = window.getSelection();
+            if (!sel || sel.isCollapsed || !sel.toString().trim()) {
+                hidePopup();
+                pendingCapture = null;
+                return;
+            }
+
+            const range = sel.getRangeAt(0);
+            if (!articleEl.contains(range.commonAncestorContainer)) {
+                hidePopup();
+                pendingCapture = null;
+                return;
+            }
+
+            if (isInsideExcluded(range.startContainer) || isInsideExcluded(range.endContainer)) {
+                hidePopup();
+                pendingCapture = null;
+                return;
+            }
+
+            pendingCapture = captureFromSelection(articleEl);
+            if (!pendingCapture) { hidePopup(); return; }
+
+            const rect = range.getBoundingClientRect();
+            pendingCapture.selectionTop = rect.top;
+            showPopup(rect);
+        }, 10);
+    }
+
+    function handleTouchStart(e: TouchEvent): void {
+        if (popup && popup.contains(e.target as Node)) return;
+        if ((e.target as HTMLElement).closest?.('#inline-comments-root')) return;
+        if ((e.target as HTMLElement).closest?.('.ic-mobile-overlay')) return;
+        hidePopup();
+        pendingCapture = null;
+    }
+
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('touchend', handleTouchEnd, { passive: true } as AddEventListenerOptions);
+    document.addEventListener('touchstart', handleTouchStart, { passive: true } as AddEventListenerOptions);
 
     return () => {
         document.removeEventListener('mouseup', handleMouseUp);
         document.removeEventListener('mousedown', handleMouseDown);
+        document.removeEventListener('touchend', handleTouchEnd);
+        document.removeEventListener('touchstart', handleTouchStart);
         hidePopup();
         if (popup) {
             popup.remove();

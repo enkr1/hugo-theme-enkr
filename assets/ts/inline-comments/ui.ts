@@ -68,6 +68,7 @@ let currentUser: AuthUser | null = null;
 let composerData: { quotedText: string; anchor: { prefix: string; suffix: string }; selectionTop: number } | null = null;
 let pendingReply: { commentId: string; text: string } | null = null;
 let minimized = false;
+let isMobileView = false;
 
 // ─── DOM References ──────────────────────────────────────────────
 let panelEl: HTMLElement | null = null;
@@ -83,6 +84,16 @@ let pillEl: HTMLElement | null = null;
 let pillCountEl: HTMLElement | null = null;
 let rootElRef: HTMLElement | null = null;
 const anchoredIds = new Set<string>();
+
+// ─── Mobile DOM References ──────────────────────────────────────
+let mobileOverlayEl: HTMLElement | null = null;
+let mobileSheetBodyEl: HTMLElement | null = null;
+let mobileFabEl: HTMLElement | null = null;
+let mobileBadgeEl: HTMLElement | null = null;
+
+function checkMobile(): boolean {
+    return window.innerWidth <= 1023;
+}
 
 // ─── Optimistic Mutations (instant UI, background write) ────────
 
@@ -146,6 +157,21 @@ function optimisticRemoveReply(commentId: string, replyId: string): void {
 export function initUI(rootEl: HTMLElement, articleContentEl: HTMLElement): void {
     articleEl = articleContentEl;
     buildPanel(rootEl);
+
+    // Mobile UI (appended to body, outside hidden sidebar)
+    isMobileView = checkMobile();
+    buildMobileFab();
+    buildMobileSheet();
+
+    // Toggle mobile/desktop on resize
+    window.addEventListener('resize', () => {
+        const wasMobile = isMobileView;
+        isMobileView = checkMobile();
+        if (wasMobile !== isMobileView) {
+            if (wasMobile) closeMobileSheet(); // closing sheet when switching to desktop
+            renderAll();
+        }
+    });
 
     // Listen for auth state changes (store unsubscribe for cleanup)
     cleanupAuth = getAuth().onAuthStateChange((user) => {
@@ -220,10 +246,16 @@ export function destroyUI(): void {
     cleanupAuth?.();
     panelEl?.remove();
     pillEl?.remove();
+    mobileOverlayEl?.remove();
+    mobileFabEl?.remove();
     panelEl = null;
     pillEl = null;
     pillCountEl = null;
     rootElRef = null;
+    mobileOverlayEl = null;
+    mobileSheetBodyEl = null;
+    mobileFabEl = null;
+    mobileBadgeEl = null;
     anchoredIds.clear();
 }
 
@@ -292,6 +324,145 @@ function applyMinimizedState(isMinimized: boolean): void {
     pillEl.classList.toggle('ic-pill--visible', isMinimized);
 }
 
+// ─── Mobile Bottom Sheet ────────────────────────────────────────
+
+function buildMobileFab(): void {
+    mobileFabEl = el('button', 'ic-mobile-fab', { 'aria-label': 'Comments' });
+    mobileFabEl.appendChild(svgIcon(20, ICON.chatEmpty));
+    mobileBadgeEl = el('span', 'ic-mobile-fab-badge');
+    mobileBadgeEl.textContent = '0';
+    mobileBadgeEl.style.display = 'none'; // hidden when 0 comments
+    mobileFabEl.appendChild(mobileBadgeEl);
+    mobileFabEl.addEventListener('click', () => openMobileSheet());
+    document.body.appendChild(mobileFabEl);
+}
+
+function buildMobileSheet(): void {
+    mobileOverlayEl = el('div', 'ic-mobile-overlay');
+
+    const backdrop = el('div', 'ic-mobile-backdrop');
+    backdrop.addEventListener('click', closeMobileSheet);
+    mobileOverlayEl.appendChild(backdrop);
+
+    const sheet = el('div', 'ic-mobile-sheet');
+
+    // Header with drag handle (via CSS ::before)
+    const header = el('div', 'ic-mobile-sheet-header');
+    const title = el('span', 'ic-mobile-sheet-title');
+    title.textContent = 'Comments';
+    header.appendChild(title);
+
+    const closeBtn = el('button', 'ic-mobile-sheet-close', { 'aria-label': 'Close' });
+    const closeSvg = document.createElementNS(SVG_NS, 'svg');
+    closeSvg.setAttribute('viewBox', '0 0 24 24');
+    closeSvg.setAttribute('width', '16');
+    closeSvg.setAttribute('height', '16');
+    closeSvg.setAttribute('stroke', 'currentColor');
+    closeSvg.setAttribute('stroke-width', '2');
+    closeSvg.setAttribute('fill', 'none');
+    const closePath = document.createElementNS(SVG_NS, 'path');
+    closePath.setAttribute('d', 'M18 6L6 18M6 6l12 12');
+    closeSvg.appendChild(closePath);
+    closeBtn.appendChild(closeSvg);
+    closeBtn.addEventListener('click', closeMobileSheet);
+    header.appendChild(closeBtn);
+
+    sheet.appendChild(header);
+
+    // Scrollable body
+    mobileSheetBodyEl = el('div', 'ic-mobile-sheet-body');
+    sheet.appendChild(mobileSheetBodyEl);
+
+    mobileOverlayEl.appendChild(sheet);
+    document.body.appendChild(mobileOverlayEl);
+
+    // ESC to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileOverlayEl?.classList.contains('active')) {
+            closeMobileSheet();
+        }
+    });
+}
+
+function openMobileSheet(focusCommentId?: string): void {
+    if (!mobileOverlayEl) return;
+    focusedCommentId = focusCommentId ?? null;
+    renderMobileSheet();
+    mobileOverlayEl.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMobileSheet(): void {
+    if (!mobileOverlayEl) return;
+    mobileOverlayEl.classList.remove('active');
+    document.body.style.overflow = '';
+    focusedCommentId = null;
+    // Clear composer if open
+    if (composerData) {
+        composerData = null;
+        setComposerTargetTop(null);
+    }
+}
+
+function renderMobileSheet(): void {
+    if (!mobileSheetBodyEl) return;
+    mobileSheetBodyEl.textContent = '';
+
+    // Show composer if composerData is set
+    if (composerData) {
+        const mobileComposer = buildMobileComposer();
+        mobileSheetBodyEl.appendChild(mobileComposer);
+        return;
+    }
+
+    if (!commentsLoaded) {
+        mobileSheetBodyEl.appendChild(buildLoadingState());
+        return;
+    }
+
+    if (comments.length === 0) {
+        mobileSheetBodyEl.appendChild(buildEmptyState());
+        return;
+    }
+
+    // If focused on a specific comment, show just that card with back link
+    if (focusedCommentId) {
+        const comment = comments.find(c => c.id === focusedCommentId);
+        if (comment) {
+            if (comments.length > 1) {
+                const backBtn = el('button', 'ic-mobile-back');
+                backBtn.textContent = '\u2190 All comments';
+                backBtn.addEventListener('click', () => {
+                    focusedCommentId = null;
+                    renderMobileSheet();
+                });
+                mobileSheetBodyEl.appendChild(backBtn);
+            }
+            mobileSheetBodyEl.appendChild(buildCommentCard(comment));
+        }
+        return;
+    }
+
+    // Show all comment cards
+    for (const comment of comments) {
+        mobileSheetBodyEl.appendChild(buildCommentCard(comment));
+    }
+}
+
+/** Build a composer for the mobile sheet, reusing shared renderComposerInto */
+function buildMobileComposer(): HTMLElement {
+    const wrapper = el('div', 'ic-composer');
+    wrapper.style.display = 'block';
+    renderComposerInto(wrapper, cancelMobileCompose);
+    return wrapper;
+}
+
+function cancelMobileCompose(): void {
+    composerData = null;
+    setComposerTargetTop(null);
+    renderMobileSheet();
+}
+
 // ─── Rendering ───────────────────────────────────────────────────
 
 function renderAll(): void {
@@ -339,6 +510,17 @@ function renderAll(): void {
 
     // Reposition cards + composer to match highlight Y-offsets
     repositionCards();
+
+    // Update mobile FAB badge
+    if (mobileBadgeEl) {
+        mobileBadgeEl.textContent = String(comments.length);
+        mobileBadgeEl.style.display = comments.length > 0 ? 'flex' : 'none';
+    }
+
+    // Re-render mobile sheet if open
+    if (mobileOverlayEl?.classList.contains('active')) {
+        renderMobileSheet();
+    }
 }
 
 // ─── Comment Card ────────────────────────────────────────────────
@@ -971,9 +1153,10 @@ function buildComposer(): HTMLElement {
     return composer;
 }
 
-function renderComposer(): void {
-    if (!composerEl || !composerData) return;
-    composerEl.textContent = '';
+/** Render composer UI into a container. Accepts onCancel for context-specific cleanup. */
+function renderComposerInto(container: HTMLElement, onCancel: () => void): void {
+    if (!composerData) return;
+    container.textContent = '';
 
     // Header with quoted text
     const header = el('div', 'ic-card-header');
@@ -982,7 +1165,7 @@ function renderComposer(): void {
     quotedText.textContent = truncate(composerData.quotedText, 60);
     quotedBar.appendChild(quotedText);
     header.appendChild(quotedBar);
-    composerEl.appendChild(header);
+    container.appendChild(header);
 
     // Author row
     if (currentUser) {
@@ -991,7 +1174,7 @@ function renderComposer(): void {
         const name = el('span', 'ic-author-name');
         name.textContent = currentUser.displayName;
         authorRow.appendChild(name);
-        composerEl.appendChild(authorRow);
+        container.appendChild(authorRow);
     }
 
     // Textarea
@@ -1007,7 +1190,7 @@ function renderComposer(): void {
     const cancelBtn = document.createElement('button');
     cancelBtn.className = 'ic-btn ic-btn--ghost';
     cancelBtn.textContent = 'Cancel';
-    cancelBtn.addEventListener('click', cancelCompose);
+    cancelBtn.addEventListener('click', onCancel);
     footer.appendChild(cancelBtn);
 
     const submitBtn = document.createElement('button');
@@ -1034,8 +1217,8 @@ function renderComposer(): void {
             anchor: composerData.anchor,
         };
 
-        // Optimistic: hide composer immediately before network call
-        cancelCompose();
+        // Clear composer state before network call
+        onCancel();
 
         try {
             await createComment(payload, currentUser);
@@ -1046,10 +1229,16 @@ function renderComposer(): void {
 
     footer.appendChild(submitBtn);
     body.appendChild(footer);
-    composerEl.appendChild(body);
+    container.appendChild(body);
 
     // Auto-focus
     setTimeout(() => textarea.focus(), 50);
+}
+
+/** Desktop convenience wrapper */
+function renderComposer(): void {
+    if (!composerEl) return;
+    renderComposerInto(composerEl, cancelCompose);
 }
 
 function cancelCompose(): void {
@@ -1065,13 +1254,6 @@ async function onSelectionComment(captured: CapturedSelection): Promise<void> {
     // Selection data was pre-captured when the popup appeared (not on click)
     // so it's always valid even if the browser selection was cleared
 
-    // Auto-expand panel if minimized
-    if (minimized) {
-        minimized = false;
-        setMinimizedState(false);
-        applyMinimizedState(false);
-    }
-
     // Ensure signed in
     if (!currentUser) {
         await getAuth().signIn();
@@ -1080,8 +1262,22 @@ async function onSelectionComment(captured: CapturedSelection): Promise<void> {
         return;
     }
 
-    // Open composer with pre-captured data, positioned at selection Y
     composerData = captured;
+
+    // Mobile: open bottom sheet with composer
+    if (isMobileView) {
+        openMobileSheet();
+        return;
+    }
+
+    // Desktop: auto-expand panel if minimized
+    if (minimized) {
+        minimized = false;
+        setMinimizedState(false);
+        applyMinimizedState(false);
+    }
+
+    // Open composer with pre-captured data, positioned at selection Y
     setComposerTargetTop(captured.selectionTop);
     if (composerEl) {
         composerEl.style.display = 'block';
@@ -1118,13 +1314,25 @@ function buildEmptyState(): HTMLElement {
 // ─── Navigation & Focus ──────────────────────────────────────────
 
 export function focusComment(commentId: string): void {
-    // Auto-expand panel if minimized
+    focusedCommentId = commentId;
+
+    // Highlight the mark in the article
+    document.querySelectorAll(`mark.${HIGHLIGHT_CLASS}.active`).forEach(m => m.classList.remove('active'));
+    const marks = document.querySelectorAll(`mark.${HIGHLIGHT_CLASS}[data-comment-id="${commentId}"]`);
+    marks.forEach(m => m.classList.add('active'));
+
+    // Mobile: open bottom sheet focused on this comment
+    if (isMobileView) {
+        openMobileSheet(commentId);
+        return;
+    }
+
+    // Desktop: auto-expand panel if minimized
     if (minimized) {
         minimized = false;
         setMinimizedState(false);
         applyMinimizedState(false);
     }
-    focusedCommentId = commentId;
 
     // Toggle card focus class (no full rebuild)
     panelBodyEl?.querySelector(`.${CARD_FOCUSED_CLASS}`)?.classList.remove(CARD_FOCUSED_CLASS);
@@ -1132,13 +1340,8 @@ export function focusComment(commentId: string): void {
     card?.classList.add(CARD_FOCUSED_CLASS);
     card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-    // Toggle highlight active class
-    document.querySelectorAll(`mark.${HIGHLIGHT_CLASS}.active`).forEach(m => m.classList.remove('active'));
-    const marks = document.querySelectorAll(`mark.${HIGHLIGHT_CLASS}[data-comment-id="${commentId}"]`);
-    marks.forEach(m => {
-        m.classList.add('active');
-        m.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+    // Scroll article to highlight
+    marks.forEach(m => m.scrollIntoView({ behavior: 'smooth', block: 'center' }));
 }
 
 function unfocusAll(): void {
