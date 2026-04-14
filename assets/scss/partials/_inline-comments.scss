@@ -95,15 +95,23 @@ mark.inline-comment-hl {
 // Required clearance: toolbar-left(1.5rem) + toolbar-width(5.2rem) + gap(1rem) ≈ 7.7rem
 
 // Step 1: Force right sidebar visible (fights !important from floating-layout)
+// Start hidden until JS adds .ic-ready, preventing FOUC while scripts load
 .article-page--toc-left .right-sidebar:has(#inline-comments-root) {
-    display: flex !important;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    flex-shrink: 0;
-    padding: var(--main-top-padding) 0 0 0 !important; // align top with TOC, zero the rest
-    gap: 0 !important;              // kill widget separation
+    display: none !important;
+}
+.article-page--toc-left .right-sidebar:has(#inline-comments-root.ic-ready) {
+    display: none !important;        // mobile: FAB handles comments
+
+    @media (min-width: 1024px) {     // desktop: sidebar panel
+        display: flex !important;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        flex-shrink: 0;
+        padding: var(--main-top-padding) 0 0 0 !important;
+        gap: 0 !important;
+    }
 }
 
 // Step 2: Per-breakpoint layout tuning
@@ -181,10 +189,6 @@ mark.inline-comment-hl {
     height: 100%;
     overflow: hidden;
     font-size: var(--font-size-base, 1.6rem);
-
-    @media (max-width: 1024px) {
-        display: none;
-    }
 }
 
 .inline-comments-panel {
@@ -875,15 +879,19 @@ mark.inline-comment-hl {
     background: var(--gold, #8B7355);
     color: #fff;
     border: none;
-    display: none;         // hidden on desktop
+    display: none;         // hidden by default (desktop + no comments)
     align-items: center;
     justify-content: center;
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(139, 115, 85, 0.3);
     transition: transform 200ms ease, box-shadow 200ms ease;
+    overflow: visible;     // allow badge to overflow past border-radius
 
+    // Only show on mobile when comments exist
     @media (max-width: 1023px) {
-        display: flex;
+        &.ic-fab--has-comments {
+            display: flex;
+        }
     }
 
     // Bottom-nav clearance

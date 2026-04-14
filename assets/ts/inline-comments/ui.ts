@@ -207,6 +207,19 @@ export function updateComments(newComments: Comment[]): void {
     comments = newComments;
     commentsLoaded = true;
 
+    // Auto-hide panel when no comments (don't persist - only affects this page load)
+    if (comments.length === 0 && !minimized) {
+        minimized = true;
+        applyMinimizedState(true);
+    } else if (comments.length > 0 && minimized && !getMinimizedState()) {
+        // Auto-expand when comments arrive, unless user manually minimized
+        minimized = false;
+        applyMinimizedState(false);
+    }
+
+    // Reveal sidebar once we know whether to show it (prevents FOUC)
+    rootElRef?.classList.add('ic-ready');
+
     // Remove highlights for deleted comments, anchor new ones
     if (articleEl) {
         const currentIds = new Set(comments.map(c => c.id));
@@ -511,7 +524,10 @@ function renderAll(): void {
     // Reposition cards + composer to match highlight Y-offsets
     repositionCards();
 
-    // Update mobile FAB badge
+    // Update mobile FAB: toggle class (not inline style) so CSS media query controls desktop visibility
+    if (mobileFabEl) {
+        mobileFabEl.classList.toggle('ic-fab--has-comments', comments.length > 0);
+    }
     if (mobileBadgeEl) {
         mobileBadgeEl.textContent = String(comments.length);
         mobileBadgeEl.style.display = comments.length > 0 ? 'flex' : 'none';

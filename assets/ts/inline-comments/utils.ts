@@ -22,10 +22,18 @@ export function isInsideExcluded(node: Node): boolean {
 /** Format a Firestore timestamp as relative time */
 export function timeAgo(timestamp: unknown): string {
     if (!timestamp) return '';
-    // Firestore Timestamp has .toDate(), plain Date works directly
-    const date = typeof (timestamp as { toDate?: () => Date }).toDate === 'function'
-        ? (timestamp as { toDate: () => Date }).toDate()
-        : new Date(timestamp as string | number);
+    const ts = timestamp as Record<string, unknown>;
+    let date: Date;
+    if (typeof ts.toDate === 'function') {
+        date = (ts as { toDate: () => Date }).toDate();
+    } else if (typeof ts.seconds === 'number') {
+        // Firestore Timestamp without .toDate() (serialized/structured clone)
+        date = new Date((ts.seconds as number) * 1000);
+    } else {
+        date = new Date(timestamp as string | number);
+    }
+
+    if (isNaN(date.getTime())) return '';
 
     const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
     if (seconds < 60) return 'just now';
