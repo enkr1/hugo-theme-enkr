@@ -16,6 +16,8 @@
     .waveform,
     .related-content--wrapper,
     .disqus-container,
+    .subscribe-form,
+    .reading-progress,
     .copyCodeButton,
     .article-time,
     .article-subtitle {
@@ -54,5 +56,24 @@
 
     body {
         padding: 0 !important;
+    }
+
+    // Tighten code blocks for print
+    pre, .highlight, .highlight pre {
+        margin-top: 0.2em !important;
+        margin-bottom: 0.2em !important;
+        padding: 0.3em 0.5em !important;
+    }
+
+    // Tighten headings
+    h2, h3, h4 {
+        margin-top: 0.5em !important;
+        margin-bottom: 0.2em !important;
+    }
+
+    // Tighten paragraphs
+    p {
+        margin-top: 0.2em !important;
+        margin-bottom: 0.2em !important;
     }
 }

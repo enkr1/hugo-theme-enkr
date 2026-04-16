@@ -195,6 +195,7 @@ $bazi-glow-intense-alpha: 0.3;
 */
 :root {
     --card-background: #FFFFFF;
+    --card-background-rgb: 255, 255, 255;
     --card-background-selected: rgba(201, 168, 130, 0.05);
 
     --card-text-color-main: var(--text-primary);
@@ -223,6 +224,7 @@ $bazi-glow-intense-alpha: 0.3;
 
     &[data-scheme="dark"] {
         --card-background: #111827;
+        --card-background-rgb: 17, 24, 39;
         --card-background-selected: rgba(201, 168, 130, 0.08);
         --card-text-color-main: var(--text-primary);
         --card-text-color-secondary: var(--text-secondary);
