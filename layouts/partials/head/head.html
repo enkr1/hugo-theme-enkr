@@ -21,6 +21,7 @@
 {{ with .Site.Params.favicon }}
     <link rel="shortcut icon" href="{{ . | relURL }}" />
 {{ end }}
+<link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}" />
 
 {{- partial "google_analytics.html" . -}}
 {{- partial "head/custom.html" . -}}
