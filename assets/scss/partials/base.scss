@@ -13,6 +13,23 @@ html {
     box-sizing: border-box;
 }
 
+// iOS Safari auto-zooms any form input whose font-size < 16px. Root is 62.5%
+// so --font-size-sm (1.4rem = 14px) triggers the jarring zoom-on-tap. Force a
+// 16px floor for text-accepting controls on mobile.
+@media (max-width: 1023px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="search"],
+    input[type="url"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="number"],
+    textarea,
+    select {
+        font-size: 1.6rem;
+    }
+}
+
 body {
     background: var(--body-background);
     margin: 0;
