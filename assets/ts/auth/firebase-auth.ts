@@ -140,6 +140,9 @@ export async function signInWithPopup(): Promise<AuthUser | null> {
         } catch (popupErr: unknown) {
             const err = popupErr as { code?: string };
             if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+                // Mark pending so initFirebaseAuth's hasAuthHistory gate lets getRedirectResult run on return.
+                // Without this, first-time mobile sign-in via redirect is silently discarded.
+                setAuthHistory();
                 await authFns.signInWithRedirect(auth, provider);
                 return null;
             }

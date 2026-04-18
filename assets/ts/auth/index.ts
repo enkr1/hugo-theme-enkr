@@ -69,6 +69,16 @@ export async function initAuth(): Promise<void> {
  * Priority: One Tap → GIS renderButton (handled by dropdown) → Firebase popup (emergency).
  */
 export async function signIn(): Promise<void> {
+    // Mobile: the GIS-rendered button lives in the desktop dropdown, which is
+    // hidden on mobile. Going straight to the Firebase popup → redirect path
+    // is the only visible sign-in affordance. One Tap is also unreliable on
+    // mobile Safari (ITP blocks third-party cookies for its iframe).
+    const isMobile = window.innerWidth <= 1023;
+    if (isMobile) {
+        await signInWithPopup();
+        return;
+    }
+
     // Try One Tap first if not yet attempted
     if (!wasOneTapAttempted()) {
         const result = await initOneTap();
