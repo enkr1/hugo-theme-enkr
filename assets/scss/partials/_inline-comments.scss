@@ -812,7 +812,7 @@ mark.inline-comment-hl {
 // Floating pill (bottom-right, above .scroll-to-top which is at bottom:2rem + 48px)
 .ic-floating-pill {
     position: fixed;
-    bottom: 8rem;   // clears scroll-to-top button (2rem + 48px + gap)
+    bottom: calc(8rem + var(--safe-bottom));   // clears scroll-to-top button (2rem + 48px + gap)
     right: 2rem;
     padding: 1rem 1.6rem;
     background: var(--gold, #8B7355);
@@ -870,7 +870,7 @@ mark.inline-comment-hl {
 
 .ic-mobile-fab {
     position: fixed;
-    bottom: 8rem;          // above scroll-to-top (2rem + 48px + gap)
+    bottom: calc(8rem + var(--safe-bottom));          // above scroll-to-top (2rem + 48px + gap)
     right: 2rem;
     z-index: 999;
     width: 48px;
@@ -887,20 +887,19 @@ mark.inline-comment-hl {
     transition: transform 200ms ease, box-shadow 200ms ease;
     overflow: visible;     // allow badge to overflow past border-radius
 
-    // Only show on mobile when comments exist
+    // Always show FAB on mobile — entry point for first-time commenters too.
+    // Empty state inside the sheet guides users to select text.
     @media (max-width: 1023px) {
-        &.ic-fab--has-comments {
-            display: flex;
-        }
+        display: flex;
     }
 
-    // Bottom-nav clearance
+    // Bottom-nav clearance (+ safe-area for PWA home indicator)
     @media (max-width: 768px) {
-        bottom: calc(72px + 1.25rem + 48px + 12px); // above scroll-to-top above bottom-nav
+        bottom: calc(72px + 1.25rem + 48px + 12px + var(--safe-bottom)); // above scroll-to-top above bottom-nav
         right: 1.25rem;
     }
     @media (max-width: 640px) {
-        bottom: calc(64px + 1.25rem + 44px + 12px);
+        bottom: calc(64px + 1.25rem + 44px + 12px + var(--safe-bottom));
         right: 1.25rem;
         width: 44px;
         height: 44px;
@@ -1050,7 +1049,7 @@ mark.inline-comment-hl {
 }
 
 .ic-mobile-sheet-body {
-    padding: 1rem 1.5rem 2rem;
+    padding: 1rem 1.5rem calc(2rem + var(--safe-bottom));
     overflow-y: auto;
     flex-grow: 1;
     -webkit-overflow-scrolling: touch;
