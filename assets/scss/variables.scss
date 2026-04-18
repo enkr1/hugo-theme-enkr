@@ -347,4 +347,11 @@ $bazi-glow-intense-alpha: 0.3;
     --menu-icon-separation: 40px;
     --container-padding: 15px;
     --widget-separation: var(--section-separation);
+
+    // PWA safe-area insets (requires viewport-fit=cover in head.html).
+    // Centralised so fixed-position surfaces reference one token.
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
 }

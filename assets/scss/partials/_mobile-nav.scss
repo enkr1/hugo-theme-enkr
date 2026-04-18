@@ -23,7 +23,7 @@
         z-index: 1000;
         // Safe area padding - bottom extends into home indicator zone on notched devices
         // Bottom: 0.5rem base + safe-area for content breathing room
-        padding: 0.5rem Max(0.5rem, env(safe-area-inset-right)) calc(0.5rem + env(safe-area-inset-bottom, 0)) Max(0.5rem, env(safe-area-inset-left));
+        padding: 0.5rem Max(0.5rem, var(--safe-right)) calc(0.5rem + var(--safe-bottom)) Max(0.5rem, var(--safe-left));
     }
 
     .mobile-nav__item {
@@ -74,9 +74,9 @@
         display: none;
     }
 
-    // Add bottom padding to body for mobile nav
+    // Add bottom padding to body for mobile nav (+ safe-area for PWA home indicator)
     body {
-        padding-bottom: 72px;
+        padding-bottom: calc(72px + var(--safe-bottom));
     }
 }
 
@@ -95,8 +95,8 @@
         }
     }
 
-    // Update body padding for nav
+    // Update body padding for nav (+ safe-area)
     body {
-        padding-bottom: 64px;
+        padding-bottom: calc(64px + var(--safe-bottom));
     }
 }

@@ -714,7 +714,7 @@
 
 .scroll-to-top {
     position: fixed;
-    bottom: 2rem;
+    bottom: calc(2rem + var(--safe-bottom));
     right: 2rem;
     width: 48px;
     height: 48px;
@@ -772,7 +772,7 @@
 // Mobile responsiveness - adjust position for bottom nav
 @media (max-width: 768px) {
     .scroll-to-top {
-        bottom: calc(72px + 1.25rem); // Above mobile bottom nav
+        bottom: calc(72px + 1.25rem + var(--safe-bottom)); // Above mobile bottom nav
         right: 1.25rem;
         width: 48px;
         height: 48px;
@@ -786,7 +786,7 @@
 
 @media (max-width: 640px) {
     .scroll-to-top {
-        bottom: calc(64px + 1.25rem); // Adjust for smaller nav
+        bottom: calc(64px + 1.25rem + var(--safe-bottom)); // Adjust for smaller nav
         right: 1.25rem;
         width: 44px;
         height: 44px;
