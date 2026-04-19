@@ -13,8 +13,10 @@
         bottom: 0;
         left: 0;
         right: 0;
-        // min-height so safe-area padding extends the nav (bg fills into home indicator area)
-        min-height: 72px;
+        // Icon area stays 72px regardless of safe-area padding.
+        // Without this, box-sizing: border-box + safe-area padding-bottom compresses
+        // the icon row — on notched iPhones ~34px of safe-area eats into the 72px.
+        min-height: calc(72px + var(--safe-bottom));
         background: rgba(var(--card-background-rgb), 0.2);
         backdrop-filter: blur(0.7rem);
         -webkit-backdrop-filter: blur(0.7rem);
@@ -81,9 +83,9 @@
 }
 
 @media (max-width: 640px) {
-    // Mobile nav - smaller height
+    // Mobile nav - smaller height (icon area 64px + safe-area below)
     .mobile-nav {
-        min-height: 64px;
+        min-height: calc(64px + var(--safe-bottom));
     }
 
     .mobile-nav__item {

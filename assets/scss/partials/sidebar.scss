@@ -455,10 +455,20 @@
 // Floating TOC button - bottom-left, mobile only
 .toc-mobile-button {
     position: fixed;
-    bottom: 2rem;
+    bottom: calc(2rem + var(--safe-bottom));
     left: 2rem;
     width: 48px;
     height: 48px;
+
+    // Clear the mobile bottom nav (72px) + safe-area
+    @media (max-width: 768px) {
+        bottom: calc(72px + 1.25rem + var(--safe-bottom));
+        left: 1.25rem;
+    }
+    @media (max-width: 640px) {
+        bottom: calc(64px + 1.25rem + var(--safe-bottom));
+        left: 1.25rem;
+    }
     border-radius: var(--radius-button-circle);
     background: var(--card-background);
     border: 1px solid var(--border);
