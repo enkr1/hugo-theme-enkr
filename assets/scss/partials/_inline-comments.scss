@@ -895,11 +895,12 @@ mark.inline-comment-hl {
 
     // Bottom-nav clearance (+ safe-area for PWA home indicator)
     @media (max-width: 768px) {
-        bottom: calc(72px + 1.25rem + 48px + 12px + var(--safe-bottom)); // above scroll-to-top above bottom-nav
+        bottom: calc(var(--mobile-nav-height) + 1.25rem + 48px + 12px + var(--safe-bottom)); // above scroll-to-top above bottom-nav
         right: 1.25rem;
     }
     @media (max-width: 640px) {
-        bottom: calc(64px + 1.25rem + 44px + 12px + var(--safe-bottom));
+        // scroll-to-top shrinks to 44px at this breakpoint
+        bottom: calc(var(--mobile-nav-height) + 1.25rem + 44px + 12px + var(--safe-bottom));
         right: 1.25rem;
         width: 44px;
         height: 44px;

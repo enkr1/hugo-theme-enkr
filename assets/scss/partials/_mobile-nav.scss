@@ -1,6 +1,19 @@
 // Mobile bottom navigation
 // Migrated from custom.scss
 
+// Nav height SSOT. Bumping this cascades to .mobile-nav itself, body padding,
+// and every fixed button that needs to clear the nav (.toc-mobile-button,
+// .scroll-to-top, .ic-mobile-fab). Usage sites append var(--safe-bottom)
+// so the home-indicator area on notched iPhones doesn't eat the icon row.
+:root {
+    --mobile-nav-height: 88px;
+}
+@media (max-width: 640px) {
+    :root {
+        --mobile-nav-height: 80px;
+    }
+}
+
 .mobile-nav {
     display: none;
 }
@@ -13,10 +26,7 @@
         bottom: 0;
         left: 0;
         right: 0;
-        // Icon area stays 72px regardless of safe-area padding.
-        // Without this, box-sizing: border-box + safe-area padding-bottom compresses
-        // the icon row — on notched iPhones ~34px of safe-area eats into the 72px.
-        min-height: calc(72px + var(--safe-bottom));
+        min-height: calc(var(--mobile-nav-height) + var(--safe-bottom));
         background: rgba(var(--card-background-rgb), 0.2);
         backdrop-filter: blur(0.7rem);
         -webkit-backdrop-filter: blur(0.7rem);
@@ -24,7 +34,6 @@
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
         z-index: 1000;
         // Safe area padding - bottom extends into home indicator zone on notched devices
-        // Bottom: 0.5rem base + safe-area for content breathing room
         padding: 0.5rem Max(0.5rem, var(--safe-right)) calc(0.5rem + var(--safe-bottom)) Max(0.5rem, var(--safe-left));
     }
 
@@ -76,18 +85,14 @@
         display: none;
     }
 
-    // Add bottom padding to body for mobile nav (+ safe-area for PWA home indicator)
+    // Reserve viewport space for the fixed nav (+ safe-area for PWA home indicator)
     body {
-        padding-bottom: calc(72px + var(--safe-bottom));
+        padding-bottom: calc(var(--mobile-nav-height) + var(--safe-bottom));
     }
 }
 
 @media (max-width: 640px) {
-    // Mobile nav - smaller height (icon area 64px + safe-area below)
-    .mobile-nav {
-        min-height: calc(64px + var(--safe-bottom));
-    }
-
+    // min-height and body padding auto-adjust via --mobile-nav-height above
     .mobile-nav__item {
         font-size: 9px;
 
@@ -95,10 +100,5 @@
             width: 20px;
             height: 20px;
         }
-    }
-
-    // Update body padding for nav (+ safe-area)
-    body {
-        padding-bottom: calc(64px + var(--safe-bottom));
     }
 }
