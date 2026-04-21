@@ -460,7 +460,7 @@
     width: 48px;
     height: 48px;
 
-    // Clear the mobile bottom nav (72px) + safe-area
+    // Clear the mobile bottom nav (72px / 64px) + PWA safe-area (home indicator)
     @media (max-width: 768px) {
         bottom: calc(72px + 1.25rem + var(--safe-bottom));
         left: 1.25rem;
@@ -468,6 +468,13 @@
     @media (max-width: 640px) {
         bottom: calc(64px + 1.25rem + var(--safe-bottom));
         left: 1.25rem;
+        width: 44px;
+        height: 44px;
+
+        svg {
+            width: 18px;
+            height: 18px;
+        }
     }
     border-radius: var(--radius-button-circle);
     background: var(--card-background);
@@ -682,35 +689,15 @@
     }
 }
 
-// Mobile responsiveness - adjust button position for bottom nav
-@media (max-width: 768px) {
-    .toc-mobile-button {
-        bottom: calc(72px + 1.25rem); // Above mobile bottom nav
-        left: 1.25rem;
-        width: 48px;
-        height: 48px;
-    }
-}
-
+// Mobile TOC sheet adjustments at narrow widths
+// (button position/size handled inside .toc-mobile-button above)
 @media (max-width: 640px) {
-    .toc-mobile-button {
-        bottom: calc(64px + 1.25rem); // Adjust for smaller nav
-        left: 1.25rem;
-        width: 44px;
-        height: 44px;
-
-        svg {
-            width: 18px;
-            height: 18px;
-        }
-    }
-
     .toc-mobile-header h3 {
         font-size: 1.3rem;
     }
 
     .toc-mobile-content {
-        padding: 1.25rem 1.25rem 2.5rem 1.25rem; // Extra bottom padding for mobile
+        padding: 1.25rem 1.25rem 2.5rem 1.25rem;
 
         nav ul li a {
             font-size: 1.3rem;
