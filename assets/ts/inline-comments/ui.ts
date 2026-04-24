@@ -41,6 +41,7 @@ const ICON = {
     message:    ['M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4', 'M8 9l8 0', 'M8 13l6 0'],
     trash:      ['M4 7l16 0', 'M10 11l0 6', 'M14 11l0 6', 'M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12', 'M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3'],
     chatEmpty:  ['M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1'],
+    messages:   ['M21 14l-3 -3h-7a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1h9a1 1 0 0 1 1 1v10', 'M14 15v2a1 1 0 0 1 -1 1h-7l-3 3v-10a1 1 0 0 1 1 -1h2'],
 };
 
 declare global {
@@ -308,7 +309,7 @@ function buildPanel(rootEl: HTMLElement): void {
     // Floating pill (visible when panel is minimized)
     pillEl = el('button', 'ic-floating-pill', { 'aria-label': 'Show comments' });
     const pillIcon = el('span', 'ic-pill-icon');
-    pillIcon.textContent = '\uD83D\uDCAC';
+    pillIcon.appendChild(svgIcon(16, ICON.messages));
     pillEl.appendChild(pillIcon);
     const pillText = el('span', 'ic-pill-text');
     pillText.textContent = 'Comments';
