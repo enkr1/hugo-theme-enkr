@@ -567,6 +567,12 @@ mark.inline-comment-hl {
     color: var(--card-text-color-main, #1f1f1f);
     background: transparent;
 
+    // Mobile browsers auto-zoom on focus when input font-size < 16px.
+    // Force 16px on mobile to suppress the zoom.
+    @media (max-width: 1023px) {
+        font-size: 16px;
+    }
+
     &::placeholder {
         color: var(--card-text-color-secondary, #8f959e);
     }
@@ -642,6 +648,11 @@ mark.inline-comment-hl {
     resize: vertical;
     min-height: 60px;
     outline: none;
+
+    // Suppress mobile browser auto-zoom on focus (triggers when font-size < 16px)
+    @media (max-width: 1023px) {
+        font-size: 16px;
+    }
     color: var(--card-text-color-main, #1f1f1f);
     background: var(--body-background, #fafafa);
     transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
