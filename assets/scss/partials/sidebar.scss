@@ -401,8 +401,18 @@
         border-bottom: 1px solid var(--border);
     }
 
+    // Icon floats to the left of "Table of Contents" title — shares title's border-bottom
     .widget-icon {
-        display: none;
+        display: inline-flex;
+        float: left;
+        margin-right: 0.5rem;
+        color: var(--text-tertiary);
+
+        svg {
+            width: 1.3rem;
+            height: 1.3rem;
+            stroke-width: 2.5;
+        }
     }
 
     // Home link - quick nav back (matches .widget-title styling)

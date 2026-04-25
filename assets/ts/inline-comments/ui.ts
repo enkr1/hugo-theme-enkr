@@ -342,7 +342,7 @@ function applyMinimizedState(isMinimized: boolean): void {
 
 function buildMobileFab(): void {
     mobileFabEl = el('button', 'ic-mobile-fab', { 'aria-label': 'Comments' });
-    mobileFabEl.appendChild(svgIcon(20, ICON.chatEmpty));
+    mobileFabEl.appendChild(svgIcon(20, ICON.messages));
     mobileBadgeEl = el('span', 'ic-mobile-fab-badge');
     mobileBadgeEl.textContent = '0';
     mobileBadgeEl.style.display = 'none'; // hidden when 0 comments

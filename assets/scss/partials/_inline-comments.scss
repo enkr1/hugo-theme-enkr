@@ -131,6 +131,9 @@ mark.inline-comment-hl {
         .toc-left-sidebar {
             display: none;           // not enough room for 3 columns
         }
+        .toc-mobile-button {
+            display: flex;           // panel hidden here, so restore floating button
+        }
         main.main {
             padding-left: 1rem;
             padding-right: 0.5rem;
