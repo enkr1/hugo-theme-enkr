@@ -134,6 +134,10 @@ mark.inline-comment-hl {
         .toc-mobile-button {
             display: flex;           // panel hidden here, so restore floating button
         }
+        // Restore overlay/sheet too — base rule hides them at ≥lg, but here we need them
+        .toc-mobile-overlay {
+            display: block;
+        }
         main.main {
             padding-left: 1rem;
             padding-right: 0.5rem;
