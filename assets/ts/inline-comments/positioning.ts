@@ -96,7 +96,11 @@ function positionCards(): void {
 
     const panelRect = panelBody.getBoundingClientRect();
     const cards = panelBody.querySelectorAll<HTMLElement>(`.${CARD_CLASS}`);
-    if (cards.length === 0) return;
+    const commentsList = panelBody.querySelector<HTMLElement>('.ic-comments-list');
+    if (cards.length === 0) {
+        if (commentsList) commentsList.style.minHeight = '';
+        return;
+    }
 
     // Refresh cache if invalid
     if (!cacheValid) {
@@ -146,10 +150,13 @@ function positionCards(): void {
         });
     }
 
-    // Set panel min-height to contain all cards
-    if (positions.length > 0) {
+    // Set scroll-content min-height to contain all cards.
+    // NOTE: must be on an in-flow child of panelBody, NOT panelBody itself —
+    // setting it on panelBody force-grows the flex child past its parent's
+    // overflow:hidden box, clipping the bottom and killing the scrollbar.
+    if (positions.length > 0 && commentsList) {
         const last = positions[positions.length - 1]!;
-        panelBody.style.minHeight = `${last.targetTop + last.height + 20}px`;
+        commentsList.style.minHeight = `${last.targetTop + last.height + 20}px`;
     }
 
     // Also position the composer if visible
