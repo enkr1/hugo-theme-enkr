@@ -105,10 +105,8 @@ mark.inline-comment-hl {
     @media (min-width: 1024px) {     // desktop: sidebar panel
         display: flex !important;
         flex-direction: column;
-        // TODO: re-introduce sticky behavior properly for long-article pages —
-        // sticky + 100vh was leaving the panel pinned even past article end.
-        // Quick fix: drop sticky, panel scrolls with page. Need a smarter
-        // strategy (e.g. sticky bounded by article container) before re-enabling.
+        position: sticky;
+        top: 0;
         height: 100vh;
         flex-shrink: 0;
         padding: var(--main-top-padding) 0 0 0 !important;
