@@ -130,6 +130,12 @@
         widows: 3;
     }
 
+    // ── Hide horizontal rules in print ──
+    // Page-break-before on h2 already separates chapters; HR is redundant spacing.
+    .article-content hr {
+        display: none !important;
+    }
+
     // Tighten paragraphs
     p {
         margin-top: 0.2em !important;
