@@ -100,6 +100,32 @@
         break-before: auto;
     }
 
+    // ── Keep headings with their following content (avoid orphaned headings) ──
+    // Prevents "heading at page-bottom, content on next page" splits.
+    .article-content h3,
+    .article-content h4,
+    .article-content h5,
+    .article-content h6 {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    // ── Don't split tables/figures/code-blocks across pages ──
+    // Tables that fit one page should stay whole; if too big, browser still splits.
+    .article-content table,
+    .article-content figure,
+    .article-content pre,
+    .article-content blockquote {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    // ── Standard widow/orphan control for paragraphs ──
+    p, li {
+        orphans: 3;
+        widows: 3;
+    }
+
     // Tighten paragraphs
     p {
         margin-top: 0.2em !important;
