@@ -87,6 +87,19 @@
         margin-bottom: 0.2em !important;
     }
 
+    // ── Force page break before each top-level section (h2) ──
+    // Useful for printable cheatsheets: each chapter starts on a fresh page,
+    // tail of previous chapter has whitespace for handwritten notes.
+    // Skip first h2 so we don't waste page 1.
+    .article-content h2 {
+        page-break-before: always;
+        break-before: page;
+    }
+    .article-content h2:first-of-type {
+        page-break-before: auto;
+        break-before: auto;
+    }
+
     // Tighten paragraphs
     p {
         margin-top: 0.2em !important;
