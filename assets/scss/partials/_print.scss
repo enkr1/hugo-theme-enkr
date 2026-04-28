@@ -112,12 +112,16 @@
 
     // ── Don't split tables/figures/code-blocks across pages ──
     // Tables that fit one page should stay whole; if too big, browser still splits.
+    // ALSO: don't break BEFORE these — pulls preceding heading + intro paragraph
+    // along with the table to the next page (prevents orphaned heading+intro).
     .article-content table,
     .article-content figure,
     .article-content pre,
     .article-content blockquote {
         page-break-inside: avoid;
         break-inside: avoid;
+        page-break-before: avoid;
+        break-before: avoid;
     }
 
     // ── Standard widow/orphan control for paragraphs ──
