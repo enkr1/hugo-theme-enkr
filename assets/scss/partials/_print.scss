@@ -5,7 +5,8 @@
 
 // ── @page rule (must be at top level, NOT inside @media print) ──
 @page {
-    margin: 5mm;
+    // top right bottom left — extra top/left for stapler clearance
+    margin: 7mm 5mm 5mm 7mm;
     @bottom-right {
         content: counter(page);
         font-size: 8pt;
