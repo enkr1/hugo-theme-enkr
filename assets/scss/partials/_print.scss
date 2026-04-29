@@ -101,6 +101,18 @@
         padding-top: 0 !important;
     }
 
+    // ── Bolder h3 in print — easier to scan when many sections per unit ──
+    // Heavier left border + bg tint = visual landmarks for fast eye-jumping.
+    .article-content h3 {
+        font-weight: 800 !important;
+        border-left: 3px solid currentColor !important;
+        padding-left: 0.5em !important;
+        background: rgba(0, 0, 0, 0.04) !important;
+        padding-top: 0.15em !important;
+        padding-bottom: 0.15em !important;
+        margin-top: 0.6em !important;
+    }
+
     // .article-content first child should have no top spacing
     .article-content > *:first-child {
         margin-top: 0 !important;
