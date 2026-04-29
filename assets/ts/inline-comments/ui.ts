@@ -251,6 +251,9 @@ export function updateComments(newComments: Comment[]): void {
     });
 
     renderAll();
+    if (mobileOverlayEl?.classList.contains('active')) {
+        renderMobileSheet();
+    }
 }
 
 /** Cleanup all UI resources */
@@ -1239,6 +1242,9 @@ function renderComposerInto(container: HTMLElement, onCancel: () => void): void 
 
         try {
             await createComment(payload, currentUser);
+            if (isMobileView) {
+                closeMobileSheet();
+            }
         } catch (err) {
             console.error('[inline-comments] Create comment failed:', err);
         }
