@@ -28,13 +28,11 @@
 <img src="{{ $Permalink }}"
 	{{ with $Width }}width="{{ . }}"{{ end }}
 	{{ with $Height }}height="{{ . }}"{{ end }}
-	{{ with $Srcset }}srcset="{{ . }}"{{ end }}
+	{{ with $Srcset }}srcset="{{ . }}" sizes="(min-width: 768px) 720px, 100vw"{{ end }}
 	loading="lazy"
-	{{ with $alt }}
-		alt="{{ . }}"
-	{{ end }}
+	{{ with $alt }}alt="{{ . }}"{{ end }}
 	{{ if $galleryImage }}
-		class="gallery-image" 
+		class="gallery-image"
 		data-flex-grow="{{ div (mul $image.Width 100) $image.Height }}"
 		data-flex-basis="{{ div (mul $image.Width 240) $image.Height }}px"
 	{{ end }}
