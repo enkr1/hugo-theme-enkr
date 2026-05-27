@@ -8,7 +8,7 @@
                     {{- $Width := $image.resource.Width -}}
                     {{- $Height := $image.resource.Height -}}
                     {{- $Srcset := "" -}}
-                    
+
                     {{- if (default true .Page.Site.Params.imageProcessing.cover.enabled) -}}
                         {{- $thumbnail := $image.resource.Resize "800x" -}}
                         {{- $thumbnailRetina := $image.resource.Resize "1600x" -}}
@@ -19,9 +19,9 @@
                     {{- end -}}
 
                     <img src="{{ $Permalink }}"
-                        {{ with $Srcset }}srcset="{{ . }}"{{ end }}
-                        width="{{ $Width }}" 
-                        height="{{ $Height }}" 
+                        {{ with $Srcset }}srcset="{{ . }}" sizes="(min-width: 768px) 720px, 100vw"{{ end }}
+                        width="{{ $Width }}"
+                        height="{{ $Height }}"
                         loading="lazy"
                         alt="Featured image of post {{ .Title }}" />
                 {{ else }}
