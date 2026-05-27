@@ -8,6 +8,15 @@
 {{- $title := partial "data/title" . -}}
 <title>{{ $title }}</title>
 
+{{- if .IsNode -}}
+    {{- with .Paginator -}}
+        {{- if gt .TotalPages 1 -}}
+            {{- with .Prev }}<link rel="prev" href="{{ .URL | absURL }}">{{ end -}}
+            {{- with .Next }}<link rel="next" href="{{ .URL | absURL }}">{{ end -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+
 <link rel='canonical' href='{{ .Permalink }}'>
 
 {{- partial "head/style.html" . -}}
