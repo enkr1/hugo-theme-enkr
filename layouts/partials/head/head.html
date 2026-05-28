@@ -19,6 +19,10 @@
 
 <link rel='canonical' href='{{ .Permalink }}'>
 
+{{/* Preload above-the-fold display font weights (sidebar=600, titles=700) */}}
+<link rel="preload" href="/fonts/cormorant-garamond/cormorant-garamond-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/cormorant-garamond/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+
 {{- partial "head/style.html" . -}}
 {{- partial "head/script.html" . -}}
 {{- partial "head/opengraph/include.html" . -}}
