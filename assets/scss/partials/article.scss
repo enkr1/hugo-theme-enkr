@@ -17,11 +17,6 @@
 
         transition: box-shadow 0.3s ease;
 
-        &.tag-nus {
-            box-shadow: inset .2rem 0 0 #003D7C, var(--shadow-l1);
-        }
-
-
         &:hover {
             box-shadow: var(--shadow-l2);
         }
@@ -165,6 +160,25 @@
     a {
         @include hashtag-link;
         font-size: var(--font-size-sm);
+    }
+
+    /* NUS tag promoted to badge — brand token, mode-aware (nus-blue / nus-blue-light) */
+    a.article-tag--nus {
+        color: var(--nus-accent);
+        background: var(--nus-blue-subtle);
+        padding: 0.05rem 0.45rem;
+        border-radius: 0.25rem;
+        font-size: var(--font-size-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+
+        &::before {
+            content: none;
+        }
+
+        &:hover {
+            color: var(--accent);
+        }
     }
 }
 

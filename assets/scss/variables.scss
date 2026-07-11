@@ -50,6 +50,11 @@ $bazi-glow-intense-alpha: 0.3;
     --water-light: #5B8FD9;
     --water-subtle: rgba(30, 75, 140, 0.08);
 
+    // 狮城蓝 (NUS brand) - Institutional Blue
+    --nus-blue: #003D7C;
+    --nus-blue-light: #6B9FDB;
+    --nus-blue-subtle: rgba(0, 61, 124, 0.08);
+
     // 流年曦 (Fire) - Clean Amber
     --fire: #F59E0B;
     --fire-glow: rgba(245, 158, 11, 0.25);
@@ -93,6 +98,8 @@ $bazi-glow-intense-alpha: 0.3;
 
     --link-color: var(--water);
     --link-hover-color: var(--water-dark);
+
+    --nus-accent: var(--nus-blue);
 
     --text-primary: #0F172A;
     --text-secondary: #475569;
@@ -157,6 +164,9 @@ $bazi-glow-intense-alpha: 0.3;
 
         --link-color: var(--water-light);
         --link-hover-color: var(--water);
+
+        --nus-accent: var(--nus-blue-light);
+        --nus-blue-subtle: rgba(107, 159, 219, 0.12);  // navy wash invisible on #0A0E1A — use lifted shade
 
         --text-primary: #F1F5F9;
         --text-secondary: #CBD5E1;
