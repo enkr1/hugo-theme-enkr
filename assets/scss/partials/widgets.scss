@@ -101,8 +101,46 @@
 }
 
 /* Categories tree - TOC-style (sidebar widget + subcategories) */
+
+// /categories/ page only (not sidebar widget, not subcategory trees):
+// align with the optical text edge cards establish (see --content-inset).
+// Supersedes the old ad-hoc 1rem right pad — inline on both sides also
+// fixes the left-heavy read caused by the tree's rightward indent math.
+.categories-tree--page {
+    padding-inline: var(--content-inset);
+
+    // Mobile: the tree ended flush against the footer — give it a clear
+    // bottom stop. Desktop's container gutters already provide this.
+    padding-bottom: 2.5rem;
+
+    @include respond(md) {
+        padding-bottom: 0;
+    }
+}
+
+// Mobile: the /categories/ title sat tight under the top edge. Scoped via
+// :has() so journals/posts (which share this header partial) keep their rhythm.
+.section-header--grouped:has(+ .categories-tree--page) {
+    padding-top: 1rem;
+
+    @include respond(md) {
+        padding-top: 0;
+    }
+}
+
 .categories-tree,
 .subcategories-tree {
+    // ---- Tree indent math (SSOT) ----
+    // text indent(depth) = base + depth × step
+    // guide rail(depth)  = exactly under the parent's first letter
+    //                    = text indent + name border (2px) + text gap
+    // Depth classes only set --depth; two calc() rules derive everything.
+    --tree-indent-base: 0.75rem;
+    --tree-indent-step: 1rem;
+    --tree-text-gap: 0.5rem; // hover-border → first letter (shared by rail calc)
+    --tree-rail-shift: 0.5ch; // optical centering: half a glyph, under the letter's middle
+    --depth: 0;
+
     .categories-list {
         list-style: none;
         padding: 0;
@@ -170,7 +208,7 @@
         .category-name {
             font-family: var(--font-body);
             border-left: 2px solid transparent;
-            padding-left: 0.5rem;  // Space between border and text
+            padding-left: var(--tree-text-gap);  // Space between border and text
             transition: border-color var(--transition-fast);
             flex-shrink: 0;
         }
@@ -193,24 +231,38 @@
             transition: color var(--transition-fast);
         }
 
-        // Level 0 (root)
+        // Depth classes only carry their index — geometry comes from the formula
+        @for $i from 0 through 5 {
+            &.depth-#{$i} {
+                --depth: #{$i};
+            }
+        }
+
+        // ONE rule indents every level: base + depth × (step + rail-shift).
+        // The rail-shift joins the step so children keep a constant gap from
+        // the (shifted) rail at every depth.
+        // NOTE: depth rules below must use padding-block, not the padding
+        // shorthand — the shorthand would reset this computed padding-left.
+        > a {
+            padding-left: calc(var(--tree-indent-base) + var(--depth) * (var(--tree-indent-step) + var(--tree-rail-shift)));
+        }
+
+        // Per-depth typography & rhythm only (no geometry here)
         &.depth-0 > a {
-            padding: 0.4rem 0 0.4rem 0.75rem;
+            padding-block: 0.4rem;
             font-size: var(--font-size-sm);
             font-weight: var(--font-weight-medium);
             color: var(--text-secondary);
         }
 
-        // Level 1
         &.depth-1 > a {
-            padding: 0.25rem 0 0.25rem 1.75rem;
+            padding-block: 0.25rem;
             font-size: var(--font-size-sm);
             color: var(--text-tertiary);
         }
 
-        // Level 2
         &.depth-2 > a {
-            padding: 0.2rem 0 0.2rem 2.75rem;
+            padding-block: 0.2rem;
             font-size: var(--font-size-xs);
             color: var(--text-tertiary);
             opacity: 0.8;
@@ -220,11 +272,10 @@
             }
         }
 
-        // Level 3+ (deeper nesting)
         &.depth-3 > a,
         &.depth-4 > a,
         &.depth-5 > a {
-            padding: 0.2rem 0 0.2rem 4rem;
+            padding-block: 0.2rem;
             font-size: var(--font-size-sm);
             color: var(--text-tertiary);
             opacity: 0.7;
@@ -237,6 +288,25 @@
         // Nested children - full width for proper wrapping
         .category-children {
             width: 100%;
+            position: relative;
+
+            // Tree guide line — almost-transparent vertical rule showing structure.
+            // Overlay only (absolute ::before), so it doesn't shift the layout.
+            // The ul INHERITS --depth from its parent item, so one calc() lands
+            // the rail at the parent's text indent + nudge for every level.
+            &::before {
+                content: "";
+                position: absolute;
+                top: 0; // start right below the parent row, no gap
+                bottom: 0.15rem;
+                // indent + 2px name border + text gap = parent's first letter,
+                // + half a glyph so the rail sits under the letter's middle.
+                // Uses the same effective step as the text indent above.
+                left: calc(var(--tree-indent-base) + var(--depth) * (var(--tree-indent-step) + var(--tree-rail-shift)) + 2px + var(--tree-text-gap) + var(--tree-rail-shift));
+                width: 1px;
+                background: color-mix(in srgb, var(--text-tertiary) 20%, transparent);
+                pointer-events: none;
+            }
         }
 
         // Expandable toggle button - left side
@@ -271,8 +341,11 @@
         }
     }
 
-    // Full page variant - no height limit, more spacious, always expanded
+    // Full page variant - no height limit, more spacious, always expanded.
+    // Same indent formula — only the metrics change.
     &--page {
+        --tree-indent-base: 1.5rem;
+
         .categories-list {
             max-height: none;
             overflow: visible;
@@ -280,17 +353,20 @@
 
         .category-item {
             &.depth-0 > a {
-                padding: 0.6rem 0 0.6rem 1.5rem;
+                padding-block: 0.6rem;
                 font-size: var(--font-size-md);
             }
 
             &.depth-1 > a {
-                padding: 0.4rem 0 0.4rem 2.5rem;
+                padding-block: 0.4rem;
                 font-size: var(--font-size-base);
             }
 
-            &.depth-2 > a {
-                padding: 0.3rem 0 0.3rem 3.5rem;
+            &.depth-2 > a,
+            &.depth-3 > a,
+            &.depth-4 > a,
+            &.depth-5 > a {
+                padding-block: 0.3rem;
                 font-size: var(--font-size-sm);
             }
         }

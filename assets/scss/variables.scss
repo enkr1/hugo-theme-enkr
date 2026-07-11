@@ -86,6 +86,11 @@ $bazi-glow-intense-alpha: 0.3;
         --page-gutter: 2rem;
     }
 
+    // Floating-toolbar layout gutter — left must clear the ~52px toolbar;
+    // applied to BOTH sides (grid.scss .floating-layout) so content stays
+    // visually centered. Change here, never inline.
+    --page-gutter-floating: 60px;
+
     --tag-border-radius: 4px;
     --section-separation: 40px;
 
@@ -224,14 +229,24 @@ $bazi-glow-intense-alpha: 0.3;
     --card-border-radius: var(--radius-base);
     --card-border: 1px solid rgba(0, 0, 0, 0.06);
 
-    --card-padding: 20px;
+    // Optical text edge (SSOT): screen edge → --page-gutter (container)
+    // → --content-inset (component) → text. Root font-size is 62.5%
+    // (base.scss), so 1rem = 10px: 1.5rem = 15px, matching the feed
+    // card's .article-details inset (layout/list.scss consumes this).
+    // Flush lists (journals grouped-list, categories tree) apply it as
+    // padding-inline so text on every page starts at the same visual x.
+    --content-inset: 1.5rem;
+
+    // Box padding for full cards — NOT the text edge.
+    // Rem equivalents of the old 20/25/30px at the 10px root.
+    --card-padding: 2rem;
 
     @include respond(md) {
-        --card-padding: 25px;
+        --card-padding: 2.5rem;
     }
 
     @include respond(xl) {
-        --card-padding: 30px;
+        --card-padding: 3rem;
     }
 
     --small-card-padding: 25px 20px;
@@ -363,7 +378,7 @@ $bazi-glow-intense-alpha: 0.3;
 
 :root {
     --menu-icon-separation: 40px;
-    --container-padding: 15px;
+    --container-padding: var(--page-gutter); // 1.5rem, 2rem @md — single source of truth (was hardcoded 15px)
     --widget-separation: var(--section-separation);
 
     // PWA safe-area insets (requires viewport-fit=cover in head.html).

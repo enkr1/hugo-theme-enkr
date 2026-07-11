@@ -130,7 +130,8 @@
 
     .article-details {
         position: relative;
-        padding: 1.5rem;
+        // Optical text edge SSOT (see --content-inset in variables.scss)
+        padding: var(--content-inset);
         display: flex;
         flex-direction: column;
         gap: 1rem;

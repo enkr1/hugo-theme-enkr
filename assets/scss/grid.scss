@@ -91,8 +91,9 @@
         margin: 0 auto;
 
         @include respond(md) {
-            padding-left: 60px;  // ~52px toolbar + breathing room
-            padding-right: var(--page-gutter); // no right toolbar — standard gutter
+            // Symmetric: left clears the floating toolbar, right matches it
+            // so the content column reads centered. SSOT: variables.scss.
+            padding-inline: var(--page-gutter-floating);
         }
     }
 

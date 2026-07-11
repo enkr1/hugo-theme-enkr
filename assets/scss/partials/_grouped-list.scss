@@ -7,6 +7,8 @@
 // Page header for grouped lists
 .section-header--grouped {
     margin-bottom: 2.5rem;
+    // Align text with the optical edge cards establish (see --content-inset)
+    padding-inline: var(--content-inset);
 
     .section-title {
         font-family: var(--font-display);
@@ -21,6 +23,8 @@
     display: flex;
     flex-direction: column;
     gap: 2.5rem;
+    // Align text with the optical edge cards establish (see --content-inset)
+    padding-inline: var(--content-inset);
 }
 
 .grouped-list__year {
