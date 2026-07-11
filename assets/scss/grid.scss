@@ -92,7 +92,7 @@
 
         @include respond(md) {
             padding-left: 60px;  // ~52px toolbar + breathing room
-            padding-right: 2rem; // no right toolbar — standard padding
+            padding-right: var(--page-gutter); // no right toolbar — standard gutter
         }
     }
 
@@ -138,18 +138,18 @@ main.main {
 
     @include respond(md) {
         padding-top: var(--main-top-padding);
-        padding-left: 2rem;
-        padding-right: 2rem;
+        padding-left: var(--page-gutter);
+        padding-right: var(--page-gutter);
     }
 }
 
 .main-container {
     min-height: 100vh;
     align-items: flex-start;
-    padding: 1.25rem;
+    padding: 1.25rem var(--page-gutter);
     gap: var(--section-separation);
 
     @include respond(md) {
-        padding: 0 2rem;
+        padding: 0 var(--page-gutter);
     }
 }

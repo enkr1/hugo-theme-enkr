@@ -78,6 +78,14 @@ $bazi-glow-intense-alpha: 0.3;
         --main-top-padding: 50px;
     }
 
+    // Page horizontal gutter — single source of truth for LR padding
+    // (journal, category/archives, and all list pages inherit this)
+    --page-gutter: 1.5rem;
+
+    @include respond(md) {
+        --page-gutter: 2rem;
+    }
+
     --tag-border-radius: 4px;
     --section-separation: 40px;
 
