@@ -61,6 +61,15 @@
             stroke-width: 1.5;
         }
 
+        // Labels are user data now (first name in the auth slot) —
+        // clamp instead of letting a long name wrap the 10px row.
+        span {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         &:hover {
             color: var(--accent);
         }

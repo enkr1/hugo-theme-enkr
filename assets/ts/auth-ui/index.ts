@@ -77,7 +77,7 @@ function renderLink(container: HTMLElement, user: AuthUser | null): void {
         link.appendChild(avatar);
 
         const label = document.createElement('span');
-        label.textContent = 'Profile';
+        label.textContent = firstName(user.displayName);
         link.appendChild(label);
     } else {
         link.innerHTML = USER_ICON_SVG;
@@ -85,6 +85,14 @@ function renderLink(container: HTMLElement, user: AuthUser | null): void {
         label.textContent = 'Sign in';
         link.appendChild(label);
     }
+}
+
+/**
+ * Bottom-nav labels are 10px and share the bar with four siblings —
+ * a full display name would collide. First name only, 'Profile' fallback.
+ */
+function firstName(full: string): string {
+    return (full || '').trim().split(/\s+/)[0] || 'Profile';
 }
 
 function createIconEl(): Element {

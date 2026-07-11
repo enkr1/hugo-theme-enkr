@@ -20,6 +20,9 @@ export function mountProfilePage(card: HTMLElement): void {
     const hintEl = card.querySelector('.profile-card__hint') as HTMLElement | null;
     const actionEl = card.querySelector('.profile-card__action') as HTMLElement | null;
     if (!avatarEl || !nameEl || !hintEl || !actionEl) return;
+    // Sign-out lives outside the card, at the very bottom of the page
+    // (settings-app convention). Falls back to the card slot if absent.
+    const signoutEl = document.getElementById('profile-signout') ?? actionEl;
 
     function renderSignedIn(user: AuthUser): void {
         avatarEl.innerHTML = '';
@@ -31,22 +34,27 @@ export function mountProfilePage(card: HTMLElement): void {
         avatarEl.appendChild(img);
 
         nameEl.textContent = user.displayName;
-        hintEl.textContent = 'Signed in with Google';
+        // The avatar and the sign-out flow already say "Google" — the hint was noise.
+        hintEl.textContent = '';
+        hintEl.hidden = true;
 
-        actionEl.innerHTML = '';
+        actionEl.innerHTML = ''; // card action stays empty when signed in — :empty hides the row
+        signoutEl.innerHTML = '';
         const btn = document.createElement('button');
-        btn.className = 'profile-btn';
+        btn.className = 'profile-btn profile-btn--signout';
         btn.type = 'button';
         btn.textContent = 'Sign out';
         btn.addEventListener('click', () => { signOut(); });
-        actionEl.appendChild(btn);
+        signoutEl.appendChild(btn);
     }
 
     function renderSignedOut(): void {
         avatarEl.innerHTML = USER_ICON_SVG;
         nameEl.textContent = 'Not signed in';
+        hintEl.hidden = false;
         hintEl.textContent = 'Sign in with Google to comment';
 
+        signoutEl.innerHTML = '';
         actionEl.innerHTML = '';
         const container = document.createElement('div');
         container.className = 'auth-google-btn-container';

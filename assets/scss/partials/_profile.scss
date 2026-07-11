@@ -13,12 +13,25 @@
     .profile-card {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: 1.25rem;
         background: var(--card-background);
         border-radius: var(--card-border-radius);
         box-shadow: var(--shadow-l1, 0 4px 15px rgba(0, 0, 0, 0.05));
         padding: 1.5rem;
         margin-bottom: 2rem;
+    }
+
+    // Full-width action row at the bottom of the card: flex-wrap pushes it
+    // below the avatar/name row without touching DOM order (aria-live intact).
+    .profile-card__action {
+        flex-basis: 100%;
+        border-top: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.06));
+        padding-top: 1.25rem;
+
+        &:empty {
+            display: none; // no stray rule while auth state resolves
+        }
     }
 
     .profile-card__avatar {
@@ -78,6 +91,25 @@
             border-color: var(--accent-color);
             color: var(--accent-color);
         }
+    }
+
+    // Standalone sign-out — settings-app convention: the exit action sits
+    // alone at the very bottom, after every other option.
+    .profile-signout {
+        margin-top: 2.5rem;
+        display: flex;
+        justify-content: center;
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    .profile-btn--signout {
+        width: 100%;
+        max-width: 320px;
+        padding: 0.7rem 1rem;
+        text-align: center;
     }
 
     .profile-section {
