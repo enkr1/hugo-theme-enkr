@@ -10,6 +10,7 @@
 import { initAuth, signIn, signOut, onAuthStateChange, getCurrentUser } from './auth';
 import type { AuthUser } from './auth';
 import { mountAuthUI } from './auth-ui';
+import { mountProfilePage } from './profile-page';
 
 // Expose auth API on window for cross-bundle access (inline-comments)
 interface SiteAuth {
@@ -31,6 +32,14 @@ window.__siteAuth = { initAuth, signIn, signOut, onAuthStateChange, getCurrentUs
 // Mount auth UI into sidebar menu item
 const menuItem = document.getElementById('auth-menu-item');
 if (menuItem) mountAuthUI(menuItem);
+
+// Mount auth UI into mobile bottom nav (multi-mount safe — separate closure)
+const mobileNavProfile = document.getElementById('mobile-nav-profile');
+if (mobileNavProfile) mountAuthUI(mobileNavProfile);
+
+// Mount profile card on /profile/
+const profileCard = document.getElementById('profile-card');
+if (profileCard) mountProfilePage(profileCard);
 
 // Initialize auth
 initAuth().catch(err => console.error('[auth] init failed:', err));

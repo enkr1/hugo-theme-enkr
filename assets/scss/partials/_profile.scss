@@ -1,0 +1,176 @@
+/*
+ *  Profile page — /profile/
+ *  Card + settings list. The theme switch's *visual* state is pure CSS,
+ *  driven by :root[data-scheme] — no JS class juggling.
+ */
+
+.profile-page {
+    .profile-header h1 {
+        font-size: 2.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-card {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        background: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1, 0 4px 15px rgba(0, 0, 0, 0.05));
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .profile-card__avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-subtle, rgba(0, 0, 0, 0.05));
+        color: var(--card-text-color-tertiary);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        svg {
+            width: 36px;
+            height: 36px;
+        }
+    }
+
+    .profile-card__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .profile-card__name {
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: var(--card-text-color-main);
+    }
+
+    .profile-card__hint {
+        font-size: var(--font-size-sm, 0.85rem);
+        color: var(--card-text-color-tertiary);
+    }
+
+    .profile-btn {
+        border: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.12));
+        background: transparent;
+        color: var(--card-text-color-secondary);
+        font-size: var(--font-size-sm, 0.85rem);
+        padding: 0.45rem 1rem;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease;
+
+        &:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+    }
+
+    .profile-section {
+        background: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1, 0 4px 15px rgba(0, 0, 0, 0.05));
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-section__title {
+        font-size: var(--font-size-sm, 0.85rem);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--card-text-color-tertiary);
+        margin: 0 0 0.5rem;
+    }
+
+    .profile-setting {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.85rem 0;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.08));
+        }
+
+        &--disabled {
+            opacity: 0.55;
+        }
+    }
+
+    .profile-setting__info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        min-width: 0;
+    }
+
+    .profile-setting__label {
+        color: var(--card-text-color-main);
+        font-weight: 500;
+    }
+
+    .profile-setting__hint {
+        font-size: var(--font-size-xs, 0.75rem);
+        color: var(--card-text-color-tertiary);
+    }
+
+    .profile-soon {
+        font-size: var(--font-size-xs, 0.75rem);
+        color: var(--card-text-color-tertiary);
+        border: 1px solid var(--card-separator-color, rgba(0, 0, 0, 0.12));
+        border-radius: 999px;
+        padding: 0.15rem 0.6rem;
+        white-space: nowrap;
+    }
+
+    /* ── Theme switch ── */
+    .profile-switch {
+        position: relative;
+        width: 46px;
+        height: 26px;
+        border-radius: 13px;
+        border: none;
+        padding: 0;
+        flex-shrink: 0;
+        cursor: pointer;
+        background: var(--card-separator-color, #ccc);
+        transition: background 0.3s ease;
+    }
+
+    .profile-switch__knob {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        transition: transform 0.3s ease;
+    }
+}
+
+/* Dark state — driven by the document scheme, so the switch can never
+   drift out of sync with the actual theme. */
+:root[data-scheme='dark'] .profile-page .profile-switch {
+    background: var(--accent-color);
+
+    .profile-switch__knob {
+        transform: translateX(20px);
+    }
+}

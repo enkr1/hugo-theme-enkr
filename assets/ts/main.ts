@@ -112,6 +112,23 @@ let Stack = {
         if (fullpageThemeToggle) {
             new StackColorScheme(fullpageThemeToggle);
         }
+
+        /**
+         * Profile page — theme switch (role="switch").
+         * Visual knob state is pure CSS via :root[data-scheme];
+         * only aria-checked needs JS.
+         */
+        const profileThemeToggle = document.getElementById('profile-theme-toggle');
+        if (profileThemeToggle) {
+            new StackColorScheme(profileThemeToggle);
+
+            // TODO(human): keep aria-checked in sync with the scheme.
+            // 1. Set the initial value from document.documentElement.dataset.scheme
+            //    ('dark' → "true", otherwise "false").
+            // 2. Listen for the 'onColorSchemeChange' CustomEvent on window
+            //    (event.detail is 'light' | 'dark') and update aria-checked
+            //    whenever it fires — that covers clicks AND OS theme changes.
+        }
     }
 }
 
