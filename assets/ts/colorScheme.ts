@@ -7,14 +7,7 @@ class StackColorScheme {
 
     constructor(toggleEl: HTMLElement) {
         this.bindMatchMedia();
-
-        // Force auto mode on mobile (≤768px) - follow system theme
-        if (this.isMobile()) {
-            this.currentScheme = 'auto';
-            this.saveScheme();
-        } else {
-            this.currentScheme = this.getSavedScheme();
-        }
+        this.currentScheme = this.getSavedScheme();
 
         if (window.matchMedia('(prefers-color-scheme: dark)').matches === true)
             this.systemPreferScheme = 'dark'
@@ -23,16 +16,11 @@ class StackColorScheme {
 
         this.dispatchEvent(document.documentElement.dataset.scheme as colorScheme);
 
-        // Only bind toggle on desktop (mobile has no toggle)
-        if (toggleEl && !this.isMobile())
+        if (toggleEl)
             this.bindClick(toggleEl);
 
         if (document.body.style.transition == '')
             document.body.style.setProperty('transition', 'background-color .3s ease');
-    }
-
-    private isMobile(): boolean {
-        return window.innerWidth <= 768;
     }
 
     private saveScheme() {
@@ -40,27 +28,38 @@ class StackColorScheme {
     }
 
     private bindClick(toggleEl: HTMLElement) {
-        toggleEl.addEventListener('click', (e) => {
-            if (this.isDark()) {
-                /// Disable dark mode
-                this.currentScheme = 'light';
-            }
-            else {
-                this.currentScheme = 'dark';
-            }
-
-            this.setBodyClass();
-
-            if (this.currentScheme == this.systemPreferScheme) {
-                /// Set to auto
-                this.currentScheme = 'auto';
-            }
-
-            this.saveScheme();
+        toggleEl.addEventListener('click', () => {
+            this.toggle();
         })
     }
 
-    private isDark() {
+    /**
+     * Flip between light and dark.
+     *
+     * If the explicit choice happens to match the system preference,
+     * store 'auto' instead — so the site quietly goes back to following
+     * the OS ("default: system" behavior).
+     */
+    public toggle() {
+        if (this.isDark()) {
+            /// Disable dark mode
+            this.currentScheme = 'light';
+        }
+        else {
+            this.currentScheme = 'dark';
+        }
+
+        this.setBodyClass();
+
+        if (this.currentScheme == this.systemPreferScheme) {
+            /// Set to auto
+            this.currentScheme = 'auto';
+        }
+
+        this.saveScheme();
+    }
+
+    public isDark() {
         return (this.currentScheme == 'dark' || this.currentScheme == 'auto' && this.systemPreferScheme == 'dark');
     }
 
