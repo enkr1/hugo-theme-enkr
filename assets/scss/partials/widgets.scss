@@ -344,7 +344,15 @@
     // Full page variant - no height limit, more spacious, always expanded.
     // Same indent formula — only the metrics change.
     &--page {
-        --tree-indent-base: 1.5rem;
+        // Mobile: the container already insets by --content-inset (1.5rem, same
+        // edge as the page title). A 1.5rem base here double-counted, shoving
+        // every depth-0 row ~3rem off the screen edge. Tighten on mobile so
+        // group headers sit near the title; restore the spacious base ≥md.
+        --tree-indent-base: 0.5rem;
+
+        @include respond(md) {
+            --tree-indent-base: 1.5rem;
+        }
 
         .categories-list {
             max-height: none;
