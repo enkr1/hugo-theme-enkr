@@ -733,6 +733,11 @@
         overflow-y: hidden;
     }
 
+    /// KaTeX's hidden MathML is absolutely positioned, so without a positioned ancestor it escapes a scrolling table and widens the whole page.
+    .katex {
+        position: relative;
+    }
+
     kbd {
         border: 1px solid var(--kbd-border-color);
         font-weight: bold;
